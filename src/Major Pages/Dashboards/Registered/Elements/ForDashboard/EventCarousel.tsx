@@ -7,9 +7,34 @@ const mockEvents = [
     title: "Wedding Planning",
     price: "Php 90,000",
     intro: "Let us handle every detail, so you can fully savor your special day.",
-    fullDetails: "At Eventify, we understand that planning a wedding can be both exciting and overwhelming...",
+    fullDetails: `At Eventify, we understand that planning a wedding can be both exciting and overwhelming. Our Full Wedding Planning service is designed to take the stress out of the process, allowing you to relax and enjoy every moment leading up to and on your wedding day.
+
+From the initial concept to the final farewell, we meticulously manage every detail to create a celebration that perfectly reflects your unique style and vision.`,
     included: [
-      { section: "Initial Consultation & Vision Development", bullets: ["Understand vision", "Create timeline", "Plan theme"] }
+      {
+        section: "Initial Consultation & Vision Development:",
+        bullets: [
+          "In-depth discussions to understand your vision, preferences, style, and budget.",
+          "Conceptualization of the wedding theme, color palette, and overall aesthetic.",
+          "Development of a detailed wedding plan and timeline."
+        ]
+      },
+      {
+        section: "Budget Management:",
+        bullets: [
+          "Creation of a realistic and detailed budget.",
+          "Tracking expenses and ensuring adherence to the agreed-upon budget.",
+          "Negotiation with vendors to secure the best possible rates."
+        ]
+      },
+      {
+        section: "Venue Sourcing & Management:",
+        bullets: [
+          "Scheduling and accompanying you on venue visits.",
+          "Negotiating and managing venue contracts.",
+          "Liaising with the venue coordinator throughout the planning process."
+        ]
+      }
     ]
   },
   {
