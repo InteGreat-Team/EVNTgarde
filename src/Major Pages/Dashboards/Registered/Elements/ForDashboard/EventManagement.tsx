@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Card from "./EventCards";
 import EventModal from "./EventModal";
 
@@ -59,7 +59,7 @@ From the initial concept to the final farewell, we meticulously manage every det
     title: "Corporate Event Planning",
     price: "Php 99,999",
     intro: "Professional and seamless corporate events.",
-    fullDetails: "Be it seminars, launches, or year-end parties, we handle the pressure so you don’t have to...",
+    fullDetails: "Be it seminars, launches, or year-end parties, we handle the pressure so you don't have to...",
     included: [
       { section: "Corporate Services", bullets: ["Venue booking", "Speaker management"] }
     ]
@@ -91,6 +91,14 @@ interface Props {
 
 const EventManagement: React.FC<Props> = ({ onBack, onAdd }) => {
   const [selectedEvent, setSelectedEvent] = useState<typeof allEvents[0] | null>(null);
+  const [userRole, setUserRole] = useState<'organizer' | 'individual' | 'vendor'>('individual');
+
+  useEffect(() => {
+    const storedUserType = localStorage.getItem("userType");
+    if (storedUserType === 'organizer' || storedUserType === 'individual' || storedUserType === 'vendor') {
+      setUserRole(storedUserType as 'organizer' | 'individual' | 'vendor');
+    }
+  }, []);
 
   const handleView = (event: typeof allEvents[0]) => {
     setSelectedEvent(event);
@@ -137,6 +145,7 @@ const EventManagement: React.FC<Props> = ({ onBack, onAdd }) => {
           included={selectedEvent.included}
           price={selectedEvent.price}
           onClose={handleClose}
+          userRole={userRole}
         />
       )}
     </div>
