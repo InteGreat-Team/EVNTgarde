@@ -1,29 +1,49 @@
-import React from "react";
+import { MapPinIcon, UsersIcon } from "lucide-react";
 
-interface EventCardProps {
-  title: string;
-  price: string;
-  onView: () => void;
+export interface EventCardProps {
+  name: string;
+  date: string;
+  location: string;
+  guests: number;
+  image: string;
+  description: string;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ title, price, onView }) => {
-  return (
-    <div className="border border-gray-300 rounded-lg shadow p-4 flex flex-col justify-between h-[250px] transform transition-transform duration-300 hover:-translate-y-2">
-      <div>
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      </div>
+export const EventCard: React.FC<EventCardProps> = ({
+  name,
+  date,
+  location,
+  guests,
+  image,
+  description,
+}) => {
+  const formattedDate = new Date(date).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
 
-      <div className="flex flex-col">
-        <p className="text-gray-600 mb-2">{price}</p>
-        <button
-          onClick={onView}
-          className="bg-blue-800 text-white py-2 rounded hover:bg-blue-700 transition"
-        >
-          View
+  return (
+    <div className=" w-[475px] bg-white rounded-lg shadow hover:shadow-md transition overflow-hidden">
+      <img src={image} alt={name} className="w-full h-60 object-cover" />
+      <div className="p-5 space-y-1">
+        <h2 className="text-lg font-bold text-blue-800">{name}</h2>
+        <div className="flex items-center text-sm text-gray-600">
+  {formattedDate}
+</div>
+
+        <div className="flex items-center text-sm text-gray-500">
+          <MapPinIcon className="w-4 h-4 mr-1" />
+          {location}
+        </div>
+        <div className="flex items-center text-sm text-gray-500">
+          <UsersIcon className="w-4 h-4 mr-1" />
+          {guests.toLocaleString()} Guests
+        </div>
+        <p className="text-sm text-black mt-2">{description}</p>
+        <button className="bg-yellow-400 text-sm font-medium text-black px-3 py-1 rounded mt-2 hover:bg-yellow-500 transition">
+          Event Details
         </button>
       </div>
     </div>
   );
 };
-
-export default EventCard;
