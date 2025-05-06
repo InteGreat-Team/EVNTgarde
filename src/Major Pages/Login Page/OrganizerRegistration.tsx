@@ -295,8 +295,8 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
     saveStepData()
 
     // If we're on the budget selection step, go directly to the confirmation step
-    if (currentStep === 2) {
-      setCurrentStep(6)
+    if (currentStep === 1) {
+      setCurrentStep(5)
     } else {
       setCurrentStep(currentStep + 1)
     }
@@ -433,7 +433,7 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
 
   // Terms and conditions modal
   const TermsAndConditionsModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 bg-white/10 backdrop-brightness-50">
       <div
         className={`w-full max-w-2xl p-6 rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}
         style={{ fontFamily: "'Poppins', sans-serif" }}
@@ -532,64 +532,9 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
           } p-12 flex flex-col justify-center rounded-l-[50px] shadow-md relative overflow-y-auto`}
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
-          {/* Step 1: What brings you here */}
+
+          {/* Step 1: Budget Selection */}
           {currentStep === 1 && (
-            <>
-              <h2 className="text-4xl font-bold mb-6">Sign Up</h2>
-              <p className="text-lg mb-6">What brings you here today?</p>
-
-              <div className="mb-8">
-                <div className="flex items-center mb-4">
-                  <input
-                    id="organizer-radio"
-                    type="radio"
-                    name="role"
-                    className="w-4 h-4"
-                    checked={role === "organizer"}
-                    onChange={() => setRole("organizer")}
-                  />
-                  <label htmlFor="organizer-radio" className="ml-2 text-lg">
-                    I'm an event organizer looking to connect with suppliers
-                  </label>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    id="vendor-radio"
-                    type="radio"
-                    name="role"
-                    className="w-4 h-4"
-                    checked={role === "vendor"}
-                    onChange={() => setRole("vendor")}
-                  />
-                  <label htmlFor="vendor-radio" className="ml-2 text-lg">
-                    I'm a vendor looking to connect with organizers
-                  </label>
-                </div>
-              </div>
-
-              <div className="mt-auto">
-                <button
-                  type="button"
-                  onClick={goToNextStep}
-                  className={`w-full px-6 py-3 text-white rounded-lg ${
-                    isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
-                >
-                  Next
-                </button>
-                <p className="text-center text-sm mt-4 text-gray-500">
-                  Already have an account?{" "}
-                  <a href="/login" className="text-blue-600 hover:underline">
-                    Log in
-                  </a>
-                </p>
-              </div>
-            </>
-          )}
-
-          {/* Step 2: Budget Selection */}
-          {currentStep === 2 && (
             <>
               <h2 className="text-4xl font-bold mb-6">Sign Up</h2>
               <p className="text-lg mb-6">
@@ -650,8 +595,8 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
             </>
           )}
 
-          {/* Step 3: Company Details */}
-          {currentStep === 3 && (
+          {/* Step 2: Company Details */}
+          {currentStep === 2 && (
             <>
               <h2 className="text-4xl font-bold mb-6">Sign Up</h2>
               <p className="text-lg mb-2">Step 1 of 3</p>
@@ -794,8 +739,8 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
             </>
           )}
 
-          {/* Step 4: Address Details */}
-          {currentStep === 4 && (
+          {/* Step 3: Address Details */}
+          {currentStep === 3 && (
             <>
               <h2 className="text-4xl font-bold mb-6">Sign Up</h2>
               <p className="text-lg mb-2">Step 2 of 3</p>
@@ -975,8 +920,8 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
             </>
           )}
 
-          {/* Step 5: Contact and Password */}
-          {currentStep === 5 && (
+          {/* Step 4: Contact and Password */}
+          {currentStep === 4 && (
             <>
               <h2 className="text-4xl font-bold mb-6">Sign Up</h2>
               <p className="text-lg mb-2">Step 3 of 3</p>
@@ -1129,8 +1074,8 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
             </>
           )}
 
-          {/* Step 6: Budget Confirmation */}
-          {currentStep === 6 && (
+          {/* Step 5: Budget Confirmation */}
+          {currentStep === 5 && (
             <>
               <h2 className="text-4xl font-bold mb-6">Sign Up</h2>
 
@@ -1151,7 +1096,7 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setCurrentStep(3)} // Go to company details step
+                  onClick={() => setCurrentStep(2)} // Go to company details step
                   className={`px-6 py-3 text-white rounded-lg ${
                     isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
                   }`}
