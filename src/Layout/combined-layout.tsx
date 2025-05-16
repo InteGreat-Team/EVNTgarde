@@ -16,7 +16,7 @@ export default function CombinedLayout({
 	const [userType, setUserType] = useState<string | null>(null);
 	useEffect(() => {
 		setUserType(localStorage.getItem("userType"));
-	});
+	}, []); // <-- Add []
 	const newUserType = userType === "individual" ? "customer" : userType;
 
 	const location = useLocation();

@@ -6,72 +6,52 @@ export type Loc = {
     zipCode: string;
   };
   
-  export type Event = {
-    eventId: string;
-    eventName: string;
-    eventDescription: string;
+  export interface Event {
+    title: string;
+    description: string;
+    eventDate: string;
+    location: string;
     organizerId: string;
-    vendorsIds: string[];
-    eventDate: Date;
-    location: Loc;
-    categories: string[];
-    attendeeIds: string[];
-    created_at: Date;
-  };
+    status: "upcoming" | "ongoing" | "completed" | "cancelled";
+    guestCount: number;
+    budget: {
+      min: number;
+      max: number;
+    };
+    requirements: string[];
+    createdAt: string;
+    updatedAt: string;
+  }
   
-  export type Customer = {
-    customerId: string;
+  export interface Customer {
     firstName: string;
     lastName: string;
     email: string;
-    phoneNum: string;
-    address: Loc;
-    registeredEvents: string[];
-    favoriteEvents: string[];
-    created_at: Date;
-  };
+    phoneNumber: string;
+    preferences: string[];
+    createdAt: string;
+    updatedAt: string;
+  }
   
-  export type Organizer = {
-    organizerId: number;
-    organizationName: string;
-    contactPerson: string;
-    image: string;
-    email: string;
-    phoneNum: string;
-    address: Loc;
-    price: number;
-    eventsOrganized: string[];
-    website: string;
-    socialMedia: {
-      facebook?: string;
-      twitter?: string;
-      instagram?: string;
-    };
-    rating: number;
-    created_at: Date;
-    availability: {
-      startDate: Date;
-      endDate: Date;
-    };
-    timeSlot: string[];
-    certifications: string[];
-  };
-  
-  export type Vendor = {
-    vendorId: string;
+  export interface Vendor {
     vendorName: string;
-    servicesProvided: string[];
-    contactPerson: string;
+    vendorType: "solo" | "company";
     email: string;
-    phoneNum: string;
-    address: Loc;
-    eventsParticipated: string[];
-    ratings: number;
-    availability: {
-      startDate: Date;
-      endDate: Date;
-    };
-    created_at: Date;
-    certifications: string[];
-  };
+    phoneNumber: string;
+    service: string;
+    industry: string;
+    rating: number;
+    createdAt: string;
+    updatedAt: string;
+  }
+  
+  export interface Organizer {
+    organizationName: string;
+    email: string;
+    phoneNumber: string;
+    industry: string;
+    events: string[]; // Array of event IDs
+    createdAt: string;
+    updatedAt: string;
+  }
   

@@ -9,22 +9,33 @@ import {
   type UserCredential,
   signOut,
 } from "firebase/auth"
-import { getFirestore } from "firebase/firestore"
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore"
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD-775DBmHg6gHOXYPFEVw-d9pHYo5szIM",
-  authDomain: "account-management-fb55c.firebaseapp.com",
-  projectId: "account-management-fb55c",
-  storageBucket: "account-management-fb55c.firebasestorage.app",
-  messagingSenderId: "546251900701",
-  appId: "1:546251900701:web:df3493a2f3166cc64383f4",
-  measurementId: "G-FX688QBEL9",
-}
+  apiKey: "AIzaSyC-eDd0c1NhJiijRIktUKEN-9lFWiZmEYY",
+  authDomain: "evntgarde-event-management.firebaseapp.com",
+  projectId: "evntgarde-event-management",
+  storageBucket: "evntgarde-event-management.firebasestorage.app",
+  messagingSenderId: "182453082295",
+  appId: "1:182453082295:web:df06367405642777e85532",
+  measurementId: "G-324P7YE4EM"
+};
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 
+// Enable offline persistence
+enableIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+  } else if (err.code === 'unimplemented') {
+    console.warn('The current browser does not support persistence.');
+  }
+});
+
+// Configure providers
 const googleProvider = new GoogleAuthProvider()
 const yahooProvider = new OAuthProvider("yahoo.com")
 

@@ -4,14 +4,8 @@ import { useState, useEffect } from "react";
 import Logo from "../../assets/OrganizerLogo.png";
 import { useNavigate } from "react-router-dom";
 import { auth, signInWithEmailAndPassword } from "../../functions/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../functions/firebase";
-import { checkSessionExpiry } from "@/functions/authFunctions";
+import { checkSessionExpiry, signInWithGoogle, signInWithYahoo } from "@/functions/authFunctions";
 import { useTheme } from "../../functions/ThemeContext";
-import {
-  signInWithGoogle,
-  signInWithYahoo,
-} from "../../functions/authFunctions";
 import { FcGoogle } from "react-icons/fc";
 import { AiFillYahoo } from "react-icons/ai";
 
@@ -31,7 +25,13 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
     if (sessionExpired) {
       navigate("/login"); // Redirect user if session expired
     }
+    // Redirect to dashboard if authenticated
+    if (localStorage.getItem("isAuthenticated") === "true") {
+      navigate("/dashboard");
+    }
   }, [navigate]);
+
+  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +39,7 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
     setLoading(true);
 
     try {
+      // Authenticate with Firebase
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -46,64 +47,60 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
       );
       const userId = userCredential.user.uid;
 
-      // Retrieve user data from Firestore
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (!userDoc.exists()) {
-        throw new Error("User data not found.");
+      // Fetch user data from your PostgreSQL backend
+      const response = await fetch('http://localhost:5000/api/getUserType', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ firebaseUid: userId, email: userCredential.user.email }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user type from backend');
       }
 
-      const userType = userDoc.data().userType;
-      let vendorType;
-      if (userType === "vendor") {
-        vendorType = userDoc.data().vendorType;
-      }
+      const userData = await response.json();
+      const userType = userData.userType;
+      const vendorType = userData.vendorType;
 
       // Store authentication status and userType
       localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userType", userType); // Store userType in localStorage
-      localStorage.setItem("vendorType", vendorType);
+      localStorage.setItem("userType", userType);
+      if (vendorType) {
+        localStorage.setItem("vendorType", vendorType);
+      }
 
       if (rememberMe) {
         localStorage.setItem("loginTimestamp", Date.now().toString());
       }
 
       login();
+      // Do NOT navigate here; let useEffect handle it
 
-      // Redirect user based on userType
-      switch (userType) {
-        case "individual":
-          navigate("/customer");
-          break;
-        case "organizer":
-          navigate("/organizer");
-          break;
-        case "vendor":
-          navigate("/vendor");
-          break;
-        default:
-          throw new Error("Invalid user type.");
-      }
     } catch (err: any) {
       const newFailedAttempts = failedAttempts + 1;
       setFailedAttempts(newFailedAttempts);
-      // 3 failed attempts, generic message
       if (newFailedAttempts >= 3) {
         setError("Login failed. Please check your credentials and try again.");
       } else {
-        setError("Invalid Email/Invalid Password");
+        setError(err.message || "Invalid Email/Invalid Password");
       }
     } finally {
       setLoading(false);
     }
   };
 
+
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithGoogle("individual"); // Default to individual, will be updated from Firestore
+      await signInWithGoogle("individual"); // Default to individual, will be updated from backend
       login();
-      // Redirect will happen based on userType in Firestore
+      navigate("/dashboard");
+      // Redirect will happen based on userType in backend
     } catch (err: any) {
       setError("Failed to sign in with Google. Please try again.");
       console.error(err);
@@ -116,9 +113,10 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithYahoo("individual"); // Default to individual, will be updated from Firestore
+      await signInWithYahoo("individual"); // Default to individual, will be updated from backend
       login();
-      // Redirect will happen based on userType in Firestore
+      navigate("/dashboard");
+      // Redirect will happen based on userType in backend
     } catch (err: any) {
       setError("Failed to sign in with Yahoo. Please try again.");
       console.error(err);

@@ -11,9 +11,12 @@ type Booking = {
   title: string;
   startTime: string;
   endTime: string;
+  startDateTime: string;
+  endDateTime: string;
   customer: string;
   location: string;
   guests: string;
+  eventType: string;
 };
 
 interface Activity {
@@ -77,6 +80,21 @@ const formatTo12Hour = (time24h: string): string => {
 // Add a function to check if a status is "upcoming" (case-insensitive)
 const isUpcomingStatus = (status: string): boolean => {
   return status.toLowerCase() === "upcoming";
+};
+
+// Helper function to format date and time
+const formatDateTime = (dateTimeStr: string): string => {
+  if (!dateTimeStr) return '';
+  const date = new Date(dateTimeStr);
+  return date.toLocaleString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  });
 };
 
 const BookingDetails: React.FC<BookingDetailsProps> = ({
@@ -650,7 +668,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
             <h2 className="text-blue-600 font-bold text-xl">
               {selectedBooking.title}
             </h2>
-            <p className="text-gray-500 text-sm">Concert</p>
+            <p className="text-gray-500 text-sm">{selectedBooking.eventType}</p>
           </div>
           <div className="mb-4">
             <p className="text-gray-600 text-sm">
@@ -664,8 +682,13 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
             <div>
               <p className="text-gray-500 text-xs">Date</p>
               <p className="font-medium text-sm">
-                {selectedBooking.date} ({selectedBooking.day})
+                {formatDateTime(selectedBooking.startDateTime)}
               </p>
+              {selectedBooking.startDateTime !== selectedBooking.endDateTime && (
+                <p className="font-medium text-sm">
+                  to {formatDateTime(selectedBooking.endDateTime)}
+                </p>
+              )}
             </div>
             <div>
               <p className="text-gray-500 text-xs">Organizer</p>

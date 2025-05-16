@@ -398,11 +398,13 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
 
     try {
       // Create user account with all collected data
+
       const userData = createUserAccount("organizer", email, {
         budget,
         budgetDescription,
         companyName,
         gender,
+
         industry,
         address: {
           houseNo,
@@ -414,18 +416,58 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
           country,
         },
         phoneNumber: phoneNumber ? `+63${phoneNumber}` : "",
-      })
+        preferences,
+        userType: "organizer"
+      };
 
       // Register user with Firebase
-      await registerUser(email, password, "organizer", userData)
+      const firebaseUser = await registerUser(email, password, "organizer", userData);
+      const firebaseUid = firebaseUser?.uid;
+      // Register user with PostgreSQL
+      try {
+        const response = await fetch('http://localhost:5000/api/registerOrganizer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            organizerId: firebaseUid, // <-- use this as the primary key
+            organizerCompanyName: companyName,
+            organizerEmail: email,
+            organizerPassword: password,
+            organizerIndustry: industry,
+            organizerLocation: null,
+            organizerType: "organizer",
+            organizerLogoUrl: null
+          }),
+        });
 
-      // Clear session storage
-      sessionStorage.removeItem("organizerRegistrationData")
+        if (!response.ok) {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Database registration failed");
+          } else {
+            throw new Error("Database registration failed");
+          }
+        }
 
-      // Navigate to login page
-      navigate("/login")
+        // Success: clear storage, navigate, etc.
+        sessionStorage.removeItem("organizerRegistration");
+        navigate("/login");
+      } catch (dbError: any) {
+        // If PostgreSQL registration fails, delete the Firebase user
+        if (firebaseUser) {
+          try {
+            await firebaseUser.delete();
+          } catch (deleteError) {
+            console.error("Error deleting Firebase user after failed database registration:", deleteError);
+          }
+        }
+        throw new Error(`Database registration error: ${dbError.message}`);
+      }
     } catch (err: any) {
-      setErrors({ general: err.message })
+      setError(err.message || "Failed to create account. Please try again.");
     } finally {
       setIsLoading(false)
     }
@@ -1123,3 +1165,4 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
 }
 
 export default OrganizerRegistration
+

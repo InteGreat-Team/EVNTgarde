@@ -48,23 +48,28 @@ const App: React.FC = () => {
     setUserType(storedUserType);
   }, []);
 
-  const login = () => {
-    setIsAuthenticated(true);
+  const login = async () => {
     const storedUserType = localStorage.getItem("userType");
+    // Set userType first
     setUserType(storedUserType);
+    // Then set authentication
+    setIsAuthenticated(true);
+    
+    console.log('Login called with userType:', storedUserType); // Debug log
   };
-
+  
   // Function to determine the correct route based on userType
   const getDashboardRoute = () => {
-    switch (userType) {
+    const currentUserType = localStorage.getItem("userType"); // Read directly from localStorage
+    
+    switch (currentUserType) {
       case "individual":
-        return "/dashboard";
       case "organizer":
-        return "/dashboard";
       case "vendor":
         return "/dashboard";
       default:
-        return "/";
+        console.log('No userType found, defaulting to /', currentUserType); // Debug log
+        return "/dashboard";
     }
   };
 
