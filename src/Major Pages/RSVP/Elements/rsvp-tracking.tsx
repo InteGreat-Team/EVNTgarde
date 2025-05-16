@@ -185,8 +185,26 @@ const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = 
   // Determine if we should show customer view
   const showCustomerView = userType === "customer" || isCustomerView
 
+  const getStatusElement = (status: string) => {
+    return (
+      <td className="px-6 py-4 whitespace-nowrap text-sm">
+        <span
+          className={`px-2 py-1 rounded-full ${
+            status === "Going"
+              ? "bg-yellow-100 text-yellow-800"
+              : status === "Not Going"
+                ? "bg-red-100 text-red-800"
+                : "bg-yellow-100 text-yellow-800"
+          }`}
+        >
+          {status}
+        </span>
+      </td>
+    )
+  }
+
   return (
-    <div className="w-full min-h-screen flex flex-col mx-auto font-poppins p-4">
+    <div className="w-full min-h-screen flex flex-col mx-auto font-poppins p-4 overflow-x-auto">
       {/* Back Button */}
       <div className="mb-4">
         <button onClick={onBackClick} className="flex items-center bg-transparent border-none cursor-pointer">
@@ -230,8 +248,8 @@ const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = 
       {/* Main Content */}
       <div className="space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-4 md:p-6 rounded shadow flex flex-col items-center justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white p-6 rounded shadow">
             <div className="text-xs md:text-sm uppercase font-medium mb-2">TOTAL ATTENDEES</div>
             <div className="flex items-center">
               <span className="text-2xl md:text-3xl font-bold text-gray-800">{totalGuests}</span>
@@ -240,25 +258,25 @@ const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = 
               </span>
             </div>
           </div>
-          <div className="bg-green-500 p-4 md:p-6 rounded shadow flex flex-col items-center justify-center">
-            <div className="text-xs md:text-sm uppercase font-medium mb-2 text-white">GOING</div>
+          <div className="bg-white p-6 rounded shadow">
+            <div className="text-xs md:text-sm uppercase font-medium mb-2 text-green-600">GOING</div>
             <div className="flex items-center">
-              <span className="text-2xl md:text-3xl font-bold text-white">{rsvpCreated ? goingGuests : "-"}</span>
+              <span className="text-2xl md:text-3xl font-bold text-green-600">{rsvpCreated ? goingGuests : "-"}</span>
               <span className="ml-2">
-                <Check className="h-5 w-5 text-white" />
+                <Check className="h-5 w-5 text-green-500" />
               </span>
             </div>
           </div>
-          <div className="bg-red-400 p-4 md:p-6 rounded shadow flex flex-col items-center justify-center">
-            <div className="text-xs md:text-sm uppercase font-medium mb-2 text-white">NOT GOING</div>
+          <div className="bg-white p-6 rounded shadow">
+            <div className="text-xs md:text-sm uppercase font-medium mb-2 text-red-600">NOT GOING</div>
             <div className="flex items-center">
-              <span className="text-2xl md:text-3xl font-bold text-white">{rsvpCreated ? notGoingGuests : "-"}</span>
+              <span className="text-2xl md:text-3xl font-bold text-red-600">{rsvpCreated ? notGoingGuests : "-"}</span>
               <span className="ml-2">
-                <X className="h-5 w-5 text-white" />
+                <X className="h-5 w-5 text-red-500" />
               </span>
             </div>
           </div>
-          <div className="bg-yellow-100 p-4 md:p-6 rounded shadow flex flex-col items-center justify-center">
+          <div className="bg-white p-6 rounded shadow">
             <div className="text-xs md:text-sm uppercase font-medium mb-2 text-yellow-700">PENDING</div>
             <div className="flex items-center">
               <span className="text-2xl md:text-3xl font-bold text-yellow-700">{pendingGuests}</span>

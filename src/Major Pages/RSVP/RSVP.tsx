@@ -42,6 +42,7 @@ const RSVP: React.FC = () => {
   }, [])
 
   const handleViewTracker = (rsvpCreated: boolean) => {
+    console.log("RSVP Created:", rsvpCreated) // For debugging
     setCurrentRsvpCreated(rsvpCreated)
     setViewingTracker(true)
   }
@@ -125,7 +126,7 @@ const RSVP: React.FC = () => {
         {viewingTracker ? (
           <RSVPTracking
             onBackClick={handleBackClick}
-            rsvpCreated={currentRsvpCreated}
+            rsvpCreated={currentRsvpCreated} // This should be based on the card that was clicked
             isCustomerView={userType === "customer"}
           />
         ) : (

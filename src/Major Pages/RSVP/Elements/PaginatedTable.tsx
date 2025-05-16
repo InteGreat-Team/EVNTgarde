@@ -40,11 +40,11 @@ const PaginatedTable: React.FC<PaginatedTableProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Going":
-        return "bg-green-100 text-green-600"
+        return "bg-yellow-100 text-yellow-800"
       case "Not Going":
-        return "bg-red-100 text-red-600"
+        return "bg-red-100 text-red-800"
       case "Pending":
-        return "bg-yellow-100 text-yellow-600"
+        return "bg-yellow-100 text-yellow-800"
       default:
         return "bg-gray-100 text-gray-600"
     }
@@ -74,7 +74,7 @@ const PaginatedTable: React.FC<PaginatedTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
       <div className="overflow-x-auto">
         <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden">
@@ -137,14 +137,13 @@ const PaginatedTable: React.FC<PaginatedTableProps> = ({
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.emailAddress}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.contactNumber}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                           row.eventStatus,
                         )}`}
                       >
-                        {getStatusIcon(row.eventStatus)}
-                        <span>{row.eventStatus}</span>
-                      </div>
+                        {row.eventStatus}
+                      </span>
                     </td>
                     {!isCustomerView && (
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
