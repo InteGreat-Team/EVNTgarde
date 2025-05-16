@@ -211,22 +211,27 @@ const Status: React.FC<StatusProps> = ({
                   <p className="text-gray-500">-</p>
                 </div>
                 <div className="space-y-2">
-                  {userRole === "organizer" && (
+                  {(userRole === "organizer" || userRole === "individual") && (
                     <>
-                      {selectedBooking?.rsvpStatus === "RSVP List: Created" ? (
-                        <button
-                          className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                          onClick={() => console.log("View RSVP Tracker")}
-                        >
-                          View RSVP Tracker
-                        </button>
-                      ) : (
-                        <button
-                          className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                          onClick={() => console.log("Create RSVP")}
-                        >
-                          Create RSVP
-                        </button>
+                      {userRole === "organizer" && (
+                        <>
+                          {selectedBooking?.rsvpStatus ===
+                          "RSVP List: Created" ? (
+                            <button
+                              className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                              onClick={() => console.log("View RSVP Tracker")}
+                            >
+                              View RSVP Tracker
+                            </button>
+                          ) : (
+                            <button
+                              className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                              onClick={() => console.log("Create RSVP")}
+                            >
+                              Create RSVP
+                            </button>
+                          )}
+                        </>
                       )}
 
                       <button
