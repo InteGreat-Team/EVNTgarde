@@ -131,7 +131,8 @@ const RSVP: React.FC = () => {
                   </h2>
                   <p className="text-lg text-gray-600 max-w-lg">
                     It looks like you haven’t created any events that require an
-                    RSVP...
+                    RSVP. Once you've set one up, you’ll be able to invite
+                    guests and keep track of their responses.
                   </p>
                 </div>
               )}
