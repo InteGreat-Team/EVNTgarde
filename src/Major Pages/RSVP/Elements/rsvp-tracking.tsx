@@ -150,6 +150,7 @@ export const generateGuestData = (rsvpCreated: boolean): GuestData[] => {
 const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = false, isCustomerView = false }) => {
   const [guestData, setGuestData] = useState<GuestData[]>([])
   const [userType, setUserType] = useState<"organizer" | "vendor" | "customer">("organizer")
+  const [searchTerm, setSearchTerm] = useState("")
 
   // Effect to check user type from localStorage
   useEffect(() => {
@@ -185,22 +186,9 @@ const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = 
   // Determine if we should show customer view
   const showCustomerView = userType === "customer" || isCustomerView
 
-  const getStatusElement = (status: string) => {
-    return (
-      <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <span
-          className={`px-2 py-1 rounded-full ${
-            status === "Going"
-              ? "bg-yellow-100 text-yellow-800"
-              : status === "Not Going"
-                ? "bg-red-100 text-red-800"
-                : "bg-yellow-100 text-yellow-800"
-          }`}
-        >
-          {status}
-        </span>
-      </td>
-    )
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
   }
 
   return (
@@ -235,6 +223,8 @@ const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = 
                 type="text"
                 placeholder="Search"
                 className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={searchTerm}
+                onChange={handleSearchChange}
               />
               <button className="bg-[#3262AB] hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center justify-center">
                 <Send className="h-4 w-4 mr-2" />
@@ -289,7 +279,12 @@ const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = 
 
         {/* Table */}
         <div className="mt-4">
-          <PaginatedTable rsvpCreated={rsvpCreated} guestData={guestData} isCustomerView={showCustomerView} />
+          <PaginatedTable
+            rsvpCreated={rsvpCreated}
+            guestData={guestData}
+            isCustomerView={showCustomerView}
+            searchTerm={searchTerm}
+          />
         </div>
       </div>
     </div>
