@@ -3,10 +3,9 @@ import React, { useState } from "react"
 import { Facebook, Instagram, Linkedin, Globe } from "lucide-react"
 import LeaveReviewOrganizer from './LeaveReviewOrganizer'
 import LeaveReviewCustomer from './LeaveReview'
-import LeaveReviewVendor from './LeaveReviewVendor'
 
 interface StatusProps {
-  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" 
+  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft"
   selectedBooking?: any
   userRole?: "organizer" | "individual" | "vendor"
   organizer?: {
@@ -131,6 +130,105 @@ const Status: React.FC<StatusProps> = ({
 
   const renderStatusContent = () => {
     switch (displayStatus) {
+      case "awaiting":
+        return (
+          <>
+            {renderOrganizerInfo()}
+            <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
+              <h2 className="text-3xl font-bold mb-2">Awaiting Response</h2>
+              <p className="text-gray-500">
+                {userRole === "organizer"
+                  ? "You have received a booking request. Please review and respond."
+                  : "You have booked this organizer, please wait for the organizer to respond to your event request."}
+              </p>
+              {userRole === "organizer" && (
+                <div className="mt-4 flex gap-3">
+                  <button
+                    className="flex-1 bg-green-600 text-white rounded-md py-2 px-4 hover:bg-green-700"
+                    onClick={onAccept}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className="flex-1 bg-red-600 text-white rounded-md py-2 px-4 hover:bg-red-700"
+                    onClick={onReject}
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )
+      case "accepted":
+        return (
+          <>
+            {renderOrganizerInfo()}
+            <div className="border border-gray-300 rounded-md overflow-hidden">
+              <div className="bg-yellow-400 p-6 text-white">
+                <h2 className="text-3xl font-bold mb-2">Accepted</h2>
+                <p>The event has been accepted, and all the payments for the vendor <strong>have been settled.</strong></p>
+              </div>
+              <div className="p-4 space-y-4 bg-white">
+                <div>
+                  <h3 className="text-lg font-semibold">Request Date</h3>
+                  <p className="text-gray-500">{dates.requestDate}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Date Accepted</h3>
+                  <p className="text-gray-500">{dates.acceptedDate}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Payment Due Date</h3>
+                  <p className="text-gray-500">{dates.paymentDueDate}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Date Paid</h3>
+                  <p className="text-gray-500">{dates.paidDate}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Date Completed</h3>
+                  <p className="text-gray-500">-</p>
+                </div>
+
+                <button
+                  className="w-full border border-gray-300 rounded-md py-3 px-4 text-black font-medium hover:bg-gray-300"
+                  onClick={onMarkCompleted}
+                >
+                  Mark Event as Completed
+                </button>
+              </div>
+            </div>
+          </>
+        )
+      case "rejected":
+        return (
+          <>
+            {renderOrganizerInfo()}
+            <div className="border border-gray-300 rounded-md overflow-hidden">
+              <div className="bg-red-700 p-6 text-white">
+                <h2 className="text-3xl font-bold mb-2">Rejected</h2>
+                <p>The event proposal has been rejected, and will not proceed to event planning.</p>
+              </div>
+              <div className="p-4 space-y-4 bg-white">
+                <div>
+                  <h3 className="text-lg font-semibold">Request Date</h3>
+                  <p className="text-gray-500">{dates.requestDate}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Date Rejected</h3>
+                  <p className="text-gray-500">Aug 2, 2025</p>
+                </div>
+                <button
+                  className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                  onClick={() => console.log("Browsing vendors")}
+                >
+                  Browse Other Vendors
+                </button>
+              </div>
+            </div>
+          </>
+        )
       case "completed":
         return (
           <>
@@ -165,7 +263,7 @@ const Status: React.FC<StatusProps> = ({
                       setShowReviewModal(true)
                     }}
                   >
-                    Share Experience
+                    {userRole === 'organizer' ? 'Leave Client Review' : 'Share Experience'}
                   </button>
                   {userRole === 'organizer' && (
                     <button
@@ -175,7 +273,7 @@ const Status: React.FC<StatusProps> = ({
                         setShowReviewModal(true)
                       }}
                     >
-                      Vendor Experience
+                      Leave Organizer Review
                     </button>
                   )}
                 </div>
