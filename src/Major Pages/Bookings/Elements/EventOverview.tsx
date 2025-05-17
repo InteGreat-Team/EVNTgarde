@@ -321,15 +321,14 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
     );
 
     // Convert grouped activities to days format
-    const newDays = Object.entries(groupedActivities).map(
-      ([, activities], index) => ({
-        id: index + 1,
-        activities: activities.map((activity, actIndex) => ({
-          ...activity,
-          id: actIndex + 1,
-        })),
-      })
-    );
+    const newDays = Object.entries(groupedActivities).map(([, activities], index) => ({
+      id: index + 1,
+      activities: activities.map((activity, actIndex) => ({
+        ...activity,
+        id: actIndex + 1
+      }))
+    }));
+
 
     setDays(
       newDays.length > 0

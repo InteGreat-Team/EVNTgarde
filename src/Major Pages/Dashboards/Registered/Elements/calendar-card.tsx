@@ -54,7 +54,7 @@ const monthNames = [
 export function CalendarCard({
   initialMonth = new Date().toLocaleString("en-US", { month: "long" }), // Get current month name
   initialYear = new Date().getFullYear(), // Get current year
-  onEditDates = () => console.log("Edit dates clicked"),
+  // onEditDates = () => console.log("Edit dates clicked"),
   takenDates = [], // Default to empty array
   userType = "organizer", // Default to organizer
 }: CalendarCardProps) {
@@ -73,47 +73,47 @@ export function CalendarCard({
   const [currentUserType, setCurrentUserType] = useState(userType)
 
   // Add a new function to handle user type switching
-  const handleSwitchUserType = (newUserType: string) => {
-    // Update localStorage
-    localStorage.setItem("userType", newUserType)
-    // Update state
-    setCurrentUserType(newUserType === "individual" ? "customer" : newUserType)
-    // Dispatch storage event to notify other components
-    window.dispatchEvent(new Event("storage"))
-  }
+  // const handleSwitchUserType = (newUserType: string) => {
+  //   // Update localStorage
+  //   localStorage.setItem("userType", newUserType)
+  //   // Update state
+  //   setCurrentUserType(newUserType === "individual" ? "customer" : newUserType)
+  //   // Dispatch storage event to notify other components
+  //   window.dispatchEvent(new Event("storage"))
+  // }
 
   // Add demo switcher buttons above the calendar
-  const renderUserTypeSwitcher = () => {
-    return (
-      <div className="mb-4 flex flex-wrap gap-2">
-        <div className="text-sm text-gray-500 mb-1 w-full">Demo Mode: Switch User Type</div>
-        <button
-          className={`text-xs px-3 py-1.5 rounded-md ${
-            currentUserType === "customer" ? "bg-[#3061AD] text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-          onClick={() => handleSwitchUserType("individual")}
-        >
-          Customer View
-        </button>
-        <button
-          className={`text-xs px-3 py-1.5 rounded-md ${
-            currentUserType === "organizer" ? "bg-[#3061AD] text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-          onClick={() => handleSwitchUserType("organizer")}
-        >
-          Organizer View
-        </button>
-        <button
-          className={`text-xs px-3 py-1.5 rounded-md ${
-            currentUserType === "vendor" ? "bg-[#3061AD] text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-          onClick={() => handleSwitchUserType("vendor")}
-        >
-          Vendor View
-        </button>
-      </div>
-    )
-  }
+  // const renderUserTypeSwitcher = () => {
+  //   return (
+  //     <div className="mb-4 flex flex-wrap gap-2">
+  //       <div className="text-sm text-gray-500 mb-1 w-full">Demo Mode: Switch User Type</div>
+  //       <button
+  //         className={`text-xs px-3 py-1.5 rounded-md ${
+  //           currentUserType === "customer" ? "bg-[#3061AD] text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+  //         }`}
+  //         onClick={() => handleSwitchUserType("individual")}
+  //       >
+  //         Customer View
+  //       </button>
+  //       <button
+  //         className={`text-xs px-3 py-1.5 rounded-md ${
+  //           currentUserType === "organizer" ? "bg-[#3061AD] text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+  //         }`}
+  //         onClick={() => handleSwitchUserType("organizer")}
+  //       >
+  //         Organizer View
+  //       </button>
+  //       <button
+  //         className={`text-xs px-3 py-1.5 rounded-md ${
+  //           currentUserType === "vendor" ? "bg-[#3061AD] text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+  //         }`}
+  //         onClick={() => handleSwitchUserType("vendor")}
+  //       >
+  //         Vendor View
+  //       </button>
+  //     </div>
+  //   )
+  // }
 
   // Effect to check user type from localStorage
   useEffect(() => {
