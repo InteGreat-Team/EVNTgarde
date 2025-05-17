@@ -70,7 +70,7 @@ const ActivityOverview: React.FC = () => {
               <p className="text-3xl font-bold mr-2">4.5</p>{" "}
               {/* Add margin-right */}
               <div className="flex">
-                {[1, 2, 3, 4, 5].map((star, index) => (
+                {[1, 2, 3, 4, 5].map((_, index) => (
                   <Star
                     key={index}
                     className={`h-5 w-5 ${
@@ -122,7 +122,7 @@ const ActivityOverview: React.FC = () => {
               <p className="text-3xl font-bold mr-2">4.5</p>{" "}
               {/* Add some margin */}
               <div className="flex">
-                {[1, 2, 3, 4, 5].map((star, index) => (
+                {[1, 2, 3, 4, 5].map((_, index) => (
                   <Star
                     key={index}
                     className={`h-5 w-5 ${
