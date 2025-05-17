@@ -17,7 +17,7 @@ const LeaveReviewOrganizer: React.FC<LeaveReviewOrganizerProps> = ({ onClose, mo
   })
   const [title, setTitle] = useState("")
   const [experience, setExperience] = useState("")
-  const [files, setFiles] = useState<File[]>([])
+  const [, setFiles] = useState<File[]>([])
   const [expandedVendor, setExpandedVendor] = useState("Vendor B")
 
   const handleRating = (field: keyof typeof ratings, value: number) => {
