@@ -1,24 +1,25 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Send, Users, Check, X } from "lucide-react"
-import PaginatedTable from "./PaginatedTable"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { Send, Users, Check, X } from "lucide-react";
+import PaginatedTable from "./PaginatedTable";
+import StatsCard from "./stats-card";
 
 interface RSVPTrackingProps {
-  onBackClick: () => void
-  rsvpCreated?: boolean
-  isCustomerView?: boolean
+  onBackClick: () => void;
+  rsvpCreated?: boolean;
+  isCustomerView?: boolean;
 }
 
 // Define the guest data interface to share between components
 export interface GuestData {
-  guestId: string
-  name: string
-  gender: string
-  emailAddress: string
-  contactNumber: string
-  eventStatus: string
+  guestId: string;
+  name: string;
+  gender: string;
+  emailAddress: string;
+  contactNumber: string;
+  eventStatus: string;
 }
 
 // Create mock data that can be shared between components
@@ -144,58 +145,75 @@ export const generateGuestData = (rsvpCreated: boolean): GuestData[] => {
       contactNumber: "+63 931 888 7777",
       eventStatus: rsvpCreated ? "Going" : "Pending",
     },
-  ]
-}
+  ];
+};
 
-const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = false, isCustomerView = false }) => {
-  const [guestData, setGuestData] = useState<GuestData[]>([])
-  const [userType, setUserType] = useState<"organizer" | "vendor" | "customer">("organizer")
-  const [searchTerm, setSearchTerm] = useState("")
+const RSVPTracking: React.FC<RSVPTrackingProps> = ({
+  onBackClick,
+  rsvpCreated = false,
+  isCustomerView = false,
+}) => {
+  const [guestData, setGuestData] = useState<GuestData[]>([]);
+  const [userType, setUserType] = useState<"organizer" | "vendor" | "customer">(
+    "organizer"
+  );
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Effect to check user type from localStorage
   useEffect(() => {
-    const storedUserType = localStorage.getItem("userType")
+    const storedUserType = localStorage.getItem("userType");
     if (storedUserType) {
-      const normalizedUserType = storedUserType === "individual" ? "customer" : storedUserType
-      setUserType(normalizedUserType as "organizer" | "vendor" | "customer")
+      const normalizedUserType =
+        storedUserType === "individual" ? "customer" : storedUserType;
+      setUserType(normalizedUserType as "organizer" | "vendor" | "customer");
     }
 
     const handleStorageChange = () => {
-      const updatedUserType = localStorage.getItem("userType")
+      const updatedUserType = localStorage.getItem("userType");
       if (updatedUserType) {
-        const normalizedUserType = updatedUserType === "individual" ? "customer" : updatedUserType
-        setUserType(normalizedUserType as "organizer" | "vendor" | "customer")
+        const normalizedUserType =
+          updatedUserType === "individual" ? "customer" : updatedUserType;
+        setUserType(normalizedUserType as "organizer" | "vendor" | "customer");
       }
-    }
+    };
 
-    window.addEventListener("storage", handleStorageChange)
-    return () => window.removeEventListener("storage", handleStorageChange)
-  }, [])
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   // Generate guest data based on rsvpCreated prop
   useEffect(() => {
-    setGuestData(generateGuestData(rsvpCreated))
-  }, [rsvpCreated])
+    setGuestData(generateGuestData(rsvpCreated));
+  }, [rsvpCreated]);
 
   // Calculate stats based on actual guest data
-  const totalGuests = guestData.length
-  const goingGuests = guestData.filter((guest) => guest.eventStatus === "Going").length
-  const notGoingGuests = guestData.filter((guest) => guest.eventStatus === "Not Going").length
-  const pendingGuests = guestData.filter((guest) => guest.eventStatus === "Pending").length
+  const totalGuests = guestData.length;
+  const goingGuests = guestData.filter(
+    (guest) => guest.eventStatus === "Going"
+  ).length;
+  const notGoingGuests = guestData.filter(
+    (guest) => guest.eventStatus === "Not Going"
+  ).length;
+  const pendingGuests = guestData.filter(
+    (guest) => guest.eventStatus === "Pending"
+  ).length;
 
   // Determine if we should show customer view
-  const showCustomerView = userType === "customer" || isCustomerView
+  const showCustomerView = userType === "customer" || isCustomerView;
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-  }
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col mx-auto font-poppins p-4 overflow-x-auto">
       {/* Back Button */}
       <div className="mb-4">
-        <button onClick={onBackClick} className="flex items-center bg-transparent border-none cursor-pointer">
+        <button
+          onClick={onBackClick}
+          className="flex items-center bg-transparent border-none cursor-pointer"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
@@ -239,42 +257,18 @@ const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = 
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-6 rounded shadow">
-            <div className="text-xs md:text-sm uppercase font-medium mb-2">TOTAL ATTENDEES</div>
-            <div className="flex items-center">
-              <span className="text-2xl md:text-3xl font-bold text-gray-800">{totalGuests}</span>
-              <span className="ml-2">
-                <Users className="h-5 w-5 text-gray-600" />
-              </span>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded shadow">
-            <div className="text-xs md:text-sm uppercase font-medium mb-2 text-green-600">GOING</div>
-            <div className="flex items-center">
-              <span className="text-2xl md:text-3xl font-bold text-green-600">{rsvpCreated ? goingGuests : "-"}</span>
-              <span className="ml-2">
-                <Check className="h-5 w-5 text-green-500" />
-              </span>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded shadow">
-            <div className="text-xs md:text-sm uppercase font-medium mb-2 text-red-600">NOT GOING</div>
-            <div className="flex items-center">
-              <span className="text-2xl md:text-3xl font-bold text-red-600">{rsvpCreated ? notGoingGuests : "-"}</span>
-              <span className="ml-2">
-                <X className="h-5 w-5 text-red-500" />
-              </span>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded shadow">
-            <div className="text-xs md:text-sm uppercase font-medium mb-2 text-yellow-700">PENDING</div>
-            <div className="flex items-center">
-              <span className="text-2xl md:text-3xl font-bold text-yellow-700">{pendingGuests}</span>
-              <span className="ml-2">
-                <Send className="h-5 w-5 text-yellow-500" />
-              </span>
-            </div>
-          </div>
+          <StatsCard title="TOTAL ATTENDEES" value={totalGuests} type="total" />
+          <StatsCard
+            title="GOING"
+            value={rsvpCreated ? goingGuests : "-"}
+            type="going"
+          />
+          <StatsCard
+            title="NOT GOING"
+            value={rsvpCreated ? notGoingGuests : "-"}
+            type="notGoing"
+          />
+          <StatsCard title="PENDING" value={pendingGuests} type="pending" />
         </div>
 
         {/* Table */}
@@ -288,7 +282,7 @@ const RSVPTracking: React.FC<RSVPTrackingProps> = ({ onBackClick, rsvpCreated = 
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RSVPTracking
+export default RSVPTracking;
