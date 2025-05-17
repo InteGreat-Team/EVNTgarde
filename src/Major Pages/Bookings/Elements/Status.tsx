@@ -21,16 +21,8 @@ interface StatusProps {
     phone?: string
     avatar?: string
   }
-  socialLinks?: {
-    facebook?: string
-    instagram?: string
-    linkedin?: string
-    website?: string
-  }
-  onMarkCompleted?: () => void
   onAccept?: () => void
   onReject?: () => void
-  onShareExperience?: () => void
 }
 
 const Status: React.FC<StatusProps> = ({

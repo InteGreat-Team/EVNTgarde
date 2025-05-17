@@ -24,12 +24,6 @@ const LeaveReviewOrganizer: React.FC<LeaveReviewOrganizerProps> = ({ onClose, mo
     setRatings(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files))
-    }
-  }
-
   const vendors = ["Vendor A", "Vendor B", "Vendor C", "Vendor D", "Vendor E"]
 
   return (
@@ -146,7 +140,6 @@ const LeaveReviewOrganizer: React.FC<LeaveReviewOrganizerProps> = ({ onClose, mo
                             multiple
                             className="hidden"
                             id={`fileUpload-${vendor}`}
-                            onChange={handleFileChange}
                           />
                           <label htmlFor={`fileUpload-${vendor}`} className="cursor-pointer">
                             <div className="flex flex-col items-center">
@@ -204,7 +197,6 @@ const LeaveReviewOrganizer: React.FC<LeaveReviewOrganizerProps> = ({ onClose, mo
                     multiple
                     className="hidden"
                     id="fileUpload"
-                    onChange={handleFileChange}
                   />
                   <label htmlFor="fileUpload" className="cursor-pointer">
                     <div className="flex flex-col items-center">
