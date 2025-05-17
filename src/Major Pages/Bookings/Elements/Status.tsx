@@ -1,6 +1,5 @@
 // Status.tsx
 import React, { useState } from "react"
-import { Facebook, Instagram, Linkedin, Globe } from "lucide-react"
 import LeaveReviewOrganizer from './LeaveReviewOrganizer'
 import LeaveReviewCustomer from './LeaveReview'
 
@@ -40,16 +39,8 @@ const Status: React.FC<StatusProps> = ({
   userRole,
   organizer,
   customer,
-  socialLinks = {
-    facebook: "@linktofacebook",
-    instagram: "@linktoinstagram",
-    linkedin: "@linktolinkedin",
-    website: "@linktowebsite",
-  },
-  onMarkCompleted,
   onAccept,
   onReject,
-  onShareExperience,
 }) => {
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [reviewMode, setReviewMode] = useState<'event' | 'vendor'>('event')
