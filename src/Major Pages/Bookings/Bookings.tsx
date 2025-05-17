@@ -242,6 +242,7 @@ const Bookings: React.FC = () => {
         onBackClick={onBackClick}
         activeStatus={activeStatus}
         selectedBooking={selectedBooking}
+        showStatus={true}
       />
     )
   }

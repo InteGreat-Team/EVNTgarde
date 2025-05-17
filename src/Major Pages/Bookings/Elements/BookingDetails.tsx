@@ -3,12 +3,14 @@ import AttachedFiles from "./AttachedFiles";
 import BudgetBreakdown from "./BudgetBreakdown";
 import EventOverview from "./EventOverview";
 import Status from "./Status";
+import FindActionCard from "./FindActionCard";
 
 type DetailsProps = {
   isModal: boolean;
   onBackClick: () => void;
   activeStatus: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft";
   selectedBooking: any;
+  showStatus?: boolean;
 };
 
 const BookingDetails: React.FC<DetailsProps> = ({
@@ -16,6 +18,7 @@ const BookingDetails: React.FC<DetailsProps> = ({
   onBackClick,
   activeStatus,
   selectedBooking,
+  showStatus = true,
 }) => {
   // Get user type from localStorage
   const [userRole, setUserRole] = useState<
@@ -82,26 +85,42 @@ const BookingDetails: React.FC<DetailsProps> = ({
 
         {/* Right Column (Organizer Info & Get in Touch) */}
         <div className="font-poppins">
-          <Status
-            activeStatus={activeStatus}
-            selectedBooking={selectedBooking}
-            userRole={userRole}
-            customer={{
-              name: selectedBooking?.customer || "Customer Name",
-              email: "customer@example.com",
-              phone: "123-456-7890",
-            }}
-            onAccept={() => {
-              // Handle accept action
-              console.log("Booking accepted:", selectedBooking?.id);
-              // Add your accept booking logic here
-            }}
-            onReject={() => {
-              // Handle reject action
-              console.log("Booking rejected:", selectedBooking?.id);
-              // Add your reject booking logic here
-            }}
-          />
+          {showStatus ? (
+            <Status
+              activeStatus={activeStatus}
+              selectedBooking={selectedBooking}
+              userRole={userRole}
+              customer={{
+                name: selectedBooking?.customer || "Customer Name",
+                email: "customer@example.com",
+                phone: "123-456-7890",
+              }}
+              onAccept={() => {
+                // Handle accept action
+                console.log("Booking accepted:", selectedBooking?.id);
+                // Add your accept booking logic here
+              }}
+              onReject={() => {
+                // Handle reject action
+                console.log("Booking rejected:", selectedBooking?.id);
+                // Add your reject booking logic here
+              }}
+            />
+          ) : userRole === "organizer" ? (
+            <FindActionCard
+              title="Hiring Vendors"
+              description="Please proceed to vendor hiring based on requested services."
+              buttonText="Find Vendors"
+              onButtonClick={() => { alert('Find Vendors clicked!'); }}
+            />
+          ) : (
+            <FindActionCard
+              title="No Organizer"
+              description="Book an organizer to finalize creating an event."
+              buttonText="Find Organizer"
+              onButtonClick={() => { alert('Find Organizer clicked!'); }}
+            />
+          )}
         </div>
       </div>
     </div>
