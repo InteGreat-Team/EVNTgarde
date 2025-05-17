@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Filter, SlidersHorizontal } from "lucide-react";
-import { searchAndFilterItems } from "../../../functions/search";
+import { Search, SlidersHorizontal } from "lucide-react";
+//import { searchAndFilterItems } from "../../../functions/search";
 //import { ThemeToggle } from "../Registered/Elements/theme-toggle";
 import { ThemeToggle } from "../../../functions/ThemeToogle";
 import { useTheme } from "@/functions/ThemeContext";
 import { Button, Input } from "../../../Layout/combined-ui";
 
 const Homepage: React.FC = () => {
-	const [searchQuery, setSearchQuery] = useState("");
-	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-	const [showFilterMenu, setShowFilterMenu] = useState(false);
+	//const [searchQuery, setSearchQuery] = useState("");
+	//const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+	//const [showFilterMenu, setShowFilterMenu] = useState(false);
 	const navigate = useNavigate();
 	const handleNavigation = (path: string) => () => navigate(path);
 	const handleExternalLink = (url: string) => () => window.open(url, "_blank");
@@ -35,25 +35,6 @@ const Homepage: React.FC = () => {
   }, [navigate]);
   */
 
-	// Toggle filter menu
-	const toggleFilterMenu = () => {
-		setShowFilterMenu(!showFilterMenu);
-	};
-
-	// Toggle a category selection
-	const toggleCategory = (category: string) => {
-		setSelectedCategories((prev) =>
-			prev.includes(category)
-				? prev.filter((c) => c !== category)
-				: [...prev, category]
-		);
-	};
-
-	// Clear all filters
-	const clearFilters = () => {
-		setSelectedCategories([]);
-		setSearchQuery("");
-	};
 
 	// Sample items
 	const createItems = (section: string, index: number) => {
@@ -106,26 +87,6 @@ const Homepage: React.FC = () => {
 	const vendors = Array.from({ length: 6 }).map((_, i) =>
 		createItems("Vendors", i)
 	);
-
-	// Apply search and filtering
-	const filteredOrganizers = searchAndFilterItems(
-		organizers,
-		searchQuery,
-		selectedCategories
-	);
-	const filteredVendors = searchAndFilterItems(
-		vendors,
-		searchQuery,
-		selectedCategories
-	);
-
-	// Get all unique categories for the filter menu
-	const allCategories = [
-		...new Set([
-			...organizers.map((item) => item.specialty),
-			...vendors.map((item) => item.specialty),
-		]),
-	];
 
 	const { isDarkMode } = useTheme();
 
