@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { Send, Users, Check, X } from "lucide-react";
+import { Send } from "lucide-react";
 import PaginatedTable from "./PaginatedTable";
 import StatsCard from "./stats-card";
 
