@@ -1,5 +1,4 @@
 import React, { useState, ChangeEvent } from "react";
-import "./AccountPassword.css";
 
 const AccountPassword: React.FC = () => {
   const [password, setPassword] = useState<string>("");

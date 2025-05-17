@@ -4,7 +4,7 @@ npm i firebase  //firebase dependencies
 npm i -g firebase-tools //access to all firebase tools 
 
 //CSS Dependencies
-npm i tailwindcss postcss-cli autoprefixer //add tailwindcss
+npm install -D tailwindcss postcss autoprefixer //add tailwindcss
 npm i tailwind-merge
 
 //Misc 
@@ -21,3 +21,4 @@ npm install cmdk
 npm install react-calendar
 npm install react-icons
 npm install prettier -D --save-exact
+npm install tailwind-scrollbar-hide
