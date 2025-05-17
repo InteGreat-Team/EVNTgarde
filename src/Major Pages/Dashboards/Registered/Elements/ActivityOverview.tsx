@@ -66,7 +66,7 @@ const ActivityOverview: React.FC = () => {
           </h3>
           <p
             className={`text-4xl ${
-              isCustomer ? "font-semibold ml-4" : "font-bold"
+              isCustomer ? "font-semibold ml-5" : "font-semibold ml-5"
             } mt-2`}
           >
             1,020
@@ -83,7 +83,7 @@ const ActivityOverview: React.FC = () => {
           </h3>
           <p
             className={`text-4xl ${
-              isCustomer ? "font-semibold ml-5" : "font-bold"
+              isCustomer ? "font-semibold ml-5" : "font-semibold ml-5"
             } mt-2`}
           >
             {isCustomer ? "23" : "$ 124,205.00"}
@@ -109,7 +109,7 @@ const ActivityOverview: React.FC = () => {
           <div className="flex items-center mt-2">
             <p
               className={`text-4xl mr-4 ${
-                isCustomer ? "font-semibold ml-5" : "font-bold"
+                isCustomer ? "font-semibold ml-5" : "font-semibold ml-5"
               }`}
             >
               4.5
@@ -145,7 +145,7 @@ const ActivityOverview: React.FC = () => {
           <>
             <div className="bg-white p-6 rounded shadow border border-gray-300">
               <h3 className="text-sm font-medium text-gray-500">Total Job Requests</h3>
-              <p className="text-4xl font-bold mt-2">180,329</p>
+              <p className="text-4xl font-bold mt-2 ml-5">180,329</p>
               <div className="flex items-center mt-2 text-xs text-green-600">
                 <ArrowUp className="h-3 w-3 mr-1" />
                 <span>15% increase since July</span>
@@ -154,7 +154,7 @@ const ActivityOverview: React.FC = () => {
 
             <div className="bg-white p-6 rounded shadow border border-gray-300">
               <h3 className="text-sm font-medium text-gray-500">Total Revenue Earned</h3>
-              <p className="text-4xl font-bold mt-2">$ 298,349.00</p>
+              <p className="text-4xl font-bold mt-2 ml-5">$ 298,349.00</p>
               <div className="flex items-center mt-2 text-xs text-green-600">
                 <ArrowUp className="h-3 w-3 mr-1" />
                 <span>10% increase since 2023</span>
@@ -164,7 +164,7 @@ const ActivityOverview: React.FC = () => {
             <div className="bg-white p-6 rounded shadow border border-gray-300">
               <h3 className="text-sm font-medium text-gray-500">Vendor Satisfaction Rating</h3>
               <div className="flex items-center mt-2">
-                <p className="text-4xl font-bold mr-4">4.5</p>
+                <p className="text-4xl font-bold mr-4 ml-5">4.5</p>
                 <div className="flex space-x-2 text-yellow-400">
                   {[1, 2, 3, 4, 5].map((_, index) => (
                     <Star
