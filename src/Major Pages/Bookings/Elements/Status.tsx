@@ -190,13 +190,39 @@ const Status: React.FC<StatusProps> = ({
                   <h3 className="text-lg font-semibold">Date Completed</h3>
                   <p className="text-gray-500">-</p>
                 </div>
+                <div className="space-y-2">
+                  {(userRole === "organizer" || userRole === "individual") && (
+                    <>
+                      {userRole === "organizer" && (
+                        <>
+                          {selectedBooking?.rsvpStatus ===
+                          "RSVP List: Created" ? (
+                            <button
+                              className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                              onClick={() => console.log("View RSVP Tracker")}
+                            >
+                              View RSVP Tracker
+                            </button>
+                          ) : (
+                            <button
+                              className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                              onClick={() => console.log("Create RSVP")}
+                            >
+                              Create RSVP
+                            </button>
+                          )}
+                        </>
+                      )}
 
-                <button
-                  className="w-full border border-gray-300 rounded-md py-3 px-4 text-black font-medium hover:bg-gray-300"
-                  onClick={onMarkCompleted}
-                >
-                  Mark Event as Completed
-                </button>
+                      <button
+                        className="w-full bg-red-600 rounded-md py-3 px-4 text-white font-medium hover:bg-red-800"
+                        onClick={() => console.log("Create Guest List")}
+                      >
+                        Create Guest List
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </>
