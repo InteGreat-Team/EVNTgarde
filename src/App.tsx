@@ -118,15 +118,15 @@ const App: React.FC = () => {
 
         <Route
           path="/register/individual"
-          element={<IndividualRegistration step={1} />}
+          element={<IndividualRegistration/>}
         />
         <Route
           path="/register/individual/step2"
-          element={<IndividualRegistration step={2} />}
+          element={<IndividualRegistration />}
         />
         <Route
           path="/register/individual/step3"
-          element={<IndividualRegistration step={3} />}
+          element={<IndividualRegistration />}
         />
 
         <Route
