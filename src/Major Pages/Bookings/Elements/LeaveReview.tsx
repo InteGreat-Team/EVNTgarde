@@ -12,19 +12,12 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
     prepared: 0,
     professional: 0,
     price: 0,
-  });
-  const [title, setTitle] = useState("");
-  const [experience, setExperience] = useState("");
-  const [, setFiles] = useState<File[]>([]);
+  })
+  const [title, setTitle] = useState("")
+  const [experience, setExperience] = useState("")
 
   const handleRating = (field: keyof typeof ratings, value: number) => {
     setRatings((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files));
-    }
   };
 
   return (
@@ -108,7 +101,6 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
                 multiple
                 className="hidden"
                 id="fileUpload"
-                onChange={handleFileChange}
               />
               <label htmlFor="fileUpload" className="cursor-pointer">
                 <div className="flex flex-col items-center">
