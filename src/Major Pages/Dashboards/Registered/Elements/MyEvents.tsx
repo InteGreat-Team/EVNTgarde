@@ -3,7 +3,6 @@
 import type React from "react";
 import { useState } from "react";
 import Card from "./MyEventsCard";
-import EventModal from "./EventModal";
 import clipboardImage from "../../../../assets/clipboard.png";
 import { CreateEventModal } from "./CreateEventModal";
 
@@ -64,18 +63,12 @@ interface EventData {
 }
 
 const MyEvents: React.FC<Props> = ({ onAdd }) => {
-  const [selectedEvent, setSelectedEvent] = useState<
-    (typeof allEvents)[0] | null
-  >(null);
+  const [, setSelectedEvent] = useState<(typeof allEvents)[0] | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [events, setEvents] = useState<any[]>(allEvents);
 
   const handleView = (event: (typeof allEvents)[0]) => {
     setSelectedEvent(event);
-  };
-
-  const handleClose = () => {
-    setSelectedEvent(null);
   };
 
   const handleCreateEvent = () => {
