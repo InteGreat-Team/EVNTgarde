@@ -7,8 +7,10 @@ import { createUserAccount } from "../../functions/userAccount"
 import { useTheme } from "../../functions/ThemeContext"
 import { FcGoogle } from "react-icons/fc"
 import { AiFillYahoo } from "react-icons/ai"
+import { useNavigate } from "react-router-dom";
 
 const IndividualRegistration: React.FC = () => {
+    const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1)
   const { isDarkMode } = useTheme()
 
@@ -275,7 +277,7 @@ const IndividualRegistration: React.FC = () => {
   // Update the handleBack function to handle the new step
   const handleBack = () => {
     if (currentStep === 1) {
-      // Stay on the same page
+      navigate("/role-selection")
       return
     } else if (currentStep === 1.25) {
       setCurrentStep(1)
