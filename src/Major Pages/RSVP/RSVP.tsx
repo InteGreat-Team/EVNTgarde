@@ -144,7 +144,10 @@ const RSVP: React.FC = () => {
                   <img src={emptyBox || "/placeholder.svg"} alt="No Events" className="w-48 h-48 mb-8" />
                   <h2 className="text-3xl font-semibold text-gray-800 mb-3">Ready to Host Something?</h2>
                   <p className="text-lg text-gray-600 max-w-lg">
-                    It looks like you haven't created any events that require an RSVP...
+
+                    It looks like you haven’t created any events that require an
+                    RSVP. Once you've set one up, you’ll be able to invite
+                    guests and keep track of their responses.
                   </p>
                 </div>
               )}

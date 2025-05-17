@@ -528,7 +528,7 @@ const IndividualRegistration: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                   Back
                 </button>
@@ -572,7 +572,7 @@ const IndividualRegistration: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                   Start Over
                 </button>
@@ -637,7 +637,7 @@ const IndividualRegistration: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                   Back
                 </button>
@@ -758,7 +758,7 @@ const IndividualRegistration: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                     >
                     Back
                   </button>
@@ -943,7 +943,7 @@ const IndividualRegistration: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                     Back
                   </button>
@@ -1101,17 +1101,17 @@ const IndividualRegistration: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                     >
                     Back
                   </button>
                   <button
                     type="submit"
-                    className={`flex-1 px-6 py-3 ${
-                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
-                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
-                    disabled={isLoading}
-                  >
+                    className={`flex-1 px-6 py-3 text-white ${
+                     isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+					} rounded-xl shadow-lg overflow-hidden font-poppins`}
+					disabled={isLoading}
+				>
                     {isLoading ? (
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                     ) : null}
