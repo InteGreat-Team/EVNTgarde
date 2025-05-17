@@ -1,36 +1,17 @@
-"use client";
+"\"use client";
 
 import type React from "react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { X, Check } from "lucide-react";
+import { User, MapPin, Users } from "lucide-react";
 import BookingStepsCard from "./BookingStepsCard";
 
-interface AddServiceModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-type Step = "overview" | "features" | "pricing";
-
-interface ServiceFeature {
-  title: string;
-  features: string[];
-}
-
-interface ServiceData {
-  name: string;
-  subtext: string;
-  message: string;
-  image: File | null;
-  features: ServiceFeature[];
-  type: string;
-  amount: string;
-}
-
-type Booking = {
+// Define the Booking interface
+interface Booking {
   id: number;
   type: string;
   date: string;
+  endDate?: string;
   day: string;
   title: string;
   startTime: string;
@@ -39,27 +20,52 @@ type Booking = {
   location: string;
   guests: string;
   organizer?: string;
-  requestedServices: { [key: string]: number }; // Flexible object for services
-};
+  requestedServices: { [key: string]: number };
+  overview?: string;
+  attire?: string;
+  additionalServices?: string[];
+}
 
+interface AddServiceModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+type Step = "overview" | "features" | "pricing";
+
+interface ServiceData {
+  name: string;
+  subtext: string;
+  message: string;
+  image: File | null;
+  features: { title: string; features: string[] }[];
+  type: string;
+  amount: string;
+  organizerName?: string;
+  requestedService?: string;
+}
+
+// Sample dummy bookings data
 const dummyBookings: Booking[] = [
   {
     id: 1,
-    type: "Wedding Reception",
-    date: "2025-01-01",
+    type: "Wedding",
+    date: "March 25, 2025",
+    endDate: "March 26, 2025",
     day: "Wednesday",
-    title: "Grand Wedding Celebration",
-    startTime: "5:30 PM",
-    endTime: "10:00 PM",
-    customer: "Mr. & Mrs. Smith",
-    location: "Ballroom A",
-    guests: "150",
+    title: "Wedding Reception Program",
+    startTime: "8:00 AM",
+    endTime: "8:30 PM",
+    customer: "JMiryang Wedding",
+    location: "Location A",
+    guests: "999",
     organizer: "Elite Events Co.",
+    overview: "Wedding ng ino Mo",
+    attire: "Black Tie",
     requestedServices: {
-      Catering: 120000,
-      "Sound & Lighting": 90000,
-      "Floral Arrangements": 60000,
-      Band: 110000,
+      "Wedding Planning": 120000,
+      "Additional Services": 90000,
+      "Confetti, Drones": 60000,
     },
   },
   {
@@ -114,17 +120,20 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
     message: "",
     image: null,
     features: [{ title: "", features: ["", ""] }],
-    type: "",
+    type: "Wedding Planning",
     amount: "",
+    organizerName: "Wedding Ina Mo, Wedding Nating Lahat",
+    requestedService: "Wedding Planning",
   });
   const [showBookingCard, setShowBookingCard] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Booking | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Booking | null>(
+    dummyBookings[0]
+  ); // Default to first booking for demo
   const [bookings] = useState(dummyBookings);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [userRole, setUserRole] = useState<
-    "organizer" | "individual" | "vendor"
-  >("individual");
+  const [, setUserRole] = useState<"organizer" | "individual" | "vendor">(
+    "organizer"
+  );
 
   useEffect(() => {
     const storedUserType = localStorage.getItem("userType");
@@ -164,43 +173,13 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateFeatures = () => {
-    const newErrors: Record<string, boolean> = {};
-
-    serviceData.features.forEach((feature, featureIndex) => {
-      if (!feature.title.trim()) {
-        newErrors[`featureTitle-${featureIndex}`] = true;
-      }
-
-      feature.features.forEach((featureItem, featureItemIndex) => {
-        if (!featureItem.trim()) {
-          newErrors[`feature-${featureIndex}-${featureItemIndex}`] = true;
-        }
-      });
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validatePricing = () => {
-    const newErrors: Record<string, boolean> = {};
-    if (!serviceData.type.trim()) newErrors.type = true;
-    if (!serviceData.amount.trim()) newErrors.amount = true;
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleNext = () => {
     if (currentStep === "overview") {
       if (validateOverview()) {
         setCurrentStep("features");
       }
     } else if (currentStep === "features") {
-      if (validateFeatures()) {
-        setCurrentStep("pricing");
-      }
+      setCurrentStep("pricing");
     }
   };
 
@@ -213,15 +192,9 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
   };
 
   const handleFinish = () => {
-    if (validatePricing()) {
-      // Here you would typically save the data or perform an API call
-      console.log("Service data:", serviceData);
-      onClose();
-    }
-  };
-
-  const handleFileUpload = () => {
-    fileInputRef.current?.click();
+    // Here you would typically save the data or perform an API call
+    console.log("Service data:", serviceData);
+    onClose();
   };
 
   const handleSelectEvent = (booking: Booking) => {
@@ -241,56 +214,7 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
     setShowBookingCard(true);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setServiceData({
-        ...serviceData,
-        image: e.target.files[0],
-      });
-    }
-  };
-
-  const addFeature = (featureIndex: number) => {
-    const updatedFeatures = [...serviceData.features];
-    updatedFeatures[featureIndex].features.push("");
-    setServiceData({
-      ...serviceData,
-      features: updatedFeatures,
-    });
-  };
-
-  const addServiceFeature = () => {
-    setServiceData({
-      ...serviceData,
-      features: [...serviceData.features, { title: "", features: ["", ""] }],
-    });
-  };
-
-  const updateFeatureTitle = (featureIndex: number, value: string) => {
-    const updatedFeatures = [...serviceData.features];
-    updatedFeatures[featureIndex].title = value;
-    setServiceData({
-      ...serviceData,
-      features: updatedFeatures,
-    });
-  };
-
-  const updateFeatureItem = (
-    featureIndex: number,
-    itemIndex: number,
-    value: string
-  ) => {
-    const updatedFeatures = [...serviceData.features];
-    updatedFeatures[featureIndex].features[itemIndex] = value;
-    setServiceData({
-      ...serviceData,
-      features: updatedFeatures,
-    });
-  };
-
-  const renderTitle = () => [
-    userRole === "organizer" ? "Book Vendor" : "Book Organizer",
-  ];
+  const renderTitle = () => "Book Organizer";
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
@@ -303,7 +227,7 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
         </button>
 
         <div className="p-8">
-          <h2 className="text-3xl font-bold text-[#2B579A] mb-8">
+          <h2 className="text-2xl font-bold text-[#2B579A] mb-8">
             {renderTitle()}
           </h2>
 
@@ -311,22 +235,24 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
           <div className="flex items-center justify-between mb-10 px-4">
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   currentStep === "overview"
                     ? "bg-[#2B579A] text-white"
-                    : currentStep === "features" || currentStep === "pricing"
-                      ? "bg-[#2B579A] text-white"
-                      : "border border-gray-300"
+                    : "bg-[#2B579A] text-white"
                 }`}
               >
-                {currentStep === "overview" ? "01" : <Check size={18} />}
+                {currentStep === "overview" ? (
+                  <span className="text-xs">01</span>
+                ) : (
+                  <Check size={16} className="text-white" />
+                )}
               </div>
-              <span className="text-sm mt-2 text-[#2B579A] font-medium">
+              <span className="text-xs mt-1 text-[#2B579A] font-medium">
                 Select Event
               </span>
             </div>
 
-            <div className="flex-1 h-1 bg-gray-300 mx-4">
+            <div className="flex-1 h-1 bg-gray-300 mx-2">
               <div
                 className={`h-full bg-[#2B579A] ${
                   currentStep === "features" || currentStep === "pricing"
@@ -338,30 +264,34 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
 
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   currentStep === "features"
                     ? "bg-[#2B579A] text-white"
                     : currentStep === "pricing"
                       ? "bg-[#2B579A] text-white"
-                      : "border border-gray-300"
+                      : "bg-gray-200 text-gray-500"
                 }`}
               >
                 {currentStep === "features" ? (
-                  "02"
+                  <span className="text-xs">02</span>
                 ) : currentStep === "pricing" ? (
-                  <Check size={18} />
+                  <Check size={16} className="text-white" />
                 ) : (
-                  "02"
+                  <span className="text-xs">02</span>
                 )}
               </div>
               <span
-                className={`text-sm mt-2 ${currentStep === "features" ? "text-[#2B579A] font-medium" : "text-gray-500"}`}
+                className={`text-xs mt-1 ${
+                  currentStep === "features"
+                    ? "text-[#2B579A] font-medium"
+                    : "text-gray-500"
+                }`}
               >
                 Set Payment
               </span>
             </div>
 
-            <div className="flex-1 h-1 bg-gray-300 mx-4">
+            <div className="flex-1 h-1 bg-gray-300 mx-2">
               <div
                 className={`h-full bg-[#2B579A] ${currentStep === "pricing" ? "w-full" : "w-0"}`}
               ></div>
@@ -369,16 +299,16 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
 
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   currentStep === "pricing"
                     ? "bg-[#2B579A] text-white"
-                    : "border border-gray-300"
+                    : "bg-gray-200 text-gray-500"
                 }`}
               >
-                {currentStep === "pricing" ? "03" : "03"}
+                <span className="text-xs">03</span>
               </div>
               <span
-                className={`text-sm mt-2 ${currentStep === "pricing" ? "text-[#2B579A] font-medium" : "text-gray-500"}`}
+                className={`text-xs mt-1 ${currentStep === "pricing" ? "text-[#2B579A] font-medium" : "text-gray-500"}`}
               >
                 Finalize
               </span>
@@ -425,6 +355,10 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
                       Event Summary
                     </h3>
                     <div className="grid grid-cols-2 gap-y-2 text-gray-500">
+                      <div>Name</div>
+                      <div>{selectedEvent.customer}</div>
+                      <div>Overview</div>
+                      <div>{selectedEvent.overview}</div>
                       <div>Type</div>
                       <div>{selectedEvent.type}</div>
                       <div>Date</div>
@@ -433,10 +367,12 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
                       <div>
                         {selectedEvent.startTime} to {selectedEvent.endTime}
                       </div>
-                      <div>Location</div>
+                      <div>Address</div>
                       <div>{selectedEvent.location}</div>
                       <div>Number of Guests</div>
                       <div>{selectedEvent.guests}</div>
+                      <div>Attire</div>
+                      <div>{selectedEvent.attire}</div>
                     </div>
 
                     <h3 className="text-xl font-semibold text-[#2B579A] mt-6">
@@ -465,162 +401,244 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
                   Please select an event before proceeding.
                 </p>
               )}
+              <div className="flex gap-4">
+                <button
+                  onClick={handleBack}
+                  className="flex-1 py-3 px-6 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-base font-medium"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="flex-1 py-3 px-6 bg-[#2B579A] text-white rounded-md hover:bg-blue-700 text-base font-medium"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
 
           {/* Step 2: Features */}
           {currentStep === "features" && (
-            <div className="space-y-8 px-4">
-              {serviceData.features.map((feature, featureIndex) => (
-                <div
-                  key={featureIndex}
-                  className="p-6 bg-gray-50 rounded-md space-y-4"
-                >
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      Service Feature/Inclusion
-                    </label>
-                    <input
-                      type="text"
-                      value={feature.title}
-                      onChange={(e) =>
-                        updateFeatureTitle(featureIndex, e.target.value)
-                      }
-                      placeholder="Title for this inclusion (e.g. Initial Consultation & Vision Development)"
-                      className={`w-full p-3 border ${errors[`featureTitle-${featureIndex}`] ? "border-red-500" : "border-gray-300"} rounded-md text-base`}
-                    />
-                    {errors[`featureTitle-${featureIndex}`] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        Feature title is required
-                      </p>
-                    )}
-                  </div>
+            <div className="space-y-6 px-4">
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-[#4A6FBF] mb-2">
+                  {selectedEvent
+                    ? selectedEvent.title
+                    : "Wedding Reception Program"}
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {selectedEvent
+                    ? `${selectedEvent.startTime} - ${selectedEvent.endTime}`
+                    : "5:30 PM - 10:00 PM"}
+                </p>
 
-                  <div>
-                    <label className="block text-base font-medium text-gray-700 mb-2">
-                      Feature List
-                    </label>
-                    {feature.features.map((featureItem, itemIndex) => (
-                      <div key={itemIndex} className="mb-3">
-                        <input
-                          type="text"
-                          value={featureItem}
-                          onChange={(e) =>
-                            updateFeatureItem(
-                              featureIndex,
-                              itemIndex,
-                              e.target.value
-                            )
-                          }
-                          placeholder="Add a specific feature (e.g. Venue walkthrough and logistics assessment)"
-                          className={`w-full p-3 border ${errors[`feature-${featureIndex}-${itemIndex}`] ? "border-red-500" : "border-gray-300"} rounded-md text-base`}
-                        />
-                        {errors[`feature-${featureIndex}-${itemIndex}`] && (
-                          <p className="text-red-500 text-sm mt-1">
-                            Feature item is required
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => addFeature(featureIndex)}
-                      className="w-full p-3 bg-blue-50 text-[#2B579A] rounded-md flex items-center justify-center hover:bg-blue-100 mt-2"
-                    >
-                      <span className="mr-1">+</span> Add feature
-                    </button>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="flex items-center text-gray-600 text-sm">
+                    <User className="text-gray-400 mr-2" size={16} />
+                    <span>
+                      {selectedEvent ? selectedEvent.customer : "Customer Name"}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-gray-600 text-sm">
+                    <MapPin className="text-gray-400 mr-2" size={16} />
+                    <span>
+                      {selectedEvent ? selectedEvent.location : "Location Name"}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-gray-600 text-sm">
+                    <Users className="text-gray-400 mr-2" size={16} />
+                    <span>
+                      {selectedEvent
+                        ? `${selectedEvent.guests} Guests`
+                        : "150 Guests"}
+                    </span>
                   </div>
                 </div>
-              ))}
 
-              <button
-                onClick={addServiceFeature}
-                className="w-full p-4 bg-blue-50 text-[#2B579A] rounded-md flex items-center justify-center hover:bg-blue-100 mt-4"
-              >
-                <span className="mr-1">+</span> Add Another Service
-                Feature/Inclusion
-              </button>
+                <div className="flex justify-end mt-2">
+                  <button className="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-sm font-medium px-4 py-2 rounded">
+                    Event Details
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-[#4A6FBF] mb-4">
+                  Event Budget
+                </h3>
+                <div className="flex justify-between items-center border-b pb-2">
+                  <span className="text-gray-600">Total Budget</span>
+                  <span className="font-medium">
+                    Php{" "}
+                    {selectedEvent
+                      ? Object.values(selectedEvent.requestedServices)
+                          .reduce((a: number, b: number) => a + b, 0)
+                          .toLocaleString()
+                      : "500,000"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-[#4A6FBF] mb-4">
+                  Hire Organizer
+                </h3>
+                <p className="text-gray-600 mb-2">
+                  Which organizer's service would you like for your event?
+                </p>
+
+                <div className="relative">
+                  <select
+                    className="w-full p-3 border border-gray-300 rounded-md text-base appearance-none bg-white pr-10"
+                    value={serviceData.type}
+                    onChange={(e) =>
+                      setServiceData({ ...serviceData, type: e.target.value })
+                    }
+                  >
+                    <option value="" disabled>
+                      Choose Organizer Service
+                    </option>
+                    <option value="Wedding Planning">Wedding Planning</option>
+                    <option value="Birthday Planning">Birthday Planning</option>
+                    <option value="Educational Convention Planning">
+                      Educational Convention Planning
+                    </option>
+                    <option value="Corporate Event Planning">
+                      Corporate Event Planning
+                    </option>
+                    <option value="Social Gathering Planning">
+                      Social Gathering Planning
+                    </option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={handleBack}
+                  className="flex-1 py-3 px-6 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-base font-medium"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="flex-1 py-3 px-6 bg-[#2B579A] text-white rounded-md hover:bg-blue-700 text-base font-medium"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
 
-          {/* Step 3: Pricing */}
+          {/* Step 3: Pricing/Finalize */}
           {currentStep === "pricing" && (
-            <div className="space-y-6 px-4">
-              <div>
-                <label className="block text-base font-medium text-gray-700 mb-2">
-                  Type
-                </label>
-                <input
-                  type="text"
-                  value={serviceData.type}
-                  onChange={(e) =>
-                    setServiceData({ ...serviceData, type: e.target.value })
-                  }
-                  placeholder="Full Wedding Planning"
-                  className={`w-full p-3 border ${errors.type ? "border-red-500" : "border-gray-300"} rounded-md text-base`}
-                />
-                {errors.type && (
-                  <p className="text-red-500 text-sm mt-1">Type is required</p>
-                )}
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <h3 className="text-lg font-semibold text-[#2B579A] mb-4">
+                  Event Summary
+                </h3>
+
+                <div className="grid grid-cols-2 gap-y-4">
+                  <div className="text-sm text-gray-600">Name</div>
+                  <div className="text-sm">{selectedEvent?.customer}</div>
+
+                  <div className="text-sm text-gray-600">Overview</div>
+                  <div className="text-sm">
+                    {selectedEvent?.overview || "Wedding ng ino Mo"}
+                  </div>
+
+                  <div className="text-sm text-gray-600">Date</div>
+                  <div className="text-sm">
+                    {selectedEvent?.date}{" "}
+                    {selectedEvent?.endDate
+                      ? `to ${selectedEvent.endDate}`
+                      : ""}
+                  </div>
+
+                  <div className="text-sm text-gray-600">Time</div>
+                  <div className="text-sm">
+                    {selectedEvent?.startTime} to {selectedEvent?.endTime}
+                  </div>
+
+                  <div className="text-sm text-gray-600">Number of Guest</div>
+                  <div className="text-sm">{selectedEvent?.guests}</div>
+
+                  <div className="text-sm text-gray-600">Address</div>
+                  <div className="text-sm">{selectedEvent?.location}</div>
+
+                  <div className="text-sm text-gray-600">Type</div>
+                  <div className="text-sm">{selectedEvent?.type}</div>
+
+                  <div className="text-sm text-gray-600">Attire</div>
+                  <div className="text-sm">
+                    {selectedEvent?.attire || "Black Tie"}
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-base font-medium text-gray-700 mb-2">
-                  Amount
-                </label>
-                <input
-                  type="text"
-                  value={serviceData.amount}
-                  onChange={(e) =>
-                    setServiceData({ ...serviceData, amount: e.target.value })
-                  }
-                  placeholder="PHP 90,000"
-                  className={`w-full p-3 border ${errors.amount ? "border-red-500" : "border-gray-300"} rounded-md text-base`}
-                />
-                {errors.amount && (
-                  <p className="text-red-500 text-sm mt-1">
-                    Amount is required
-                  </p>
-                )}
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <h3 className="text-lg font-semibold text-[#2B579A] mb-4">
+                  Event Budget
+                </h3>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Total Budget</span>
+                  <span className="text-sm font-medium">
+                    Php{" "}
+                    {selectedEvent
+                      ? Object.values(selectedEvent.requestedServices)
+                          .reduce((a: number, b: number) => a + b, 0)
+                          .toLocaleString()
+                      : "500,000"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <h3 className="text-lg font-semibold text-[#2B579A] mb-4">
+                  Organizer Details
+                </h3>
+
+                <div className="grid grid-cols-2 gap-y-4">
+                  <div className="text-sm text-gray-600">Organizer Name</div>
+                  <div className="text-sm">{serviceData.organizerName}</div>
+
+                  <div className="text-sm text-gray-600">Requested Service</div>
+                  <div className="text-sm">{serviceData.requestedService}</div>
+                </div>
+              </div>
+
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={handleBack}
+                  className="flex-1 py-3 px-6 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-base font-medium"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handleFinish}
+                  className="flex-1 py-3 px-6 bg-[#2B579A] text-white rounded-md hover:bg-blue-700 text-base font-medium"
+                >
+                  Book
+                </button>
               </div>
             </div>
           )}
-
-          {/* Navigation Buttons */}
-          <div className="flex mt-10 gap-6 px-4">
-            {currentStep !== "overview" && (
-              <button
-                onClick={handleBack}
-                className="flex-1 py-3 px-6 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-base font-medium"
-              >
-                Back
-              </button>
-            )}
-
-            {currentStep === "overview" && (
-              <button
-                onClick={onClose}
-                className="flex-1 py-3 px-6 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-base font-medium"
-              >
-                Cancel
-              </button>
-            )}
-
-            {currentStep !== "pricing" ? (
-              <button
-                onClick={handleNext}
-                className="flex-1 py-3 px-6 bg-[#2B579A] text-white rounded-md hover:bg-blue-700 text-base font-medium"
-              >
-                Next
-              </button>
-            ) : (
-              <button
-                onClick={handleFinish}
-                className="flex-1 py-3 px-6 bg-[#2B579A] text-white rounded-md hover:bg-blue-700 text-base font-medium"
-              >
-                Finish
-              </button>
-            )}
-          </div>
         </div>
       </div>
     </div>
