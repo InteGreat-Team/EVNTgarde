@@ -1,8 +1,8 @@
-import React, { useState } from "react"
-import { X, Star, UploadCloud } from "lucide-react"
+import React, { useState } from "react";
+import { X, Star, UploadCloud } from "lucide-react";
 
 interface LeaveReviewProps {
-  onClose: () => void
+  onClose: () => void;
 }
 
 const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
@@ -17,8 +17,8 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
   const [experience, setExperience] = useState("")
 
   const handleRating = (field: keyof typeof ratings, value: number) => {
-    setRatings(prev => ({ ...prev, [field]: value }))
-  }
+    setRatings((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-gray-800/40 backdrop-blur-md flex items-center justify-center px-4 py-10 overflow-y-auto">
@@ -31,13 +31,19 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
 
         <div className="space-y-6">
           {[
-            { label: "How would you rate the organizer overall?", key: "overall" },
+            {
+              label: "How would you rate the organizer overall?",
+              key: "overall",
+            },
             { label: "Clear and prompt communication?", key: "communication" },
             { label: "On time and prepared?", key: "prepared" },
             { label: "Professional and respectful?", key: "professional" },
             { label: "Worth the price?", key: "price" },
-          ].map(item => (
-            <div key={item.key} className="flex items-center justify-between py-1">
+          ].map((item) => (
+            <div
+              key={item.key}
+              className="flex items-center justify-between py-1"
+            >
               <p className="text-slate-800 text-[15px]">{item.label}</p>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -45,10 +51,16 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
                     key={star}
                     size={24}
                     stroke="#d1d5db"
-                    fill={ratings[item.key as keyof typeof ratings] >= star ? "#facc15" : "none"}
+                    fill={
+                      ratings[item.key as keyof typeof ratings] >= star
+                        ? "#facc15"
+                        : "none"
+                    }
                     strokeWidth={1.5}
                     className="cursor-pointer"
-                    onClick={() => handleRating(item.key as keyof typeof ratings, star)}
+                    onClick={() =>
+                      handleRating(item.key as keyof typeof ratings, star)
+                    }
                   />
                 ))}
               </div>
@@ -56,7 +68,9 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
           ))}
 
           <div>
-            <label className="block text-slate-800 mb-2 font-semibold">Share Your Experience</label>
+            <label className="block text-slate-800 mb-2 font-semibold">
+              Share Your Experience
+            </label>
             <input
               type="text"
               value={title}
@@ -78,7 +92,8 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
 
           <div>
             <p className="text-slate-800 mb-2">
-              Got any event pictures? Upload them here! <span className="text-sm text-slate-500">(optional)</span>
+              Got any event pictures? Upload them here!{" "}
+              <span className="text-sm text-slate-500">(optional)</span>
             </p>
             <div className="w-full border border-dashed border-gray-300 bg-gray-50 rounded-md p-6 text-center">
               <input
@@ -91,10 +106,12 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
                 <div className="flex flex-col items-center">
                   <UploadCloud className="w-8 h-8 mb-2 text-blue-800" />
                   <span className="text-sm font-medium text-black">
-                    Browse and choose the files you want to upload from your device
+                    Browse and choose the files you want to upload from your
+                    device
                   </span>
                   <span className="text-xs text-slate-500 mt-1">
-                    We'd love to see the moments you captured—upload your favorite shot here!
+                    We'd love to see the moments you captured—upload your
+                    favorite shot here!
                   </span>
                   <div className="mt-4">
                     <div className="w-8 h-8 bg-blue-800 rounded-md flex items-center justify-center">
@@ -113,16 +130,14 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
             >
               Cancel
             </button>
-            <button
-              className="w-full bg-blue-700 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-800"
-            >
+            <button className="w-full bg-blue-700 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-800">
               Post
             </button>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LeaveReview
+export default LeaveReview;
