@@ -15,16 +15,9 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
   })
   const [title, setTitle] = useState("")
   const [experience, setExperience] = useState("")
-  const [files, setFiles] = useState<File[]>([])
 
   const handleRating = (field: keyof typeof ratings, value: number) => {
     setRatings(prev => ({ ...prev, [field]: value }))
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files))
-    }
   }
 
   return (
@@ -93,7 +86,6 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
                 multiple
                 className="hidden"
                 id="fileUpload"
-                onChange={handleFileChange}
               />
               <label htmlFor="fileUpload" className="cursor-pointer">
                 <div className="flex flex-col items-center">

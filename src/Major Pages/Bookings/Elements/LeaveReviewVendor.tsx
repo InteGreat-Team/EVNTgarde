@@ -14,16 +14,9 @@ const LeaveReviewVendor: React.FC<LeaveReviewVendorProps> = ({ onClose }) => {
     satisfaction: 0,
   })
   const [feedback, setFeedback] = useState("")
-  const [files, setFiles] = useState<File[]>([])
 
   const handleRating = (field: keyof typeof ratings, value: number) => {
     setRatings(prev => ({ ...prev, [field]: value }))
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files))
-    }
   }
 
   return (
@@ -85,7 +78,6 @@ const LeaveReviewVendor: React.FC<LeaveReviewVendorProps> = ({ onClose }) => {
                 multiple
                 className="hidden"
                 id="vendorFileUpload"
-                onChange={handleFileChange}
               />
               <label htmlFor="vendorFileUpload" className="cursor-pointer">
                 <div className="flex flex-col items-center">
