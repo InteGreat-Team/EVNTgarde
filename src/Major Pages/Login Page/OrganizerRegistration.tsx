@@ -1,5 +1,3 @@
-"use client"
-
 import { Eye, EyeOff } from "lucide-react"
 import type React from "react"
 import { useState, useEffect } from "react"
@@ -567,25 +565,25 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                 ))}
               </div>
 
-              <div className="flex justify-between mt-auto">
-                <button
-                  type="button"
+             <div className="flex justify-center items-center gap-5">
+                  <button
+                    type="button"
                   onClick={goToPreviousStep}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                >
-                  Back
-                </button>
-                <button
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
+                    Back
+                  </button>
+                  <button
                   type="button"
                   onClick={goToNextStep}
-                  className={`px-6 py-3 text-white rounded-lg ${
-                    isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
-                  disabled={!budget}
-                >
-                  Next
-                </button>
-              </div>
+                  className={`flex-1 px-6 py-3 text-white ${
+                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
+                  >
+                    Next
+                  </button>
+                </div>
+
               <p className="text-center text-sm mt-4 text-gray-500">
                 Already have an account?{" "}
                 <a href="/login" className="text-blue-600 hover:underline">
