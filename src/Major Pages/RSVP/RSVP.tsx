@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import emptyBox from "../../assets/empty-box.png"; // adjust path based on your project structure
+import emptyBox from "src\assets\empty-box.png"; // adjust path based on your project structure
 import RSVPCard, { RSVPCardProps } from "./Elements/rsvp-cards"; // Assuming EventCard is in the same directory
 import RSVPTracking from "./Elements/rsvp-tracking";
 

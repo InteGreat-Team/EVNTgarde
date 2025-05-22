@@ -178,12 +178,6 @@ const PaginatedTable: React.FC = () => {
     }
   }
 
-  // Calculate stats for the stat cards
-  const totalGuests = data.length
-  const goingGuests = data.filter((guest) => guest.eventStatus === "Going").length
-  const notGoingGuests = data.filter((guest) => guest.eventStatus === "Not Going").length
-  const pendingGuests = data.filter((guest) => guest.eventStatus === "Pending").length
-
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
