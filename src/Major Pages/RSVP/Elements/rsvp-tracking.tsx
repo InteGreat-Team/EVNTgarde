@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { ArrowLeft, Search, Send } from "lucide-react";
 import PaginatedTable from "./PaginatedTable";

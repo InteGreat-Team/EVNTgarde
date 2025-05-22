@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useRef } from "react"
 import { X, Calendar, Clock, Plus, Minus, ChevronDown, Upload, Check } from "lucide-react"
 

@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { BlockDatesModal } from "./block-dates-modal"
 import { EditDatesModal } from "./edit-dates-modal"

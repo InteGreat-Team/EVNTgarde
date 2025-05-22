@@ -1,5 +1,3 @@
-"use client"
-
 import { Eye, EyeOff } from "lucide-react"
 import type React from "react"
 import { useState, useEffect } from "react"
