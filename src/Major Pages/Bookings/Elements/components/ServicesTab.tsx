@@ -10,7 +10,7 @@ interface ServicesTabProps {
   };
 }
 
-const ServicesTab: React.FC<ServicesTabProps> = ({ selectedBooking }) => {
+const ServicesTab: React.FC<ServicesTabProps> = ({ }) => {
   const services = [
     { id: 1, name: "Catering Services", price: "PHP 560,000" },
     { id: 2, name: "Catering Services", price: "PHP 560,000" },

@@ -9,7 +9,7 @@ interface VenueMapTabProps {
   };
 }
 
-const VenueMapTab: React.FC<VenueMapTabProps> = ({ selectedBooking }) => {
+const VenueMapTab: React.FC<VenueMapTabProps> = ({ }) => {
   const venueDetails = {
     name: "Blessed Pier Giorgio Frassati Building Auditorium",
     floor: "21st Floor, Blessed Pier Giorgio Frassati Building",

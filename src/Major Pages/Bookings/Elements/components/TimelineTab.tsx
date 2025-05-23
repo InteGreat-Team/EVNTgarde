@@ -10,7 +10,7 @@ interface TimelineTabProps {
   userRole: "organizer" | "individual" | "vendor";
 }
 
-const TimelineTab: React.FC<TimelineTabProps> = ({ selectedBooking, activeStatus, userRole }) => {
+const TimelineTab: React.FC<TimelineTabProps> = ({ activeStatus, userRole }) => {
   return (
     <div className="p-4 flex flex-col items-center justify-center h-48">
       <div className="bg-blue-100 p-4 rounded-full mb-4">
