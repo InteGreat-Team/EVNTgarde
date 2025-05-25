@@ -1,8 +1,3 @@
-import type React from "react"
-import { useState } from "react"
-import { ChevronDown, ChevronLeft, ChevronRight, Check, X, Send } from "lucide-react"
-
-
 import type React from "react";
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
