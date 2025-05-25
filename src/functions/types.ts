@@ -113,3 +113,39 @@ export interface StepProps {
   onNext?: () => void;
   onBack?: () => void;
 }
+
+export interface VendorFormData {
+  vendorType: "solo" | "company" | ""
+  vendorName: string
+  businessOffering: string
+  gender: string
+  phoneNumber: string
+  email: string
+  password: string
+  confirmPassword: string
+  address: {
+    buildingId: string
+    street: string
+    barangay: string
+    city: string
+    province: string
+    zipCode: string
+    country: string
+  }
+  termsAccepted: boolean
+}
+
+export interface FormFieldProps {
+  label: string
+  type?: string
+  placeholder?: string
+  value: string
+  onChange: (value: string) => void
+  required?: boolean
+  children?: React.ReactNode
+}
+
+export interface SelectOption {
+  value: string
+  label: string
+}
