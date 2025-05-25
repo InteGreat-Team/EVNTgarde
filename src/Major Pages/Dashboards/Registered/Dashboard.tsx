@@ -128,12 +128,6 @@ const Dashboard: React.FC = () => {
                   </button>
                 ))}
               </div>
-              <button
-                className="ml-auto px-4 py-2 bg-blue-600 text-white rounded"
-                onClick={() => setShowEventForm(true)}
-              >
-                Create Event
-              </button>
             </div>
           </div>
 

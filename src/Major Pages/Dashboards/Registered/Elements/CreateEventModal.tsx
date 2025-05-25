@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { X, Calendar, Clock, Plus, Minus, ChevronDown, Upload, Check } from "lucide-react"
+import { getAuth, onAuthStateChanged } from "firebase/auth"
 
 interface CreateEventModalProps {
   isOpen: boolean
@@ -18,7 +19,7 @@ interface EventData {
   endTime: string
   numberOfGuests: number
   location: string
-  eventType: string
+  eventTypeId: number | ""
   attire: string
   services: string[]
   customServices: string[]
@@ -26,9 +27,16 @@ interface EventData {
   files: File[]
 }
 
+interface ErrorState {
+  [key: string]: boolean | string
+}
+
 export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalProps) {
   const [step, setStep] = useState(1)
-  const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const [errors, setErrors] = useState<ErrorState>({})
+  const [loading, setLoading] = useState(false)
+  const [customerId, setCustomerId] = useState<string | null>(null)
+  const [eventTypes, setEventTypes] = useState<{ event_type_id: number; event_type_name: string }[]>([])
   const [eventData, setEventData] = useState<EventData>({
     name: "",
     overview: "",
@@ -38,7 +46,7 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
     endTime: "",
     numberOfGuests: 0,
     location: "",
-    eventType: "",
+    eventTypeId: "",
     attire: "",
     services: [],
     customServices: [],
@@ -47,6 +55,29 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
   })
   const [customService, setCustomService] = useState("")
   const modalRef = useRef<HTMLDivElement>(null)
+
+  // Add authentication state listener
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCustomerId(user.uid);
+      } else {
+        setCustomerId(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/event-types")
+      .then((res) => res.json())
+      .then((data) => {
+        setEventTypes(data);
+        console.log("Fetched event types:", data); // <-- Add this
+      })
+      .catch((err) => console.error("Failed to fetch event types", err));
+  }, []);
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
@@ -113,7 +144,7 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
     if (!eventData.endTime) newErrors.endTime = true
     if (eventData.numberOfGuests <= 0) newErrors.numberOfGuests = true
     if (!eventData.location.trim()) newErrors.location = true
-    if (!eventData.eventType) newErrors.eventType = true
+    if (!eventData.eventTypeId) newErrors.eventTypeId = true
     if (!eventData.attire) newErrors.attire = true
 
     setErrors(newErrors)
@@ -153,10 +184,97 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
     }
   }
 
-  const handleSave = () => {
-    onSave(eventData)
-    onClose()
-  }
+  const handleSave = async () => {
+    setLoading(true);
+    setErrors({});
+    try {
+      if (!customerId) {
+        setErrors({ auth: true, message: "You must be logged in to create an event" });
+        setLoading(false);
+        return;
+      }
+
+      // Validate all required fields
+      const requiredFields = {
+        name: "Event Name",
+        overview: "Event Overview",
+        startDate: "Start Date",
+        endDate: "End Date",
+        startTime: "Start Time",
+        endTime: "End Time",
+        numberOfGuests: "Number of Guests",
+        location: "Location",
+        eventTypeId: "Event Type",
+        attire: "Attire",
+        budget: "Budget"
+      };
+
+      const missingFields = [];
+      for (const [field, label] of Object.entries(requiredFields)) {
+        if (!eventData[field as keyof EventData] || 
+            (typeof eventData[field as keyof EventData] === 'string' && 
+             eventData[field as keyof EventData].toString().trim() === '')) {
+          missingFields.push(label);
+        }
+      }
+
+      if (missingFields.length > 0) {
+        setErrors({ 
+          save: true,
+          message: `Please fill in all required fields: ${missingFields.join(', ')}`
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Map form data to database schema
+      const eventTypeObj = eventTypes.find(t => t.event_type_id === eventData.eventTypeId);
+      const eventPayload = {
+        eventName: eventData.name,
+        eventOverview: eventData.overview,
+        startDate: eventData.startDate,
+        endDate: eventData.endDate,
+        startTime: eventData.startTime,
+        endTime: eventData.endTime,
+        guests: eventData.numberOfGuests,
+        location: eventData.location,
+        eventTypeId: eventData.eventTypeId,
+        eventTypeName: eventTypeObj ? eventTypeObj.event_type_name : "",
+        attire: eventData.attire,
+        services: eventData.services.join(", ") || null,
+        additionalServices: eventData.customServices.join(", ") || null,
+        budget: eventData.budget,
+        customerId: customerId,
+        organizerId: null,
+        vendorId: null,
+        venueId: null
+      };
+      console.log("Sending eventPayload:", eventPayload);
+
+      const response = await fetch("http://localhost:5000/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventPayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create event");
+      }
+
+      // Call the original onSave callback
+      onSave(eventData);
+      onClose();
+    } catch (err) {
+      setErrors({ 
+        save: true,
+        message: err instanceof Error ? err.message : "Failed to create event. Please try again."
+      });
+      console.error("Error creating event:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const incrementGuests = () => {
     handleInputChange("numberOfGuests", eventData.numberOfGuests + 1)
@@ -172,456 +290,397 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm overflow-auto">
       <div
         ref={modalRef}
-        className="bg-white rounded-xl w-full max-w-xl mx-4 my-4 overflow-hidden shadow-xl transform transition-all"
+        className="bg-white rounded-xl w-full max-w-2xl mx-4 my-4 overflow-hidden shadow-xl transform transition-all"
       >
-        <div className="p-4">
-          <h2 className="text-2xl font-semibold text-[#3061AD] mb-6">Create Event</h2>
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-[#3061AD]">Create Event</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+              <X size={24} />
+            </button>
+          </div>
 
           {/* Progress Steps */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-8">
             <div className="flex items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step >= 1 ? "bg-[#3061AD] text-white" : "border border-gray-300 text-gray-500"
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-base ${
+                  step >= 1 ? "bg-[#3061AD] text-white" : "border-2 border-gray-300 text-gray-500"
                 }`}
               >
-                {step > 1 ? <Check size={16} /> : "01"}
+                {step > 1 ? <Check size={18} /> : "01"}
               </div>
-              <div className={`ml-2 text-sm ${step === 1 ? "text-[#3061AD] font-medium" : "text-gray-500"}`}>
+              <div className={`ml-3 text-sm ${step === 1 ? "text-[#3061AD] font-medium" : "text-gray-500"}`}>
                 Event Details
               </div>
             </div>
 
-            <div className={`flex-1 h-0.5 mx-4 ${step > 1 ? "bg-[#3061AD]" : "bg-gray-200"}`}></div>
+            <div className={`flex-1 h-1 mx-4 ${step > 1 ? "bg-[#3061AD]" : "bg-gray-200"}`}></div>
 
             <div className="flex items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step >= 2 ? "bg-[#3061AD] text-white" : "border border-gray-300 text-gray-500"
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-base ${
+                  step >= 2 ? "bg-[#3061AD] text-white" : "border-2 border-gray-300 text-gray-500"
                 }`}
               >
-                {step > 2 ? <Check size={16} /> : "02"}
+                {step > 2 ? <Check size={18} /> : "02"}
               </div>
-              <div className={`ml-2 text-sm ${step === 2 ? "text-[#3061AD] font-medium" : "text-gray-500"}`}>
+              <div className={`ml-3 text-sm ${step === 2 ? "text-[#3061AD] font-medium" : "text-gray-500"}`}>
                 Services
               </div>
             </div>
 
-            <div className={`flex-1 h-0.5 mx-4 ${step > 2 ? "bg-[#3061AD]" : "bg-gray-200"}`}></div>
+            <div className={`flex-1 h-1 mx-4 ${step > 2 ? "bg-[#3061AD]" : "bg-gray-200"}`}></div>
 
             <div className="flex items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step === 3 ? "bg-[#3061AD] text-white" : "border border-gray-300 text-gray-500"
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-base ${
+                  step === 3 ? "bg-[#3061AD] text-white" : "border-2 border-gray-300 text-gray-500"
                 }`}
               >
                 03
               </div>
-              <div className={`ml-2 text-sm ${step === 3 ? "text-[#3061AD] font-medium" : "text-gray-500"}`}>
+              <div className={`ml-3 text-sm ${step === 3 ? "text-[#3061AD] font-medium" : "text-gray-500"}`}>
                 Preview
               </div>
             </div>
           </div>
 
-          {/* Step 1: Event Details */}
-          {step === 1 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Event Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g., Annual Business Conference 2025"
-                  className={`w-full p-3 border ${errors.name ? "border-red-500" : "border-gray-300"} rounded-md`}
-                  value={eventData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                />
-                {errors.name && <p className="text-red-500 text-xs mt-1">Event name is required</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Event Overview</label>
-                <textarea
-                  placeholder="Provide an overview of your event. Mention what makes it unique and any important details"
-                  className={`w-full p-3 border ${errors.overview ? "border-red-500" : "border-gray-300"} rounded-md h-16`}
-                  value={eventData.overview}
-                  onChange={(e) => handleInputChange("overview", e.target.value)}
-                />
-                {errors.overview && <p className="text-red-500 text-xs mt-1">Event overview is required</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
-                    <input
-                      type="date"
-                      placeholder="Start Date"
-                      className={`w-full p-3 border ${errors.startDate ? "border-red-500" : "border-gray-300"} rounded-md pr-10`}
-                      value={eventData.startDate}
-                      onChange={(e) => handleInputChange("startDate", e.target.value)}
-                    />
-                    <Calendar
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-                      size={18}
-                    />
-                    {errors.startDate && <p className="text-red-500 text-xs mt-1">Start date is required</p>}
-                  </div>
-
-                  <span className="text-gray-500">To</span>
-
-                  <div className="relative flex-1">
-                    <input
-                      type="date"
-                      placeholder="End Date"
-                      className={`w-full p-3 border ${errors.endDate ? "border-red-500" : "border-gray-300"} rounded-md pr-10`}
-                      value={eventData.endDate}
-                      onChange={(e) => handleInputChange("endDate", e.target.value)}
-                    />
-                    <Calendar
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-                      size={18}
-                    />
-                    {errors.endDate && <p className="text-red-500 text-xs mt-1">End date is required</p>}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
-                    <input
-                      type="time"
-                      placeholder="Start Time"
-                      className={`w-full p-3 border ${errors.startTime ? "border-red-500" : "border-gray-300"} rounded-md pr-10`}
-                      value={eventData.startTime}
-                      onChange={(e) => handleInputChange("startTime", e.target.value)}
-                    />
-                    <Clock
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-                      size={18}
-                    />
-                    {errors.startTime && <p className="text-red-500 text-xs mt-1">Start time is required</p>}
-                  </div>
-
-                  <span className="text-gray-500">To</span>
-
-                  <div className="relative flex-1">
-                    <input
-                      type="time"
-                      placeholder="End Time"
-                      className={`w-full p-3 border ${errors.endTime ? "border-red-500" : "border-gray-300"} rounded-md pr-10`}
-                      value={eventData.endTime}
-                      onChange={(e) => handleInputChange("endTime", e.target.value)}
-                    />
-                    <Clock
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-                      size={18}
-                    />
-                    {errors.endTime && <p className="text-red-500 text-xs mt-1">End time is required</p>}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Number of Guests</label>
-                <div className="flex items-center">
-                  <button className="p-3 border border-gray-300 rounded-l-md" onClick={decrementGuests}>
-                    <Minus size={16} />
-                  </button>
-                  <input
-                    type="text"
-                    className={`flex-1 p-3 border-y ${errors.numberOfGuests ? "border-red-500" : "border-gray-300"} text-center`}
-                    value={eventData.numberOfGuests || ""}
-                    onChange={(e) => {
-                      const value = Number.parseInt(e.target.value) || 0
-                      handleInputChange("numberOfGuests", value)
-                    }}
-                  />
-                  <button className="p-3 border border-gray-300 rounded-r-md" onClick={incrementGuests}>
-                    <Plus size={16} />
-                  </button>
-                </div>
-                {errors.numberOfGuests && <p className="text-red-500 text-xs mt-1">Number of guests is required</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Event Location</label>
-                <input
-                  type="text"
-                  placeholder="Enter Event Location"
-                  className={`w-full p-3 border ${errors.location ? "border-red-500" : "border-gray-300"} rounded-md`}
-                  value={eventData.location}
-                  onChange={(e) => handleInputChange("location", e.target.value)}
-                />
-                {errors.location && <p className="text-red-500 text-xs mt-1">Event location is required</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
-                <div className="relative">
-                  <select
-                    className={`w-full p-3 border ${errors.eventType ? "border-red-500" : "border-gray-300"} rounded-md appearance-none pr-10`}
-                    value={eventData.eventType}
-                    onChange={(e) => handleInputChange("eventType", e.target.value)}
-                  >
-                    <option value="">Choose Event Type</option>
-                    <option value="Wedding">Wedding</option>
-                    <option value="Corporate">Corporate</option>
-                    <option value="Birthday">Birthday</option>
-                    <option value="Anniversary">Anniversary</option>
-                    <option value="Conference">Conference</option>
-                    <option value="Seminar">Seminar</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <ChevronDown
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-                    size={18}
-                  />
-                </div>
-                {errors.eventType && <p className="text-red-500 text-xs mt-1">Event type is required</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Attire</label>
-                <div className="relative">
-                  <select
-                    className={`w-full p-3 border ${errors.attire ? "border-red-500" : "border-gray-300"} rounded-md appearance-none pr-10`}
-                    value={eventData.attire}
-                    onChange={(e) => handleInputChange("attire", e.target.value)}
-                  >
-                    <option value="">Choose an attire</option>
-                    <option value="Casual">Casual</option>
-                    <option value="Business Casual">Business Casual</option>
-                    <option value="Formal">Formal</option>
-                    <option value="Black Tie">Black Tie</option>
-                    <option value="White Tie">White Tie</option>
-                    <option value="Costume">Costume</option>
-                    <option value="School Uniform">School Uniform</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <ChevronDown
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-                    size={18}
-                  />
-                </div>
-                {errors.attire && <p className="text-red-500 text-xs mt-1">Attire is required</p>}
-              </div>
+          {/* Error Messages */}
+          {errors.auth && (
+            <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+              You must be logged in to create an event
+            </div>
+          )}
+          {errors.save && (
+            <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+              {errors.message || "Failed to create event. Please try again."}
             </div>
           )}
 
-          {/* Step 2: Services */}
-          {step === 2 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  List Services Required for your event
-                </label>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {["Catering Services", "Decor & Design", "Entertainment", "Photography"].map((service) => (
-                    <button
-                      key={service}
-                      className={`flex items-center px-3 py-2 rounded-md border ${
-                        eventData.services.includes(service)
-                          ? "border-[#3061AD] text-[#3061AD]"
-                          : "border-gray-300 text-gray-700"
-                      }`}
-                      onClick={() => handleServiceToggle(service)}
-                    >
-                      {service}
-                      <span className="ml-2 w-5 h-5 rounded-full border flex items-center justify-center">
-                        {eventData.services.includes(service) && <Check size={12} />}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                {errors.services && <p className="text-red-500 text-xs mt-1">At least one service is required</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Select Services</label>
-                <div className="flex items-center gap-2 mb-4">
+          {/* Form Content */}
+          <div className="max-h-[65vh] overflow-y-auto space-y-6">
+            {/* Step 1: Event Details */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Event Name</label>
                   <input
                     type="text"
-                    placeholder="Enter custom service"
-                    className="flex-1 p-3 border border-gray-300 rounded-md"
-                    value={customService}
-                    onChange={(e) => setCustomService(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault()
-                        addCustomService()
-                      }
-                    }}
+                    placeholder="e.g., Annual Business Conference 2025"
+                    className={`w-full p-3 border ${errors.name ? "border-red-500" : "border-gray-300"} rounded-lg text-base`}
+                    value={eventData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                   />
-                  <button
-                    className="bg-gray-100 text-[#3061AD] px-3 py-3 rounded-md hover:bg-gray-200"
-                    onClick={addCustomService}
-                  >
-                    Add Custom Service
-                  </button>
+                  {errors.name && <p className="text-red-500 text-sm mt-1">Event name is required</p>}
                 </div>
 
-                {eventData.customServices.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Custom Services:</h4>
-                    <ul className="space-y-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Event Overview</label>
+                  <textarea
+                    placeholder="Provide an overview of your event"
+                    className={`w-full p-3 border ${errors.overview ? "border-red-500" : "border-gray-300"} rounded-lg text-base h-24`}
+                    value={eventData.overview}
+                    onChange={(e) => handleInputChange("overview", e.target.value)}
+                  />
+                  {errors.overview && <p className="text-red-500 text-sm mt-1">Event overview is required</p>}
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        className={`w-full p-3 border ${errors.startDate ? "border-red-500" : "border-gray-300"} rounded-lg text-base pr-10`}
+                        value={eventData.startDate}
+                        onChange={(e) => handleInputChange("startDate", e.target.value)}
+                      />
+                      <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        className={`w-full p-3 border ${errors.endDate ? "border-red-500" : "border-gray-300"} rounded-lg text-base pr-10`}
+                        value={eventData.endDate}
+                        onChange={(e) => handleInputChange("endDate", e.target.value)}
+                      />
+                      <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        className={`w-full p-3 border ${errors.startTime ? "border-red-500" : "border-gray-300"} rounded-lg text-base pr-10`}
+                        value={eventData.startTime}
+                        onChange={(e) => handleInputChange("startTime", e.target.value)}
+                      />
+                      <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        className={`w-full p-3 border ${errors.endTime ? "border-red-500" : "border-gray-300"} rounded-lg text-base pr-10`}
+                        value={eventData.endTime}
+                        onChange={(e) => handleInputChange("endTime", e.target.value)}
+                      />
+                      <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Number of Guests</label>
+                    <div className="flex items-center">
+                      <button className="p-3 border border-gray-300 rounded-l-lg" onClick={decrementGuests}>
+                        <Minus size={18} />
+                      </button>
+                      <input
+                        type="text"
+                        className={`flex-1 p-3 border-y ${errors.numberOfGuests ? "border-red-500" : "border-gray-300"} text-base text-center`}
+                        value={eventData.numberOfGuests || ""}
+                        onChange={(e) => {
+                          const value = Number.parseInt(e.target.value) || 0;
+                          handleInputChange("numberOfGuests", value);
+                        }}
+                      />
+                      <button className="p-3 border border-gray-300 rounded-r-lg" onClick={incrementGuests}>
+                        <Plus size={18} />
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
+                    <div className="relative">
+                      <select
+                        className={`w-full p-3 border ${errors.eventTypeId ? "border-red-500" : "border-gray-300"} rounded-lg text-base appearance-none pr-10`}
+                        value={eventData.eventTypeId}
+                        onChange={(e) => handleInputChange("eventTypeId", Number(e.target.value))}
+                      >
+                        <option value="">Choose Event Type</option>
+                        {eventTypes.map((type) => (
+                          <option key={type.event_type_id} value={type.event_type_id}>
+                            {type.event_type_name}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <input
+                    type="text"
+                    placeholder="Enter Event Location"
+                    className={`w-full p-3 border ${errors.location ? "border-red-500" : "border-gray-300"} rounded-lg text-base`}
+                    value={eventData.location}
+                    onChange={(e) => handleInputChange("location", e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Attire</label>
+                  <div className="relative">
+                    <select
+                      className={`w-full p-3 border ${errors.attire ? "border-red-500" : "border-gray-300"} rounded-lg text-base appearance-none pr-10`}
+                      value={eventData.attire}
+                      onChange={(e) => handleInputChange("attire", e.target.value)}
+                    >
+                      <option value="">Choose Attire</option>
+                      <option value="Casual">Casual</option>
+                      <option value="Business Casual">Business Casual</option>
+                      <option value="Formal">Formal</option>
+                      <option value="Black Tie">Black Tie</option>
+                      <option value="White Tie">White Tie</option>
+                      <option value="Costume">Costume</option>
+                      <option value="School Uniform">School Uniform</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Services */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Required Services</label>
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    {["Catering", "Decor", "Entertainment", "Photography"].map((service) => (
+                      <button
+                        key={service}
+                        className={`flex items-center px-4 py-2 rounded-lg border text-base ${
+                          eventData.services.includes(service)
+                            ? "border-[#3061AD] text-[#3061AD]"
+                            : "border-gray-300 text-gray-700"
+                        }`}
+                        onClick={() => handleServiceToggle(service)}
+                      >
+                        {service}
+                        <span className="ml-2 w-5 h-5 rounded-full border flex items-center justify-center">
+                          {eventData.services.includes(service) && <Check size={14} />}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Custom Services</label>
+                  <div className="flex items-center gap-3 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Add custom service"
+                      className="flex-1 p-3 border border-gray-300 rounded-lg text-base"
+                      value={customService}
+                      onChange={(e) => setCustomService(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addCustomService();
+                        }
+                      }}
+                    />
+                    <button
+                      className="bg-gray-100 text-[#3061AD] px-4 py-3 rounded-lg hover:bg-gray-200 text-base"
+                      onClick={addCustomService}
+                    >
+                      Add Service
+                    </button>
+                  </div>
+
+                  {eventData.customServices.length > 0 && (
+                    <div className="space-y-2">
                       {eventData.customServices.map((service, index) => (
-                        <li key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-base">
                           <span>{service}</span>
                           <button
                             className="text-red-500"
                             onClick={() => {
-                              const updatedServices = [...eventData.customServices]
-                              updatedServices.splice(index, 1)
+                              const updatedServices = [...eventData.customServices];
+                              updatedServices.splice(index, 1);
                               setEventData({
                                 ...eventData,
                                 customServices: updatedServices,
-                              })
+                              });
                             }}
                           >
-                            <X size={16} />
+                            <X size={18} />
                           </button>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Total Event Budget</label>
-                <input
-                  type="text"
-                  placeholder="e.g., PHP 100,000"
-                  className={`w-full p-3 border ${errors.budget ? "border-red-500" : "border-gray-300"} rounded-md`}
-                  value={eventData.budget}
-                  onChange={(e) => handleInputChange("budget", e.target.value)}
-                />
-                {errors.budget && <p className="text-red-500 text-xs mt-1">Budget is required</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload Event Files/Resources <span className="text-gray-500 text-xs">(optional)</span>
-                </label>
-                <div className="border border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center">
-                  <Upload className="text-gray-400 mb-2" size={24} />
-                  <p className="text-sm text-gray-600 text-center mb-1">
-                    Browse and choose the files you want to upload from your device
-                  </p>
-                  <p className="text-xs text-gray-500 text-center">
-                    Sample files: event banners, speaker photos, schedules, promotional posters, or presentation slides
-                  </p>
-                  <button
-                    className="mt-4 bg-[#3061AD] text-white p-2 rounded-md"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      // File upload functionality is disabled as per requirements
-                      alert("File upload functionality is currently disabled")
-                    }}
-                  >
-                    <Plus size={16} />
-                  </button>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Budget</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., PHP 100,000"
+                    className={`w-full p-3 border ${errors.budget ? "border-red-500" : "border-gray-300"} rounded-lg text-base`}
+                    value={eventData.budget}
+                    onChange={(e) => handleInputChange("budget", e.target.value)}
+                  />
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Step 3: Preview */}
-          {step === 3 && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium text-[#3061AD] mb-4">Event Details</h3>
-
-                <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+            {/* Step 3: Preview */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <h4 className="text-sm text-gray-500">Name</h4>
-                    <p className="font-medium">{eventData.name}</p>
+                    <h4 className="text-sm text-gray-500 mb-2">Name</h4>
+                    <p className="text-base font-medium">{eventData.name}</p>
                   </div>
-
+                  <div>
+                    <h4 className="text-sm text-gray-500 mb-2">Type</h4>
+                    <p className="text-base">{eventTypes.find(t => t.event_type_id === eventData.eventTypeId)?.event_type_name || "Unknown"}</p>
+                  </div>
                   <div className="col-span-2">
-                    <h4 className="text-sm text-gray-500">Overview</h4>
-                    <p>{eventData.overview}</p>
+                    <h4 className="text-sm text-gray-500 mb-2">Overview</h4>
+                    <p className="text-base">{eventData.overview}</p>
                   </div>
-
                   <div>
-                    <h4 className="text-sm text-gray-500">Date</h4>
-                    <p>
-                      {new Date(eventData.startDate).toLocaleDateString("en-US", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}{" "}
-                      to{" "}
-                      {new Date(eventData.endDate).toLocaleDateString("en-US", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                    <h4 className="text-sm text-gray-500 mb-2">Date</h4>
+                    <p className="text-base">
+                      {new Date(eventData.startDate).toLocaleDateString()} to{" "}
+                      {new Date(eventData.endDate).toLocaleDateString()}
                     </p>
                   </div>
-
                   <div>
-                    <h4 className="text-sm text-gray-500">Time</h4>
-                    <p>
+                    <h4 className="text-sm text-gray-500 mb-2">Time</h4>
+                    <p className="text-base">
                       {eventData.startTime} to {eventData.endTime}
                     </p>
                   </div>
-
                   <div>
-                    <h4 className="text-sm text-gray-500">Number of Guest</h4>
-                    <p>{eventData.numberOfGuests}</p>
+                    <h4 className="text-sm text-gray-500 mb-2">Guests</h4>
+                    <p className="text-base">{eventData.numberOfGuests}</p>
                   </div>
-
+                  <div>
+                    <h4 className="text-sm text-gray-500 mb-2">Attire</h4>
+                    <p className="text-base">{eventData.attire}</p>
+                  </div>
                   <div className="col-span-2">
-                    <h4 className="text-sm text-gray-500">Address</h4>
-                    <p>{eventData.location}</p>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm text-gray-500">Type</h4>
-                    <p>{eventData.eventType}</p>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm text-gray-500">Attire</h4>
-                    <p>{eventData.attire}</p>
+                    <h4 className="text-sm text-gray-500 mb-2">Location</h4>
+                    <p className="text-base">{eventData.location}</p>
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <h3 className="text-lg font-medium text-[#3061AD] mb-4">Requested Services</h3>
-                <ul className="space-y-2">
-                  {eventData.services.map((service, index) => (
-                    <li key={index}>{service}</li>
-                  ))}
-                  {eventData.customServices.map((service, index) => (
-                    <li key={`custom-${index}`}>{service}</li>
-                  ))}
-                </ul>
-              </div>
+                <div>
+                  <h4 className="text-sm text-gray-500 mb-3">Services</h4>
+                  <div className="space-y-2">
+                    {eventData.services.map((service, index) => (
+                      <div key={index} className="text-base bg-gray-50 p-3 rounded-lg">
+                        {service}
+                      </div>
+                    ))}
+                    {eventData.customServices.map((service, index) => (
+                      <div key={`custom-${index}`} className="text-base bg-gray-50 p-3 rounded-lg">
+                        {service}
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium text-[#3061AD]">Total Event Budget</h3>
-                <p className="text-xl font-semibold text-[#3061AD]">{eventData.budget}</p>
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <h4 className="text-base font-medium text-[#3061AD]">Total Budget</h4>
+                  <p className="text-lg font-semibold text-[#3061AD]">{eventData.budget}</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-6 pt-4 border-t">
             {step === 1 ? (
               <button
-                className="px-6 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-6 py-3 border border-gray-300 rounded-lg text-base text-gray-700 hover:bg-gray-50"
                 onClick={onClose}
               >
                 Cancel
               </button>
             ) : (
               <button
-                className="px-6 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-6 py-3 border border-gray-300 rounded-lg text-base text-gray-700 hover:bg-gray-50"
                 onClick={handleBack}
               >
                 Back
@@ -629,12 +688,19 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
             )}
 
             {step < 3 ? (
-              <button className="px-6 py-3 bg-[#3061AD] text-white rounded-md hover:bg-[#2B579A]" onClick={handleNext}>
+              <button 
+                className="px-6 py-3 bg-[#3061AD] text-white rounded-lg hover:bg-[#2B579A] text-base" 
+                onClick={handleNext}
+              >
                 Next
               </button>
             ) : (
-              <button className="px-6 py-3 bg-[#3061AD] text-white rounded-md hover:bg-[#2B579A]" onClick={handleSave}>
-                Save Draft & View Vendors
+              <button 
+                className="px-6 py-3 bg-[#3061AD] text-white rounded-lg hover:bg-[#2B579A] text-base disabled:opacity-50 disabled:cursor-not-allowed" 
+                onClick={handleSave}
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save & View Vendors"}
               </button>
             )}
           </div>
