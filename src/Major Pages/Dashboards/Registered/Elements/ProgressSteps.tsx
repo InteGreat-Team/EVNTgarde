@@ -1,4 +1,3 @@
-import React from "react";
 import { Check } from "lucide-react";
 
 interface ProgressStepsProps {
@@ -12,17 +11,31 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
     { number: 3, label: "Preview" },
   ];
 
-  return (
-    <div className="flex items-center mb-4">
-      {steps.map((step, index) => (
-        <div key={step.number} className="flex items-center flex-1">
-          {/* Step Circle and Label */}
-          <div className="flex items-center">
+return (
+    <div className="mb-4">
+      <div className="flex items-center justify-between relative">
+        {/* Background line connecting step centers - starts from center of first step to center of last step */}
+        <div className="absolute top-4 h-0.5 bg-gray-200" style={{ left: '16px', right: '16px' }}></div>
+        
+        {/* Progress line that fills based on current step */}
+        <div 
+          className="absolute top-4 h-0.5 bg-[#3061AD] transition-all duration-300"
+          style={{ 
+            left: '16px',
+            width: currentStep === 1 ? '0px' : 
+                   currentStep === 2 ? 'calc(50% - 16px)' : 
+                   'calc(100% - 32px)' 
+          }}
+        ></div>
+        
+        {steps.map((step) => (
+          <div key={step.number} className="flex flex-col items-center relative z-10">
+            {/* Step Circle */}
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 currentStep >= step.number
                   ? "bg-[#3061AD] text-white"
-                  : "border border-gray-300 text-gray-500"
+                  : "bg-white border-2 border-gray-300 text-gray-500"
               }`}
             >
               {currentStep > step.number ? (
@@ -31,8 +44,10 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
                 String(step.number).padStart(2, '0')
               )}
             </div>
+            
+            {/* Step Label */}
             <div
-              className={`ml-2 text-sm ${
+              className={`mt-2 text-sm whitespace-nowrap ${
                 currentStep === step.number
                   ? "text-[#3061AD] font-medium"
                   : "text-gray-500"
@@ -41,51 +56,7 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
               {step.label}
             </div>
           </div>
-          
-          {/* Connecting Line */}
-          {index < steps.length - 1 && (
-            <div className="flex-1 mx-4">
-              <div
-                className={`h-0.5 w-full ${
-                  currentStep > step.number ? "bg-[#3061AD]" : "bg-gray-200"
-                }`}
-              />
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Demo component to show the progress steps in action
-export default function ProgressStepsDemo() {
-  const [currentStep, setCurrentStep] = React.useState(1);
-
-  return (
-    <div className="p-8 bg-white">
-      <h2 className="text-2xl font-semibold text-[#3061AD] mb-6">Create Event</h2>
-      <ProgressSteps currentStep={currentStep} />
-      
-      <div className="mt-8 flex gap-4">
-        <button
-          onClick={() => setCurrentStep(1)}
-          className={`px-4 py-2 rounded ${currentStep === 1 ? 'bg-[#3061AD] text-white' : 'bg-gray-200'}`}
-        >
-          Step 1
-        </button>
-        <button
-          onClick={() => setCurrentStep(2)}
-          className={`px-4 py-2 rounded ${currentStep === 2 ? 'bg-[#3061AD] text-white' : 'bg-gray-200'}`}
-        >
-          Step 2
-        </button>
-        <button
-          onClick={() => setCurrentStep(3)}
-          className={`px-4 py-2 rounded ${currentStep === 3 ? 'bg-[#3061AD] text-white' : 'bg-gray-200'}`}
-        >
-          Step 3
-        </button>
+        ))}
       </div>
     </div>
   );
