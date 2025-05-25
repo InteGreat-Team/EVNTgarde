@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useMemo, useState, useEffect } from "react";
 import { Car, Plus, Trash2 } from "lucide-react";

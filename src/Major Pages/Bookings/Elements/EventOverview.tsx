@@ -3,7 +3,8 @@ import ServicesTab from "./components/ServicesTab";
 import TimelineTab from "./components/TimelineTab";
 import VenueMap from "./components/VenueMap";
 
-interface Booking {
+// Type for the booking structure - imported from parent component
+type Booking = {
   id: number;
   title: string;
   date: string;
