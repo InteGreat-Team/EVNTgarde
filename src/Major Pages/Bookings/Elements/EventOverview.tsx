@@ -14,13 +14,19 @@ type Booking = {
   endTime: string;
   guests: string;
   location: string;
-}
+};
 
 interface EventOverviewProps {
+  activeStatus: string;
   selectedBooking: Booking;
+  userRole: "organizer" | "individual" | "vendor";
 }
 
-const EventOverview: React.FC<EventOverviewProps> = ({ selectedBooking }) => {
+const EventOverview: React.FC<EventOverviewProps> = ({
+  selectedBooking,
+  activeStatus,
+  userRole,
+}) => {
   const [activeTab, setActiveTab] = useState("Services");
 
   return (
@@ -29,18 +35,23 @@ const EventOverview: React.FC<EventOverviewProps> = ({ selectedBooking }) => {
         {/* Event Details */}
         <div className="border border-gray-300 rounded-md p-4 mt-5">
           <div className="mb-2">
-            <h2 className="text-blue-600 font-bold text-xl">{selectedBooking.title}</h2>
+            <h2 className="text-blue-600 font-bold text-xl">
+              {selectedBooking.title}
+            </h2>
             <p className="text-gray-500 text-sm">Concert</p>
           </div>
           <div className="mb-4">
             <p className="text-gray-600 text-sm">
-              This is a placeholder for the description of the event, this one's for the boys with the booming system
+              This is a placeholder for the description of the event, this one's
+              for the boys with the booming system
             </p>
           </div>
           <div className="p-4 grid grid-cols-2 gap-4">
             <div>
               <p className="text-gray-500 text-xs">Date</p>
-              <p className="font-medium text-sm">{selectedBooking.date} ({selectedBooking.day})</p>
+              <p className="font-medium text-sm">
+                {selectedBooking.date} ({selectedBooking.day})
+              </p>
             </div>
             <div>
               <p className="text-gray-500 text-xs">Organizer</p>
@@ -48,11 +59,15 @@ const EventOverview: React.FC<EventOverviewProps> = ({ selectedBooking }) => {
             </div>
             <div>
               <p className="text-gray-500 text-xs">Time</p>
-              <p className="font-medium text-sm">{selectedBooking.startTime} - {selectedBooking.endTime}</p>
+              <p className="font-medium text-sm">
+                {selectedBooking.startTime} - {selectedBooking.endTime}
+              </p>
             </div>
             <div>
               <p className="text-gray-500 text-xs">Guests</p>
-              <p className="font-medium text-sm">{selectedBooking.guests.split(" ")[0]}</p>
+              <p className="font-medium text-sm">
+                {selectedBooking.guests.split(" ")[0]}
+              </p>
             </div>
             <div className="col-span-2">
               <p className="text-gray-500 text-xs">Location</p>
@@ -68,7 +83,9 @@ const EventOverview: React.FC<EventOverviewProps> = ({ selectedBooking }) => {
               key={tab}
               type="button"
               className={`flex-1 py-2 border-none bg-transparent cursor-pointer ${
-                activeTab === tab ? "border-b-2 border-blue-500 font-semibold" : "text-gray-600"
+                activeTab === tab
+                  ? "border-b-2 border-blue-500 font-semibold"
+                  : "text-gray-600"
               }`}
               onClick={() => setActiveTab(tab)}
             >
@@ -79,10 +96,18 @@ const EventOverview: React.FC<EventOverviewProps> = ({ selectedBooking }) => {
 
         {/* Tab Content */}
         <div className="border border-gray-300 rounded-md mb-5">
-          {activeTab === "Services" && <ServicesTab selectedBooking={selectedBooking} />}
-          {activeTab === "Venue Map" && <VenueMap selectedBooking={selectedBooking} />}
+          {activeTab === "Services" && (
+            <ServicesTab selectedBooking={selectedBooking} />
+          )}
+          {activeTab === "Venue Map" && (
+            <VenueMap selectedBooking={selectedBooking} />
+          )}
           {activeTab === "Timeline" && (
-            <TimelineTab selectedBooking={selectedBooking} activeStatus="" userRole="organizer" />
+            <TimelineTab
+              selectedBooking={selectedBooking}
+              activeStatus={activeStatus}
+              userRole={userRole}
+            />
           )}
         </div>
       </div>

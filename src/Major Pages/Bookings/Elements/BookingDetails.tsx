@@ -111,14 +111,18 @@ const BookingDetails: React.FC<DetailsProps> = ({
               title="Hiring Vendors"
               description="Please proceed to vendor hiring based on requested services."
               buttonText="Find Vendors"
-              onButtonClick={() => { alert('Find Vendors clicked!'); }}
+              onButtonClick={() => {
+                alert("Find Vendors clicked!");
+              }}
             />
           ) : (
             <FindActionCard
               title="No Organizer"
               description="Book an organizer to finalize creating an event."
               buttonText="Find Organizer"
-              onButtonClick={() => { alert('Find Organizer clicked!'); }}
+              onButtonClick={() => {
+                alert("Find Organizer clicked!");
+              }}
             />
           )}
         </div>
