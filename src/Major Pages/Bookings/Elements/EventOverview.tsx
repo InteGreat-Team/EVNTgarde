@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { User, MapPin, Clock } from "lucide-react";
 
