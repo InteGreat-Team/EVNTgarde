@@ -4,27 +4,33 @@ import BookingDetails from "./Elements/BookingDetails";
 
 // Type for the booking structure
 type Booking = {
-  id: number;
-  date: string;
-  day: string;
-  title: string;
-  startTime: string;
-  endTime: string;
-  customer: string;
-  location: string;
-  guests: string;
-};
+  id: number
+  date: string
+  day: string
+  title: string
+  startTime: string
+  endTime: string
+  customer: string
+  location: string
+  guests: string
+  guestListStatus?: "Submitted" | "Not Submitted"
+  rsvpListStatus?: "Created" | "Not Created"
+}
+
+// User type to check if user is an organizer
+type UserRole = "organizer" | "individual"
 
 const Bookings: React.FC = () => {
-  const [activeStatus, setActiveStatus] = useState<
-    "Pending" | "Upcoming" | "Past" | "Rejected"
-  >("Pending");
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null); // Track selected booking
-  const handleStatusChange = (
-    status: "Pending" | "Upcoming" | "Past" | "Rejected"
-  ) => {
-    setActiveStatus(status);
-  };
+  const [activeStatus, setActiveStatus] = useState<"Pending" | "Upcoming" | "Past" | "Rejected">("Pending")
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null) // Track selected booking
+
+  // Mock user role - in a real app, this would come from authentication
+  // Change this to "organizer" or "individual" to test different views
+  const userRole: UserRole = "organizer"
+
+  const handleStatusChange = (status: "Pending" | "Upcoming" | "Past" | "Rejected") => {
+    setActiveStatus(status)
+  }
 
   // sample lang to see if the buttons work
   const bookingsData = {
@@ -33,12 +39,14 @@ const Bookings: React.FC = () => {
         id: 1,
         date: "Mar 26",
         day: "Wednesday",
-        title: "Super Duper Long Event Placeholder",
+        title: "Super Duper Long Event Place Holder As in Super Duperrrr...",
         startTime: "5:30 PM",
         endTime: "10:00 PM",
-        customer: "Customer Name",
+        customer: "Organizer Name",
         location: "Location Name",
         guests: "1,234 Guests",
+        guestListStatus: "Submitted",
+        rsvpListStatus: "Not Created",
       },
       {
         id: 4,
@@ -47,7 +55,7 @@ const Bookings: React.FC = () => {
         title: "Another Event Placeholder",
         startTime: "3:00 PM",
         endTime: "8:00 PM",
-        customer: "Another Customer",
+        customer: "Another Organizer",
         location: "Another Location",
         guests: "567 Guests",
       },
@@ -55,25 +63,29 @@ const Bookings: React.FC = () => {
         id: 5,
         date: "Mar 28",
         day: "Friday",
-        title: "Yet Another Event Placeholder",
-        startTime: "6:00 PM",
-        endTime: "11:00 PM",
-        customer: "Yet Another Customer",
-        location: "Yet Another Location",
-        guests: "890 Guests",
+        title: "Super Duper Long Event Place Holder As in Super Duperrrr...",
+        startTime: "5:30 PM",
+        endTime: "10:00 PM",
+        customer: "Organizer Name",
+        location: "Location Name",
+        guests: "1,234 Guests",
+        guestListStatus: "Not Submitted",
+        rsvpListStatus: "Created",
       },
     ],
     Upcoming: [
       {
         id: 2,
-        date: "Mar 29",
-        day: "Saturday",
-        title: "Super Duper Long Event Placeholder",
+        date: "Mar 26",
+        day: "Wednesday",
+        title: "Super Duper Long Event Place Holder As in Super Duperrrr...",
         startTime: "5:30 PM",
         endTime: "10:00 PM",
-        customer: "Customer Name",
+        customer: "Organizer Name",
         location: "Location Name",
         guests: "1,234 Guests",
+        guestListStatus: "Submitted",
+        rsvpListStatus: "Not Created",
       },
       {
         id: 6,
@@ -85,6 +97,8 @@ const Bookings: React.FC = () => {
         customer: "Upcoming Customer",
         location: "Upcoming Location",
         guests: "456 Guests",
+        guestListStatus: "Not Submitted",
+        rsvpListStatus: "Not Created",
       },
       {
         id: 7,
@@ -96,6 +110,8 @@ const Bookings: React.FC = () => {
         customer: "Next Customer",
         location: "Next Location",
         guests: "789 Guests",
+        guestListStatus: "Not Submitted",
+        rsvpListStatus: "Created",
       },
     ],
     Past: [
@@ -103,10 +119,10 @@ const Bookings: React.FC = () => {
         id: 3,
         date: "Mar 23",
         day: "Sunday",
-        title: "Super Duper Long Event Placeholder",
+        title: "Super Duper Long Event Place Holder As in Super Duperrrr...",
         startTime: "5:30 PM",
         endTime: "10:00 PM",
-        customer: "Customer Name",
+        customer: "Organizer Name",
         location: "Location Name",
         guests: "1,234 Guests",
       },
@@ -117,7 +133,7 @@ const Bookings: React.FC = () => {
         title: "Past Event Placeholder",
         startTime: "1:00 PM",
         endTime: "6:00 PM",
-        customer: "Past Customer",
+        customer: "Past Organizer",
         location: "Past Location",
         guests: "345 Guests",
       },
@@ -128,7 +144,7 @@ const Bookings: React.FC = () => {
         title: "Previous Event Placeholder",
         startTime: "7:00 PM",
         endTime: "11:00 PM",
-        customer: "Previous Customer",
+        customer: "Previous Organizer",
         location: "Previous Location",
         guests: "678 Guests",
       },
@@ -141,7 +157,7 @@ const Bookings: React.FC = () => {
         title: "Rejected Event Example",
         startTime: "3:00 PM",
         endTime: "8:00 PM",
-        customer: "Rejected Customer",
+        customer: "Rejected Organizer",
         location: "Rejected Location",
         guests: "0 Guests",
       },
@@ -168,26 +184,26 @@ const Bookings: React.FC = () => {
         guests: "2,000 Guests",
       },
     ],
-  };
+  }
 
   // Sort the bookings based on the date
   const sortedPendingBookings = [...bookingsData.Pending].sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateB.getTime() - dateA.getTime();
-  });
+    const dateA = new Date(a.date)
+    const dateB = new Date(b.date)
+    return dateB.getTime() - dateA.getTime()
+  })
 
   const sortedPastBookings = [...bookingsData.Past].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  )
 
   const sortedUpcomingBookings = [...bookingsData.Upcoming].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  )
 
   const sortedRejectedBookings = [...bookingsData.Rejected].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  )
 
   const displayedBookings =
     activeStatus === "Pending"
@@ -198,14 +214,26 @@ const Bookings: React.FC = () => {
           ? sortedPastBookings
           : activeStatus === "Rejected"
             ? sortedRejectedBookings
-            : bookingsData[activeStatus];
+            : bookingsData[activeStatus]
 
   const onBookingClick = (booking: Booking) => {
-    setSelectedBooking(booking); // Set the selected booking
-  };
+    setSelectedBooking(booking) // Set the selected booking
+  }
   const onBackClick = () => {
-    setSelectedBooking(null); // Go back to the booking list
-  };
+    setSelectedBooking(null) // Go back to the booking list
+  }
+
+  const isGuestListSubmitted = (booking: any): boolean => {
+    return booking.guestListStatus === "Submitted"
+  }
+
+  const isRsvpListCreated = (booking: any): boolean => {
+    return booking.rsvpListStatus === "Created"
+  }
+
+  const hasRsvpListStatus = (booking: any): boolean => {
+    return booking.hasOwnProperty("rsvpListStatus")
+  }
 
   if (selectedBooking) {
     return (
@@ -214,8 +242,9 @@ const Bookings: React.FC = () => {
         onBackClick={onBackClick}
         activeStatus={activeStatus}
         selectedBooking={selectedBooking}
+        showStatus={true}
       />
-    );
+    )
   }
 
   return (
@@ -227,15 +256,9 @@ const Bookings: React.FC = () => {
           {["Pending", "Upcoming", "Past", "Rejected"].map((status) => (
             <button
               key={status}
-              onClick={() =>
-                handleStatusChange(
-                  status as "Pending" | "Upcoming" | "Past" | "Rejected"
-                )
-              }
+              onClick={() => handleStatusChange(status as "Pending" | "Upcoming" | "Past" | "Rejected")}
               className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeStatus === status
-                  ? "bg-white shadow-sm text-gray-800"
-                  : "text-gray-600 hover:text-gray-800"
+                activeStatus === status ? "bg-white shadow-sm text-gray-800" : "text-gray-600 hover:text-gray-800"
               }`}
             >
               {status}
@@ -294,33 +317,63 @@ const Bookings: React.FC = () => {
                 {booking.startTime} – {booking.endTime}
               </p>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                {/* Column 1, Row 1 */}
-                <div className="flex items-center">
-                  <User className="text-gray-400 mr-2" size={18} />
-                  <span className="text-gray-600">{booking.customer}</span>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-4">
+                <div className="flex flex-col space-y-1">
+                  {/* Customer */}
+                  <div className="flex items-center">
+                    <User className="text-gray-400 mr-2" size={18} />
+                    <span className="text-gray-600">{booking.customer}</span>
+                  </div>
+
+                  {/* Status Indicators */}
+                  {activeStatus === "Upcoming" && (
+                    <div className="flex flex-col space-y-1 mt-2">
+                      {/* Guest List Status - always shown */}
+                      {isGuestListSubmitted(booking) ? (
+                        <div className="flex items-center py-1 px-3 rounded-sm bg-green-100 w-fit">
+                          <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                          <span className="text-sm text-green-600 font-medium">Guest List: Submitted</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center py-1 px-3 rounded-sm bg-gray-200 w-fit">
+                          <span className="w-2 h-2 rounded-full bg-gray-400 mr-2"></span>
+                          <span className="text-sm text-gray-500 font-medium">Guest List: Not Submitted</span>
+                        </div>
+                      )}
+
+                      {/* RSVP List Status */}
+                      {userRole === "organizer" && hasRsvpListStatus(booking) && (
+                        isRsvpListCreated(booking) ? (
+                          <div className="flex items-center py-1 px-3 rounded-sm bg-green-100 w-fit">
+                            <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                            <span className="text-sm text-green-600 font-medium">RSVP List: Created</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center py-1 px-3 rounded-sm bg-gray-200 w-fit">
+                            <span className="w-2 h-2 rounded-full bg-gray-400 mr-2"></span>
+                            <span className="text-sm text-gray-500 font-medium">RSVP List: Not Created</span>
+                                            </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Column 2, Row 1 */}
-                <div className="flex items-center">
-                  <MapPin className="text-gray-400 mr-2" size={18} />
-                  <span className="text-gray-600">{booking.location}</span>
+                <div className="flex flex-col justify-between">
+                  {/* Location */}
+                  <div className="flex items-center">
+                    <MapPin className="text-gray-400 mr-2" size={18} />
+                    <span className="text-gray-600">{booking.location}</span>
+                  </div>
+
+                  {/* Guests */}
+                  <div className="flex items-center mt-auto">
+                    <User className="text-gray-400 mr-2" size={18} />
+                    <span className="text-gray-600">{booking.guests}</span>
+                  </div>
                 </div>
 
-                {/* Column 3, Row 1 */}
-                <div className="flex justify-center lg:justify-end"></div>
-
-                {/* Column 1, Row 2 */}
-                <div className="flex justify-center lg:justify-start"></div>
-
-                {/* Column 2, Row 2 */}
-                <div className="flex items-center">
-                  <User className="text-gray-400 mr-2" size={18} />
-                  <span className="text-gray-600">{booking.guests}</span>
-                </div>
-
-                {/* Column 3, Row 2 (Event Details Button) */}
-                <div className="flex justify-center lg:justify-end col-start-1 lg:col-start-3">
+                {/* Event Details Button */}
+                <div className="lg:col-span-2 flex justify-end mt-2">
                   <button
                     onClick={() => onBookingClick(booking)}
                     className="w-full lg:w-auto bg-yellow-400 hover:bg-yellow-300 text-black text-sm font-medium px-4 py-2 rounded"
@@ -334,7 +387,7 @@ const Bookings: React.FC = () => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Bookings;
+export default Bookings

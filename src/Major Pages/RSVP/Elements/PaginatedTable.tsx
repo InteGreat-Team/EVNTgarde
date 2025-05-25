@@ -2,296 +2,266 @@ import type React from "react"
 import { useState } from "react"
 import { ChevronDown, ChevronLeft, ChevronRight, Check, X, Send } from "lucide-react"
 
-interface TableData {
-  guestId: string
-  name: string
-  gender: string
-  emailAddress: string
-  contactNumber: string
-  eventStatus: string
+
+import type React from "react";
+import { useState, useEffect } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import type { GuestData } from "./rsvp-tracking";
+
+interface PaginatedTableProps {
+  rsvpCreated?: boolean;
+  guestData: GuestData[];
+  isCustomerView?: boolean;
+  searchTerm?: string;
 }
 
-const PaginatedTable: React.FC = () => {
-  // Mock data with renamed statuses
-  const initialData: TableData[] = [
-    {
-      guestId: "G1002318",
-      name: "John Doe",
-      gender: "Male",
-      emailAddress: "johndoe@gmail.com",
-      contactNumber: "+63 917 123 4567",
-      eventStatus: "Pending",
-    },
-    {
-      guestId: "G1002319",
-      name: "Jane Smith",
-      gender: "Female",
-      emailAddress: "jane.smith@email.com",
-      contactNumber: "+63 918 987 6543",
-      eventStatus: "Going",
-    },
-    {
-      guestId: "G1002316",
-      name: "Robert Jones",
-      gender: "Male",
-      emailAddress: "robert.jones@test.com",
-      contactNumber: "+63 919 222 3333",
-      eventStatus: "Pending",
-    },
-    {
-      guestId: "G1002317",
-      name: "Mary Brown",
-      gender: "Female",
-      emailAddress: "mary.brown@sample.com",
-      contactNumber: "+63 920 444 5555",
-      eventStatus: "Not Going",
-    },
-    {
-      guestId: "G1002315",
-      name: "Michael Davis",
-      gender: "Male",
-      emailAddress: "michael.davis@example.com",
-      contactNumber: "+63 921 666 7777",
-      eventStatus: "Going",
-    },
-    {
-      guestId: "G1002313",
-      name: "Jennifer Wilson",
-      gender: "Female",
-      emailAddress: "jennifer.wilson@domain.com",
-      contactNumber: "+63 922 888 9999",
-      eventStatus: "Pending",
-    },
-    {
-      guestId: "G1002320",
-      name: "David Garcia",
-      gender: "Male",
-      emailAddress: "david.garcia@email.com",
-      contactNumber: "+63 923 111 2222",
-      eventStatus: "Going",
-    },
-    {
-      guestId: "G1002321",
-      name: "Linda Rodriguez",
-      gender: "Female",
-      emailAddress: "linda.rodriguez@test.com",
-      contactNumber: "+63 924 333 4444",
-      eventStatus: "Pending",
-    },
-    {
-      guestId: "G1002322",
-      name: "Christopher Williams",
-      gender: "Male",
-      emailAddress: "chris.williams@sample.com",
-      contactNumber: "+63 925 555 6666",
-      eventStatus: "Not Going",
-    },
-    {
-      guestId: "G1002323",
-      name: "Angela Garcia",
-      gender: "Female",
-      emailAddress: "angela.garcia@example.com",
-      contactNumber: "+63 926 777 8888",
-      eventStatus: "Going",
-    },
-    {
-      guestId: "G1002324",
-      name: "Brian Martinez",
-      gender: "Male",
-      emailAddress: "brian.martinez@domain.com",
-      contactNumber: "+63 927 999 0000",
-      eventStatus: "Pending",
-    },
-    {
-      guestId: "G1002325",
-      name: "Nicole Robinson",
-      gender: "Female",
-      emailAddress: "nicole.robinson@email.com",
-      contactNumber: "+63 928 222 1111",
-      eventStatus: "Going",
-    },
-    {
-      guestId: "G1002326",
-      name: "Kevin Hernandez",
-      gender: "Male",
-      emailAddress: "kevin.hernandez@test.com",
-      contactNumber: "+63 929 444 3333",
-      eventStatus: "Pending",
-    },
-    {
-      guestId: "G1002327",
-      name: "Stephanie Lopez",
-      gender: "Female",
-      emailAddress: "stephanie.lopez@sample.com",
-      contactNumber: "+63 930 666 5555",
-      eventStatus: "Not Going",
-    },
-    {
-      guestId: "G1002328",
-      name: "Jason Young",
-      gender: "Male",
-      emailAddress: "jason.young@example.com",
-      contactNumber: "+63 931 888 7777",
-      eventStatus: "Going",
-    },
-  ]
+const PaginatedTable: React.FC<PaginatedTableProps> = ({
+  rsvpCreated = false,
+  guestData = [],
+  isCustomerView = false,
+  searchTerm = "",
+}) => {
+  const [data, setData] = useState<GuestData[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage] = useState(6);
 
-  const [data] = useState<TableData[]>(initialData)
-  const [currentPage, setCurrentPage] = useState(1)
-  const rowsPerPage = 6
+  // Update data when guestData changes
+  useEffect(() => {
+    setData(guestData);
+  }, [guestData]);
 
-  const indexOfLastRow = currentPage * rowsPerPage
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage
-  const currentRows = data.slice(indexOfFirstRow, indexOfLastRow)
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
-  const totalPages = Math.ceil(data.length / rowsPerPage)
+  // Filter data based on search term
+  const filteredData = data.filter((guest) => {
+    if (!searchTerm.trim()) return true;
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      guest.guestId.toLowerCase().includes(searchLower) ||
+      guest.name.toLowerCase().includes(searchLower) ||
+      guest.gender.toLowerCase().includes(searchLower) ||
+      guest.emailAddress.toLowerCase().includes(searchLower) ||
+      guest.contactNumber.toLowerCase().includes(searchLower) ||
+      guest.eventStatus.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredData.slice(indexOfFirstRow, indexOfLastRow);
+
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   // Get status color based on status value
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Going":
-        return "bg-green-100 text-green-600"
+        return "bg-yellow-100 text-yellow-800";
       case "Not Going":
-        return "bg-red-100 text-red-600"
+        return "bg-red-100 text-red-800";
       case "Pending":
-        return "bg-yellow-100 text-yellow-600"
+        return "bg-yellow-100 text-yellow-800";
       default:
-        return "bg-gray-100 text-gray-600"
+        return "bg-gray-100 text-gray-600";
     }
-  }
+  };
 
-  // Get status icon based on status value
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "Going":
-        return <Check className="w-4 h-4 text-green-500 mr-1" />
-      case "Not Going":
-        return <X className="w-4 h-4 text-red-500 mr-1" />
-      case "Pending":
-        return <Send className="w-4 h-4 text-yellow-500 mr-1" />
-      default:
-        return null
+  // Render action column based on status
+  const renderActionColumn = (status: string) => {
+    if (!rsvpCreated) {
+      return (
+        <button className="text-blue-500 hover:text-blue-700">
+          Send Invite
+        </button>
+      );
+    } else {
+      return status === "Pending" ? (
+        <button className="text-blue-500 hover:text-blue-700">
+          Resend Invite
+        </button>
+      ) : null;
     }
-  }
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Guest ID
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Name
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Gender
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Email Address
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Contact Number
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider flex items-center"
-              >
-                Event Status
-                <ChevronDown className="h-4 w-4 ml-1" />
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                More Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentRows.map((row, index) => (
-              <tr key={index} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.guestId}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{row.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.gender}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.emailAddress}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.contactNumber}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                      row.eventStatus,
-                    )}`}
+        <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    {getStatusIcon(row.eventStatus)}
-                    <span>{row.eventStatus}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {row.eventStatus === "Pending" && (
-                    <button className="text-blue-500 hover:text-blue-700">Resend Invite</button>
+                    Guest ID
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Gender
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Email Address
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Contact Number
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider flex items-center"
+                  >
+                    Event Status
+                    <ChevronDown className="h-4 w-4 ml-1" />
+                  </th>
+                  {!isCustomerView && (
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Actions
+                    </th>
                   )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="bg-white px-4 py-3 flex items-center justify-center border-t border-gray-200">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => paginate(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className="flex items-center px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </button>
-
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => paginate(i + 1)}
-              className={`px-3 py-1 rounded-md ${
-                currentPage === i + 1
-                  ? "bg-blue-500 text-white"
-                  : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-
-          <button
-            onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage === totalPages}
-            className="flex items-center px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </button>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {currentRows.length > 0 ? (
+                  currentRows.map((row, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {row.guestId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {row.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {row.gender}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {row.emailAddress}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {row.contactNumber}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            row.eventStatus
+                          )}`}
+                        >
+                          {row.eventStatus}
+                        </span>
+                      </td>
+                      {!isCustomerView && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {renderActionColumn(row.eventStatus)}
+                        </td>
+                      )}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={isCustomerView ? 6 : 7}
+                      className="px-6 py-4 text-center text-gray-500"
+                    >
+                      No results found for "{searchTerm}"
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-  )
-}
+      {filteredData.length > 0 && (
+        <div className="bg-white px-4 py-3 flex flex-col sm:flex-row items-center justify-between border-t border-gray-200">
+          <div className="mb-4 sm:mb-0">
+            <p className="text-sm text-gray-700">
+              Showing <span className="font-medium">{indexOfFirstRow + 1}</span>{" "}
+              to{" "}
+              <span className="font-medium">
+                {Math.min(indexOfLastRow, filteredData.length)}
+              </span>{" "}
+              of <span className="font-medium">{filteredData.length}</span>{" "}
+              results
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => paginate(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="flex items-center px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Previous</span>
+            </button>
 
-export default PaginatedTable
+            <div className="hidden md:flex space-x-2">
+              {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
+                // Show pages around current page
+                let pageNum = i + 1;
+                if (totalPages > 5) {
+                  if (currentPage > 3) {
+                    pageNum = currentPage - 3 + i;
+                  }
+                  if (currentPage > totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  }
+                }
+                return (
+                  <button
+                    key={i}
+                    onClick={() => paginate(pageNum)}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === pageNum
+                        ? "bg-blue-500 text-white"
+                        : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <span className="md:hidden text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="flex items-center px-3 py-1 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PaginatedTable;

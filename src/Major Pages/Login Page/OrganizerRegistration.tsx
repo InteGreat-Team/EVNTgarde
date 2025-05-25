@@ -300,6 +300,7 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
     }
   }
 
+  /*
   const goToPreviousStep = () => {
     // If we're on the confirmation step after budget selection, go back to budget selection
     if (currentStep === 6 && budget) {
@@ -307,8 +308,18 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
     } else {
       setCurrentStep(currentStep - 1)
     }
+  } */
+ const handleBack = () => {
+    if (currentStep === 1) {
+      navigate("/role-selection")
+    } else if (currentStep === 6 && budget) {
+     // navigate("/register/vendor")
+     setCurrentStep (2)
+    } else {
+      //navigate("/register/vendor/step2")
+      setCurrentStep(currentStep - 1)
+    }
   }
-
   // Save step data to session storage
   const saveStepData = () => {
     const stepData = {
@@ -431,7 +442,7 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
 
   // Terms and conditions modal
   const TermsAndConditionsModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 bg-white/10 backdrop-brightness-50">
+    <div className="fixed inset-0 bg-black-40 bg-opacity-50 flex items-center justify-center z-50 bg-white/10 backdrop-brightness-50">
       <div
         className={`w-full max-w-2xl p-6 rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}
         style={{ fontFamily: "'Poppins', sans-serif" }}
@@ -565,25 +576,25 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                 ))}
               </div>
 
-              <div className="flex justify-between mt-auto">
-                <button
-                  type="button"
-                  onClick={goToPreviousStep}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                >
-                  Back
-                </button>
-                <button
+             <div className="flex justify-center items-center gap-5">
+                  <button
+                    type="button"
+                  onClick={handleBack}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
+                    Back
+                  </button>
+                  <button
                   type="button"
                   onClick={goToNextStep}
-                  className={`px-6 py-3 text-white rounded-lg ${
-                    isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
-                  disabled={!budget}
-                >
-                  Next
-                </button>
-              </div>
+                  className={`flex-1 px-6 py-3 text-white ${
+                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
+                  >
+                    Next
+                  </button>
+                </div>
+
               <p className="text-center text-sm mt-4 text-gray-500">
                 Already have an account?{" "}
                 <a href="/login" className="text-blue-600 hover:underline">
@@ -715,20 +726,20 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                   {errors.industry && <p className="text-red-500 text-sm mt-1">{errors.industry}</p>}
                 </div>
 
-                <div className="flex justify-between mt-6">
+                <div className="flex justify-center items-center gap-5">
                   <button
                     type="button"
-                    onClick={goToPreviousStep}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
+                    onClick={handleBack}
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
                     Back
                   </button>
                   <button
                     type="button"
                     onClick={goToNextStep}
-                    className={`px-6 py-3 text-white rounded-lg ${
-                      isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
+                     className={`flex-1 px-6 py-3 text-white ${
+                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
                   >
                     Next
                   </button>
@@ -896,20 +907,20 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                   </select>
                 </div>
 
-                <div className="flex justify-between mt-6">
+                <div className="flex justify-center items-center gap-5">
                   <button
                     type="button"
-                    onClick={goToPreviousStep}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
+                    onClick={handleBack}
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
                     Back
                   </button>
                   <button
                     type="button"
                     onClick={goToNextStep}
-                    className={`px-6 py-3 text-white rounded-lg ${
-                      isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
+                   className={`flex-1 px-6 py-3 text-white ${
+                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
                   >
                     Next
                   </button>
@@ -1046,28 +1057,27 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                 </div>
                 {errors.terms && <p className="text-red-500 text-sm">{errors.terms}</p>}
 
-                <div className="flex justify-between mt-6">
+                		 <div className="flex justify-center items-center gap-4 mt-6">
                   <button
                     type="button"
-                    onClick={goToPreviousStep}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
+                    onClick={handleBack}
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
                     Back
                   </button>
                   <button
                     type="submit"
-                    className={`px-6 py-3 text-white rounded-lg ${
-                      isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    ) : (
-                      "Create Account"
-                    )}
-                  </button>
-                </div>
+                   className={`flex-1 px-6 py-3 text-white ${
+					isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+					} rounded-xl shadow-lg overflow-hidden font-poppins`}
+					disabled={isLoading}
+				>
+                    {isLoading && (
+					<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+					)}
+					Create Account
+				</button>
+				</div>
               </form>
             </>
           )}
@@ -1084,20 +1094,20 @@ const OrganizerRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                 </p>
               </div>
 
-              <div className="flex justify-center items-center gap-5">
-                <button
+              <div className="flex justify-between gap-4 mt-2">
+                  <button
                   type="button"
-                  onClick={goToPreviousStep}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                >
+                  onClick={handleBack}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  >
                   Start Over
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)} // Go to company details step
-                  className={`px-6 py-3 text-white rounded-lg ${
-                    isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                  className={`flex-1 px-6 py-3 text-white ${
+                    isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600"
+                  } rounded-xl shadow-lg overflow-hidden font-poppins`}
                 >
                   Get Started
                 </button>

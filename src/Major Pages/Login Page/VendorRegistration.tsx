@@ -341,18 +341,17 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
+                     className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                     Start Over
                   </button>
                   <button
                     type="button"
                     onClick={handleGetStarted}
-                    className={`flex-1 px-6 py-3 ${
-                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 "
-                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
-                    disabled={!vendorType}
-                  >
+                   className={`flex-1 px-6 py-3 text-white ${
+                    isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600"
+                  } rounded-xl shadow-lg overflow-hidden font-poppins`}
+                >
                     Get Started
                   </button>
                 </div>
@@ -384,12 +383,12 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                     Start Over
                   </button>
                   <button
-                    type="button"
-                    onClick={handleProceed}
-                    className={`flex-1 px-6 py-3 ${
-                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 "
-                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
-                  >
+                  type="button"
+                  onClick={handleProceed}
+                  className={`flex-1 px-6 py-3 text-white ${
+                    isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600"
+                  } rounded-xl shadow-lg overflow-hidden font-poppins`}
+                >
                     Proceed
                   </button>
                 </div>
@@ -412,21 +411,21 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                   </p>
                 </div>
 
-                <div className="flex justify-center items-center gap-5">
-                  <button
-                    type="button"
-                    onClick={handleBack}
-                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
+                 <div className="flex justify-center items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                     Start Over
                   </button>
                   <button
-                    type="button"
-                    onClick={handleProceed}
-                    className={`flex-1 px-6 py-3 ${
-                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 "
-                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
-                  >
+                  type="button"
+                  onClick={handleProceed}
+                  className={`flex-1 px-6 py-3 text-white ${
+                    isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600"
+                  } rounded-xl shadow-lg overflow-hidden font-poppins`}
+                >
                     Proceed
                   </button>
                 </div>
@@ -492,7 +491,7 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                     type="text"
                     placeholder="John's Catering"
                     className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-blue-500 ${
-                      isDarkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-800 border-gray-300"
+                       isDarkMode ? "bg-gray-700 text-white border-gray-600" : "bg-white text-gray-800 border-gray-300"
                     }`}
                     value={vendorName}
                     onChange={(e) => setVendorName(e.target.value)}
@@ -560,13 +559,13 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-43 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
+                     className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
                     Back
                   </button>
                   <button
                     type="submit"
-                    className={`flex-1 px-6 py-3 ${
+                    className={`flex-1 px-6 py-3 text-white ${
                       isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
                     } rounded-xl shadow-lg overflow-hidden font-poppins`}
                   >
@@ -715,17 +714,17 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                   </select>
                 </div>
 
-                <div className="flex justify-center items-center gap-5">
+                <div className="flex justify-center items-center gap-3">
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-43 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
-                    Back
+                     className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
+                  Back
                   </button>
                   <button
                     type="submit"
-                    className={`flex-1 px-6 py-3 ${
+                    className={`flex-1 px-6 py-3 text-white ${
                       isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
                     } rounded-xl shadow-lg overflow-hidden font-poppins`}
                   >
@@ -862,19 +861,19 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
                   </label>
                 </div>
 
-				<div className="flex justify-center items-center gap-5">
-				<button
-					type="button"
-					onClick={handleBack}
-					className="flex-1 px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 font-poppins shadow-lg"
-				>
+				 <div className="flex justify-center items-center gap-4 mt-6">
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  >
 					Back
 				</button>
 				<button
 					type="submit"
-					className={`flex-1 px-6 py-3 ${
+					className={`flex-1 px-6 py-3 text-white ${
 					isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
-					} rounded-xl shadow-lg overflow-hidden font-poppins flex items-center justify-center`}
+					} rounded-xl shadow-lg overflow-hidden font-poppins`}
 					disabled={isLoading}
 				>
 					{isLoading && (

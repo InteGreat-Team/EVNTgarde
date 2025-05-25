@@ -118,6 +118,7 @@ const BookingStepsCard: React.FC<BookingStepsCardProps> = ({
               onBackClick={onBackClick}
               activeStatus={activeStatus}
               selectedBooking={selectedBooking}
+              showStatus={false}
             />
           </div>
         </div>

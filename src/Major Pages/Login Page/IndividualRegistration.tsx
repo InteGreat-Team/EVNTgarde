@@ -7,8 +7,10 @@ import { createUserAccount } from "../../functions/userAccount"
 import { useTheme } from "../../functions/ThemeContext"
 import { FcGoogle } from "react-icons/fc"
 import { AiFillYahoo } from "react-icons/ai"
+import { useNavigate } from "react-router-dom";
 
 const IndividualRegistration: React.FC = () => {
+    const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1)
   const { isDarkMode } = useTheme()
 
@@ -275,7 +277,7 @@ const IndividualRegistration: React.FC = () => {
   // Update the handleBack function to handle the new step
   const handleBack = () => {
     if (currentStep === 1) {
-      // Stay on the same page
+      navigate("/role-selection")
       return
     } else if (currentStep === 1.25) {
       setCurrentStep(1)
@@ -528,7 +530,7 @@ const IndividualRegistration: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                   Back
                 </button>
@@ -572,7 +574,7 @@ const IndividualRegistration: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                   Start Over
                 </button>
@@ -637,7 +639,7 @@ const IndividualRegistration: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                   Back
                 </button>
@@ -758,7 +760,7 @@ const IndividualRegistration: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                     >
                     Back
                   </button>
@@ -943,7 +945,7 @@ const IndividualRegistration: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
                     Back
                   </button>
@@ -1101,17 +1103,17 @@ const IndividualRegistration: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                     >
                     Back
                   </button>
                   <button
                     type="submit"
-                    className={`flex-1 px-6 py-3 ${
-                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
-                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
-                    disabled={isLoading}
-                  >
+                    className={`flex-1 px-6 py-3 text-white ${
+                     isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+					} rounded-xl shadow-lg overflow-hidden font-poppins`}
+					disabled={isLoading}
+				>
                     {isLoading ? (
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                     ) : null}

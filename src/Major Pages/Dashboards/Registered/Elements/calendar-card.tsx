@@ -68,7 +68,6 @@ export function CalendarCard({
   const [blockedDates, setBlockedDates] = useState<string[]>([])
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([])
   const [currentUserType, setCurrentUserType] = useState(userType)
-  
   // Effect to check user type from localStorage
   useEffect(() => {
     // Get user type from localStorage if available
