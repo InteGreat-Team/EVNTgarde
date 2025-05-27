@@ -88,3 +88,28 @@ export interface User {
   name: string
   email: string
 }
+
+export interface EventData {
+  name: string;
+  overview: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  numberOfGuests: number;
+  location: string;
+  eventType: string;
+  attire: string;
+  services: string[];
+  customServices: string[];
+  budget: string;
+  files: File[];
+}
+
+export interface StepProps {
+  eventData: EventData;
+  errors: Record<string, boolean>;
+  onInputChange: (field: keyof EventData, value: any) => void;
+  onNext?: () => void;
+  onBack?: () => void;
+}

@@ -1,8 +1,7 @@
 // Status.tsx
-import React, { useState } from "react";
-// import { Facebook, Instagram, Linkedin, Globe } from "lucide-react"
-import LeaveReviewOrganizer from "./LeaveReviewOrganizer";
-import LeaveReviewCustomer from "./LeaveReview";
+import React, { useState } from "react"
+import LeaveReviewOrganizer from './LeaveReviewOrganizer'
+import LeaveReviewCustomer from './LeaveReview'
 
 interface StatusProps {
   activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft";
@@ -16,22 +15,22 @@ interface StatusProps {
     avatar?: string;
   };
   customer?: {
-    name?: string;
-    role?: string;
-    email?: string;
-    phone?: string;
-    avatar?: string;
-  };
+    name?: string
+    role?: string
+    email?: string
+    phone?: string
+    avatar?: string
+  }
   socialLinks?: {
-    facebook?: string;
-    instagram?: string;
-    linkedin?: string;
-    website?: string;
-  };
-  onMarkCompleted?: () => void;
-  onAccept?: () => void;
-  onReject?: () => void;
-  onShareExperience?: () => void;
+    facebook?: string
+    instagram?: string
+    linkedin?: string
+    website?: string
+  }
+  onMarkCompleted?: () => void
+  onAccept?: () => void
+  onReject?: () => void
+  onShareExperience?: () => void
 }
 
 const Status: React.FC<StatusProps> = ({
@@ -40,16 +39,16 @@ const Status: React.FC<StatusProps> = ({
   userRole,
   organizer,
   customer,
-  /*socialLinks = {
-    facebook: "@linktofacebook",              UNUSED
+  socialLinks = {
+    facebook: "@linktofacebook",
     instagram: "@linktoinstagram",
     linkedin: "@linktolinkedin",
     website: "@linktowebsite",
-  },*/
-  // onMarkCompleted,              UNUSED
+  },
+  onMarkCompleted,
   onAccept,
   onReject,
-  // onShareExperience,             UNUSED
+  onShareExperience,
 }) => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewMode, setReviewMode] = useState<"event" | "vendor">("event");

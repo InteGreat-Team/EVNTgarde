@@ -12,20 +12,28 @@ const LeaveReviewVendor: React.FC<LeaveReviewVendorProps> = ({ onClose }) => {
     timeliness: 0,
     costEffectiveness: 0,
     satisfaction: 0,
+<<<<<<< HEAD
   });
   const [feedback, setFeedback] = useState("");
   const [files, setFiles] = useState<File[]>([]); // same here dito rin wala pang upload files/images to s3 kaya unused
+=======
+  })
+  const [feedback, setFeedback] = useState("")
+>>>>>>> fedae19fa224a423e8e36a0a3c1c8f3acb1cd58a
 
   const handleRating = (field: keyof typeof ratings, value: number) => {
     setRatings((prev) => ({ ...prev, [field]: value }));
   };
 
+<<<<<<< HEAD
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFiles(Array.from(e.target.files));
     }
   };
 
+=======
+>>>>>>> fedae19fa224a423e8e36a0a3c1c8f3acb1cd58a
   return (
     <div className="fixed inset-0 z-50 bg-gray-800/40 backdrop-blur-md flex items-center justify-center px-4 py-10 overflow-y-auto">
       <div className="bg-white rounded-md w-full max-w-2xl p-8 shadow-xl relative max-h-[90vh] overflow-y-auto">
@@ -99,7 +107,6 @@ const LeaveReviewVendor: React.FC<LeaveReviewVendorProps> = ({ onClose }) => {
                 multiple
                 className="hidden"
                 id="vendorFileUpload"
-                onChange={handleFileChange}
               />
               <label htmlFor="vendorFileUpload" className="cursor-pointer">
                 <div className="flex flex-col items-center">

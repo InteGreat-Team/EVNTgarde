@@ -17,21 +17,21 @@ const LeaveReviewOrganizer: React.FC<LeaveReviewOrganizerProps> = ({
     prepared: 0,
     professional: 0,
     price: 0,
-  });
-  const [title, setTitle] = useState("");
-  const [experience, setExperience] = useState("");
-  const [files, setFiles] = useState<File[]>([]); // not used kasi wala pang way to upload images/files to s3
-  const [expandedVendor, setExpandedVendor] = useState("Vendor B");
+  })
+  const [title, setTitle] = useState("")
+  const [experience, setExperience] = useState("")
+  const [files, setFiles] = useState<File[]>([])
+  const [expandedVendor, setExpandedVendor] = useState("Vendor B")
 
   const handleRating = (field: keyof typeof ratings, value: number) => {
-    setRatings((prev) => ({ ...prev, [field]: value }));
-  };
+    setRatings(prev => ({ ...prev, [field]: value }))
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+      setFiles(Array.from(e.target.files))
     }
-  };
+  }
 
   const vendors = ["Vendor A", "Vendor B", "Vendor C", "Vendor D", "Vendor E"];
 
@@ -208,7 +208,6 @@ const LeaveReviewOrganizer: React.FC<LeaveReviewOrganizerProps> = ({
                             multiple
                             className="hidden"
                             id={`fileUpload-${vendor}`}
-                            onChange={handleFileChange}
                           />
                           <label
                             htmlFor={`fileUpload-${vendor}`}
@@ -276,7 +275,6 @@ const LeaveReviewOrganizer: React.FC<LeaveReviewOrganizerProps> = ({
                     multiple
                     className="hidden"
                     id="fileUpload"
-                    onChange={handleFileChange}
                   />
                   <label htmlFor="fileUpload" className="cursor-pointer">
                     <div className="flex flex-col items-center">
