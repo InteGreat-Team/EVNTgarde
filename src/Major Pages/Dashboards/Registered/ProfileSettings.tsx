@@ -144,10 +144,6 @@ const ProfileSettings: React.FC = () => {
 		setShowRevertModal(false);
 	};
 
-	const handleDelete = () => {
-		// Delete logic here
-		setShowDeleteModal(false);
-	};
 
 	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
