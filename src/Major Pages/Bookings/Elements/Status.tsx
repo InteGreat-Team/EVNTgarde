@@ -193,7 +193,7 @@ const Status: React.FC<StatusProps> = ({
                   <h3 className="text-lg font-semibold mb-3">Attendees</h3>
                   <button
                     className="w-full bg-yellow-400 rounded-md py-3 px-4 text-black font-medium hover:bg-yellow-500"
-                    //onClick={() => navigate("/rsvp-tracker")} // ✅
+                    //onClick={() => navigate("/rsvp-tracker")} //
                   >
                     View RSVP Tracker
                   </button>
@@ -225,7 +225,7 @@ const Status: React.FC<StatusProps> = ({
                 </div>
                 <button
                   className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                  //onClick={() => navigate("/vendors")} // ✅
+                  //onClick={() => navigate("/vendors")} //
                 >
                   Browse Other Vendors
                 </button>
