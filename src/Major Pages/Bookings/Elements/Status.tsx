@@ -118,6 +118,16 @@ const Status: React.FC<StatusProps> = ({
     return <LeaveReviewCustomer onClose={() => setShowReviewModal(false)} />;
   };
 
+    const renderCancelEvent = () => {
+    return (
+      <CancelEvent
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        eventName={selectedBooking?.eventName}
+      />
+    )
+  }
+
   const renderStatusContent = () => {
     switch (displayStatus) {
       case "awaiting":
@@ -334,15 +344,13 @@ const Status: React.FC<StatusProps> = ({
     }
   };
 
-  return (
+   return (
     <div className="flex flex-col gap-5 pr-5">
       {renderStatusContent()}
-      {showCancelModal && (
-        <CancelEvent onClose={() => setShowCancelModal(false)} isOpen={true} />
-      )}
       {showReviewModal && renderLeaveReview()}
+      {showCancelModal && renderCancelEvent()}
     </div>
-  );
-};
+  )
+}
 
 export default Status;
