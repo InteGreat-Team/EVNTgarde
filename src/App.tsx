@@ -17,7 +17,7 @@ import ProtectedLayout from "./functions/ProtectedRoute";
 import CombinedLayout from "./Layout/combined-layout";
 
 // consolidated role selection
-import RoleSelection from "./Major Pages/Login Page/RoleSelection";
+import RoleSelection from "./Major Pages/Login Page/Elements/RoleSelection";
 
 // Registration Components
 import OrganizerRegistration from "./Major Pages/Login Page/OrganizerRegistration";
@@ -31,7 +31,7 @@ import RSVP from "./Major Pages/RSVP/RSVP";
 import Reviews from "./Major Pages/Reviews/Reviews";
 import UserManagement from "./Major Pages/Dashboards/Registered/UserManagement";
 import Track from "./Major Pages/Dashboards/Registered/Track";
-import ProfileSettings from "./Major Pages/Dashboards/Registered/ProfileSettings";
+import ProfileSettings from "./Major Pages/ProfileSettings/ProfileSettings";
 
 // Misc Pages
 import OrganizerDetails from "./Major Pages/Dashboards/Registered/Elements/OrganizerDetails";
@@ -118,7 +118,7 @@ const App: React.FC = () => {
 
         <Route
           path="/register/individual"
-          element={<IndividualRegistration/>}
+          element={<IndividualRegistration />}
         />
         <Route
           path="/register/individual/step2"
