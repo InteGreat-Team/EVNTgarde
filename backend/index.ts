@@ -4,6 +4,9 @@ import authRoutes from "./routes/auth";
 import eventsRoutes from "./routes/events";
 import reviewRoutes from "./routes/reviews";
 import uploadImages from "./routes/uploadImage";
+import superAdminAuthRoutes from "./routes/super-admin-auth";
+import rsvpRoutes from "./routes/rsvp"
+
 
 const app = express();
 
@@ -23,6 +26,7 @@ app.use(express.json());
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log("Full URL:", req.originalUrl);
   console.log("Request headers:", req.headers);
   console.log("Request body:", req.body);
   next();
@@ -39,11 +43,13 @@ app.get("/api/test", (req, res) => {
   res.json({ message: "Test endpoint working" });
 });
 
-// Routes
+// Routes - ORDER MATTERS! More specific routes should come first
+app.use("/api/superAdmin", superAdminAuthRoutes); // Super admin routes FIRST
 app.use("/api", authRoutes);
 app.use("/api", eventsRoutes);
 app.use("/api", reviewRoutes);
 app.use("/api", uploadImages);
+app.use("/api", rsvpRoutes)
 
 // Error handling middleware
 app.use(
@@ -71,6 +77,16 @@ app.use(
 // 404 handler - must be after all other routes
 app.use((req: express.Request, res: express.Response) => {
   console.log("404 Not Found:", req.method, req.path);
+  console.log("Available routes:");
+  console.log("- /api/superAdmin/superAdminQuickLogin");
+  console.log("- /api/superAdmin/superAdminLogin");
+  console.log("- /api/superAdmin/verification-requests");
+  console.log("- /api/superAdmin/handle-verification");
+  console.log("- /api/superAdmin/cancellation-requests");
+  console.log("- /api/superAdmin/handle-cancellation");
+  console.log("- /api/superAdmin/users");
+  console.log("- /api/superAdmin/verify-user");
+  
   res.status(404).json({
     success: false,
     message: `Endpoint not found: ${req.method} ${req.path}`,
@@ -84,6 +100,7 @@ const server = app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
   console.log(`CORS enabled for http://localhost:5173`);
   console.log(`Health check available at http://localhost:${PORT}/health`);
+  console.log(`Super Admin routes available at http://localhost:${PORT}/api/superAdmin/`);
 });
 
 // Handle server errors
@@ -96,3 +113,5 @@ server.on("error", (error: any) => {
     process.exit(1);
   }
 });
+
+export default app;
