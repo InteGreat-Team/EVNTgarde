@@ -4,6 +4,8 @@ import authRoutes from "./routes/auth";
 import eventsRoutes from "./routes/events";
 import reviewRoutes from "./routes/reviews";
 import uploadImages from "./routes/uploadImage";
+import bookingsRoutes from "./routes/bookings";
+
 
 const app = express();
 
@@ -44,6 +46,8 @@ app.use("/api", authRoutes);
 app.use("/api", eventsRoutes);
 app.use("/api", reviewRoutes);
 app.use("/api", uploadImages);
+app.use("/api", bookingsRoutes);
+
 
 // Error handling middleware
 app.use(
