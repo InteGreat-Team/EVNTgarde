@@ -17,7 +17,7 @@ interface BudgetBreakdownProps {
   items?: BudgetItem[];
   additionalExpenses?: number; // For any expenses not in the items list
   userRole?: "organizer" | "individual" | "vendor"; // Add userRole prop
-  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft"; // Add activeStatus prop
+  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" |  "Cancelled"; // Add activeStatus prop
 }
 
 const BudgetBreakdown: React.FC<BudgetBreakdownProps> = ({

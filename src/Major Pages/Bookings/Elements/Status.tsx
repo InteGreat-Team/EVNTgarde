@@ -2,9 +2,10 @@
 import React, { useState } from "react"
 import LeaveReviewOrganizer from './LeaveReviewOrganizer'
 import LeaveReviewCustomer from './LeaveReview'
+// import CancelEvent from "./CancelEvent"
 
 interface StatusProps {
-  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft"
+  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" |  "Cancelled"
   selectedBooking?: any
   userRole?: "organizer" | "individual" | "vendor"
   organizer?: {
@@ -36,6 +37,7 @@ const Status: React.FC<StatusProps> = ({
 }) => {
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [reviewMode, setReviewMode] = useState<'event' | 'vendor'>('event')
+  // const [showCancelModal, setShowCancelModal] = useState(false)
 
   const dates = {
     requestDate: selectedBooking?.requestDate || "Aug 1, 2025",
@@ -54,7 +56,13 @@ const Status: React.FC<StatusProps> = ({
     ? "completed"
     : activeStatus === "Rejected"
     ? "rejected"
+     : activeStatus === "Cancelled"
+    ? "cancelled"
     : "awaiting"
+
+  /*const handleCancelEvent = () => {
+  setShowCancelModal(true)
+}*/
 
   const renderOrganizerInfo = () => {
     const displayInfo = userRole === "organizer" ? customer : organizer
@@ -173,43 +181,26 @@ const Status: React.FC<StatusProps> = ({
                   <h3 className="text-lg font-semibold">Date Completed</h3>
                   <p className="text-gray-500">-</p>
                 </div>
-                <div className="space-y-2">
-                  {(userRole === "organizer" || userRole === "individual") && (
-                    <>
-                      {userRole === "organizer" && (
-                        <>
-                          {selectedBooking?.rsvpStatus ===
-                          "RSVP List: Created" ? (
-                            <button
-                              className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                              onClick={() => console.log("View RSVP Tracker")}
-                            >
-                              View RSVP Tracker
-                            </button>
-                          ) : (
-                            <button
-                              className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                              onClick={() => console.log("Create RSVP")}
-                            >
-                              Create RSVP
-                            </button>
-                          )}
-                        </>
-                      )}
+                <button
+                  className="w-full bg-red-500 rounded-md py-3 px-4 text-white font-medium hover:bg-red-600"
+                  //onClick={handleCancelEvent}
+                >
+                  Cancel Event
+                </button>
 
-                      <button
-                        className="w-full bg-red-600 rounded-md py-3 px-4 text-white font-medium hover:bg-red-800"
-                        onClick={() => console.log("Create Guest List")}
-                      >
-                        Create Guest List
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
+              <div className="pt-2">
+                <h3 className="text-lg font-semibold mb-3">Attendees</h3>
+                <button
+                  className="w-full bg-yellow-400 rounded-md py-3 px-4 text-black font-medium hover:bg-yellow-500"
+                  onClick={() => console.log("View RSVP Tracker")}
+                >
+                  View RSVP Tracker
+                </button>
+                 </div>
             </div>
-          </>
-        )
+          </div>
+        </>
+      )
       case "rejected":
         return (
           <>
@@ -290,6 +281,44 @@ const Status: React.FC<StatusProps> = ({
             </div>
           </>
         )
+         case "cancelled":
+      return (
+        <>
+          {renderOrganizerInfo()}
+          <div className="border border-gray-300 rounded-md overflow-hidden">
+            <div className="bg-red-600 p-6 text-white">
+              <h2 className="text-3xl font-bold mb-2">Cancelled</h2>
+              <p>The event will no longer proceed as scheduled.</p>
+            </div>
+            <div className="p-4 space-y-4 bg-white">
+              <div className="text-red-600 mb-2">
+                <h3 className="text-sm font-medium">Issues:</h3>
+                <ul className="ml-4 mt-1">
+                  <li>• Low attendance expected</li>
+                  <li>• Venue issues</li>
+                </ul>
+              </div>
+              <p className="text-gray-600 text-sm">
+                We're sorry to announce the cancellation of this event. We understand this may be disappointing.
+              </p>
+              <div>
+                <h3 className="text-lg font-semibold">Request Date</h3>
+                <p className="text-gray-500">{dates.requestDate}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Date Accepted</h3>
+                <p className="text-gray-500">{dates.acceptedDate}</p>
+              </div>
+              <button
+                className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                onClick={() => console.log("Go to Dashboard")}
+              >
+                Go to Dashboard
+              </button>
+            </div>
+          </div>
+        </>
+      )
       default:
         return null
     }
@@ -299,7 +328,7 @@ const Status: React.FC<StatusProps> = ({
     <div className="flex flex-col gap-5 pr-5">
       {renderStatusContent()}
       {showReviewModal && renderLeaveReview()}
-    </div>
+      </div>
   )
 }
 
