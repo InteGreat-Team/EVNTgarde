@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LeaveReviewOrganizer from "./LeaveReviewOrganizer";
 import LeaveReviewCustomer from "./LeaveReview";
-// import CancelEvent from "./CancelEvent"
+import CancelEvent from "./CancelEvent";
 
 interface StatusProps {
   activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Cancelled";
@@ -39,6 +39,7 @@ const Status: React.FC<StatusProps> = ({
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewMode, setReviewMode] = useState<"event" | "vendor">("event");
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const dates = {
     requestDate: selectedBooking?.requestDate || "Aug 1, 2025",
@@ -184,11 +185,10 @@ const Status: React.FC<StatusProps> = ({
                 </div>
                 <button
                   className="w-full bg-red-500 rounded-md py-3 px-4 text-white font-medium hover:bg-red-600"
-                  // onClick={handleCancelEvent}
+                  onClick={() => setShowCancelModal(true)}
                 >
                   Cancel Event
                 </button>
-
                 <div className="pt-2">
                   <h3 className="text-lg font-semibold mb-3">Attendees</h3>
                   <button
@@ -321,7 +321,7 @@ const Status: React.FC<StatusProps> = ({
                 </div>
                 <button
                   className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                  onClick={() => navigate("/dashboard")} // ✅
+                  onClick={() => navigate("/dashboard")}
                 >
                   Go to Dashboard
                 </button>
@@ -337,6 +337,9 @@ const Status: React.FC<StatusProps> = ({
   return (
     <div className="flex flex-col gap-5 pr-5">
       {renderStatusContent()}
+      {showCancelModal && (
+        <CancelEvent onClose={() => setShowCancelModal(false)} isOpen={true} />
+      )}
       {showReviewModal && renderLeaveReview()}
     </div>
   );
