@@ -228,7 +228,21 @@ const VendorRegistration = ({ step = 1 }: { step: number }) => {
       return
     }
     setError("")
-    sessionStorage.setItem("vendorRegistration", JSON.stringify(formData))
+
+
+
+    sessionStorage.setItem(
+      "vendorRegistration",
+      JSON.stringify({
+        vendorType,
+        vendorName,
+        businessOffering,
+        preferences,
+        gender,
+      }),
+    )
+
+
     navigate("/register/vendor/step3")
   }
 
@@ -517,6 +531,7 @@ const VendorRegistration = ({ step = 1 }: { step: number }) => {
           /></form></>
     )}
 
+
   return (
     <AuthLayout>
       {error && <div className="bg-red-500 text-white p-3 rounded-md mb-4">{error}</div>}
@@ -551,7 +566,10 @@ const VendorRegistration = ({ step = 1 }: { step: number }) => {
           </div>
         </div>
       )}
-    </AuthLayout>
-  )}
+
+    </div>
+	);
+};
+
 
 export default VendorRegistration;

@@ -77,3 +77,4 @@ export type Vendor = {
   created_at: Date;
   certifications: string[];
 };
+

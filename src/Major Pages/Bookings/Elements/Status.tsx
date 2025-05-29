@@ -1,28 +1,29 @@
-// Status.tsx
-import React, { useState } from "react"
-import LeaveReviewOrganizer from './LeaveReviewOrganizer'
-import LeaveReviewCustomer from './LeaveReview'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import LeaveReviewOrganizer from "./LeaveReviewOrganizer";
+import LeaveReviewCustomer from "./LeaveReview";
+import CancelEvent from "./CancelEvent";
 
 interface StatusProps {
-  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft"
-  selectedBooking?: any
-  userRole?: "organizer" | "individual" | "vendor"
+  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Cancelled";
+  selectedBooking?: any;
+  userRole?: "organizer" | "individual" | "vendor";
   organizer?: {
-    name?: string
-    role?: string
-    email?: string
-    phone?: string
-    avatar?: string
-  }
+    name?: string;
+    role?: string;
+    email?: string;
+    phone?: string;
+    avatar?: string;
+  };
   customer?: {
-    name?: string
-    role?: string
-    email?: string
-    phone?: string
-    avatar?: string
-  }
-  onAccept?: () => void
-  onReject?: () => void
+    name?: string;
+    role?: string;
+    email?: string;
+    phone?: string;
+    avatar?: string;
+  };
+  onAccept?: () => void;
+  onReject?: () => void;
 }
 
 const Status: React.FC<StatusProps> = ({
@@ -34,8 +35,11 @@ const Status: React.FC<StatusProps> = ({
   onAccept,
   onReject,
 }) => {
-  const [showReviewModal, setShowReviewModal] = useState(false)
-  const [reviewMode, setReviewMode] = useState<'event' | 'vendor'>('event')
+  const navigate = useNavigate();
+
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewMode, setReviewMode] = useState<"event" | "vendor">("event");
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const dates = {
     requestDate: selectedBooking?.requestDate || "Aug 1, 2025",
@@ -44,20 +48,23 @@ const Status: React.FC<StatusProps> = ({
     paidDate: selectedBooking?.paidDate || "Sept 1, 2025",
     paymentDate: selectedBooking?.paymentDate || "Aug 1, 2025",
     completedDate: selectedBooking?.completedDate || "Aug 10, 2025",
-  }
+  };
 
-  const displayStatus = activeStatus === "Pending"
-    ? "awaiting"
-    : activeStatus === "Upcoming"
-    ? "accepted"
-    : activeStatus === "Past"
-    ? "completed"
-    : activeStatus === "Rejected"
-    ? "rejected"
-    : "awaiting"
+  const displayStatus =
+    activeStatus === "Pending"
+      ? "awaiting"
+      : activeStatus === "Upcoming"
+        ? "accepted"
+        : activeStatus === "Past"
+          ? "completed"
+          : activeStatus === "Rejected"
+            ? "rejected"
+            : activeStatus === "Cancelled"
+              ? "cancelled"
+              : "awaiting";
 
   const renderOrganizerInfo = () => {
-    const displayInfo = userRole === "organizer" ? customer : organizer
+    const displayInfo = userRole === "organizer" ? customer : organizer;
 
     return (
       <div className="border border-gray-300 rounded-md p-4 bg-white">
@@ -96,19 +103,29 @@ const Status: React.FC<StatusProps> = ({
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderLeaveReview = () => {
-    if (userRole === 'organizer') {
+    if (userRole === "organizer") {
       return (
         <LeaveReviewOrganizer
           onClose={() => setShowReviewModal(false)}
-          mode={reviewMode === 'vendor' ? 'client' : 'vendor'}
+          mode={reviewMode === "vendor" ? "client" : "vendor"}
         />
-      )
+      );
     }
-    return <LeaveReviewCustomer onClose={() => setShowReviewModal(false)} />
+    return <LeaveReviewCustomer onClose={() => setShowReviewModal(false)} />;
+  };
+
+    const renderCancelEvent = () => {
+    return (
+      <CancelEvent
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        eventName={selectedBooking?.eventName}
+      />
+    )
   }
 
   const renderStatusContent = () => {
@@ -142,7 +159,7 @@ const Status: React.FC<StatusProps> = ({
               )}
             </div>
           </>
-        )
+        );
       case "accepted":
         return (
           <>
@@ -150,7 +167,10 @@ const Status: React.FC<StatusProps> = ({
             <div className="border border-gray-300 rounded-md overflow-hidden">
               <div className="bg-yellow-400 p-6 text-white">
                 <h2 className="text-3xl font-bold mb-2">Accepted</h2>
-                <p>The event has been accepted, and all the payments for the vendor <strong>have been settled.</strong></p>
+                <p>
+                  The event has been accepted, and all the payments for the
+                  vendor <strong>have been settled.</strong>
+                </p>
               </div>
               <div className="p-4 space-y-4 bg-white">
                 <div>
@@ -173,43 +193,25 @@ const Status: React.FC<StatusProps> = ({
                   <h3 className="text-lg font-semibold">Date Completed</h3>
                   <p className="text-gray-500">-</p>
                 </div>
-                <div className="space-y-2">
-                  {(userRole === "organizer" || userRole === "individual") && (
-                    <>
-                      {userRole === "organizer" && (
-                        <>
-                          {selectedBooking?.rsvpStatus ===
-                          "RSVP List: Created" ? (
-                            <button
-                              className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                              onClick={() => console.log("View RSVP Tracker")}
-                            >
-                              View RSVP Tracker
-                            </button>
-                          ) : (
-                            <button
-                              className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                              onClick={() => console.log("Create RSVP")}
-                            >
-                              Create RSVP
-                            </button>
-                          )}
-                        </>
-                      )}
-
-                      <button
-                        className="w-full bg-red-600 rounded-md py-3 px-4 text-white font-medium hover:bg-red-800"
-                        onClick={() => console.log("Create Guest List")}
-                      >
-                        Create Guest List
-                      </button>
-                    </>
-                  )}
+                <button
+                  className="w-full bg-red-500 rounded-md py-3 px-4 text-white font-medium hover:bg-red-600"
+                  onClick={() => setShowCancelModal(true)}
+                >
+                  Cancel Event
+                </button>
+                <div className="pt-2">
+                  <h3 className="text-lg font-semibold mb-3">Attendees</h3>
+                  <button
+                    className="w-full bg-yellow-400 rounded-md py-3 px-4 text-black font-medium hover:bg-yellow-500"
+                    //onClick={() => navigate("/rsvp-tracker")} //
+                  >
+                    View RSVP Tracker
+                  </button>
                 </div>
               </div>
             </div>
           </>
-        )
+        );
       case "rejected":
         return (
           <>
@@ -217,7 +219,10 @@ const Status: React.FC<StatusProps> = ({
             <div className="border border-gray-300 rounded-md overflow-hidden">
               <div className="bg-red-700 p-6 text-white">
                 <h2 className="text-3xl font-bold mb-2">Rejected</h2>
-                <p>The event proposal has been rejected, and will not proceed to event planning.</p>
+                <p>
+                  The event proposal has been rejected, and will not proceed to
+                  event planning.
+                </p>
               </div>
               <div className="p-4 space-y-4 bg-white">
                 <div>
@@ -230,14 +235,14 @@ const Status: React.FC<StatusProps> = ({
                 </div>
                 <button
                   className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                  onClick={() => console.log("Browsing vendors")}
+                  //onClick={() => navigate("/vendors")} //
                 >
                   Browse Other Vendors
                 </button>
               </div>
             </div>
           </>
-        )
+        );
       case "completed":
         return (
           <>
@@ -245,7 +250,10 @@ const Status: React.FC<StatusProps> = ({
             <div className="border border-gray-300 rounded-md overflow-hidden">
               <div className="bg-green-700 p-6 text-white">
                 <h2 className="text-3xl font-bold mb-2">Completed</h2>
-                <p>The event has concluded, and all the payments have been received</p>
+                <p>
+                  The event has concluded, and all the payments have been
+                  received
+                </p>
               </div>
               <div className="p-4 space-y-4 bg-white">
                 <div>
@@ -268,18 +276,20 @@ const Status: React.FC<StatusProps> = ({
                   <button
                     className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
                     onClick={() => {
-                      setReviewMode('event')
-                      setShowReviewModal(true)
+                      setReviewMode("event");
+                      setShowReviewModal(true);
                     }}
                   >
-                    {userRole === 'organizer' ? 'Leave Client Review' : 'Share Experience'}
+                    {userRole === "organizer"
+                      ? "Leave Client Review"
+                      : "Share Experience"}
                   </button>
-                  {userRole === 'organizer' && (
+                  {userRole === "organizer" && (
                     <button
                       className="w-full border border-blue-600 text-blue-600 rounded-md py-3 px-4 font-medium hover:bg-blue-50"
                       onClick={() => {
-                        setReviewMode('vendor')
-                        setShowReviewModal(true)
+                        setReviewMode("vendor");
+                        setShowReviewModal(true);
                       }}
                     >
                       Leave Organizer Review
@@ -289,18 +299,58 @@ const Status: React.FC<StatusProps> = ({
               </div>
             </div>
           </>
-        )
+        );
+      case "cancelled":
+        return (
+          <>
+            {renderOrganizerInfo()}
+            <div className="border border-gray-300 rounded-md overflow-hidden">
+              <div className="bg-red-600 p-6 text-white">
+                <h2 className="text-3xl font-bold mb-2">Cancelled</h2>
+                <p>The event will no longer proceed as scheduled.</p>
+              </div>
+              <div className="p-4 space-y-4 bg-white">
+                <div className="text-red-600 mb-2">
+                  <h3 className="text-sm font-medium">Issues:</h3>
+                  <ul className="ml-4 mt-1">
+                    <li>• Low attendance expected</li>
+                    <li>• Venue issues</li>
+                  </ul>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  We're sorry to announce the cancellation of this event. We
+                  understand this may be disappointing.
+                </p>
+                <div>
+                  <h3 className="text-lg font-semibold">Request Date</h3>
+                  <p className="text-gray-500">{dates.requestDate}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Date Accepted</h3>
+                  <p className="text-gray-500">{dates.acceptedDate}</p>
+                </div>
+                <button
+                  className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Go to Dashboard
+                </button>
+              </div>
+            </div>
+          </>
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  return (
+   return (
     <div className="flex flex-col gap-5 pr-5">
       {renderStatusContent()}
       {showReviewModal && renderLeaveReview()}
+      {showCancelModal && renderCancelEvent()}
     </div>
   )
 }
 
-export default Status
+export default Status;

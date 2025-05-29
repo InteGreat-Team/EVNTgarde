@@ -1,0 +1,39 @@
+install these para gumana
+  npm install pg
+  npm install typeorm reflect-metadata //If you want ORM support (optional, but recommended for TypeScript):
+
+db.ts is our database
+nasa backend/db.ts
+
+dapat ganun din yun credentials sa pgadmin nyo
+PGUSER=postgres
+PGHOST=localhost
+PGDATABASE=eletest
+PGPASSWORD=admin
+PGPORT=5433
+
+sa backend folder kayo mag-aadd ng mga backend routes and functions. 
+
+nasa src folder yun mga frontend components. 
+
+dont import yun pg sa frontend or src kasi it will cause an error dahil sa vite. 
+
+to make the backend work sa frontend, you have to call it using the fetch api. 
+
+example: 
+
+const response = await fetch('http://localhost:5000/api/registerCustomer', {
+  method: 'POST',
+
+the frontend is calling the index.ts file from the backend then the auth.ts file handles the request. 
+
+to run the website, make sure you have two terminals on your ide (one for backend and one for frontend)
+
+for backend, run cd backend para pumunta sa folder and run npm start
+for frontend, simply run npm run dev
+
+make sure naka connect pgadmin nyo sa neondb otherwise di mapapapass yun data nyo
+
+also no need to worry about the db credentials, its already set up na sa .env file
+
+hopefully this helps. let me know if you have any questions. thank you!

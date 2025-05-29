@@ -9,16 +9,94 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
   const [ratings, setRatings] = useState({
     overall: 0,
     communication: 0,
-    prepared: 0,
+    preparedness: 0,
     professional: 0,
-    price: 0,
-  })
-  const [title, setTitle] = useState("")
-  const [experience, setExperience] = useState("")
+
+    perceived_value: 0,
+  });
+  const [title, setTitle] = useState("");
+  const [experience, setExperience] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
 
   const handleRating = (field: keyof typeof ratings, value: number) => {
     setRatings((prev) => ({ ...prev, [field]: value }));
   };
+
+
+  const handleSubmit = async () => {
+    try {
+      let imageUrls: string[] = [];
+
+      if (files.length > 0) {
+        const fileFormData = new FormData();
+        files.forEach((file) => fileFormData.append("files", file));
+
+        const uploadRes = await fetch(
+          "http://localhost:5000/api/upload-images",
+          {
+            method: "POST",
+            body: fileFormData,
+          }
+        );
+
+        const uploadText = await uploadRes.text();
+
+        try {
+          const uploadJson = JSON.parse(uploadText);
+          imageUrls = uploadJson.imageUrls || [];
+        } catch (err) {
+          console.warn("File upload response was not valid JSON:", uploadText);
+        }
+      }
+
+      const reviewForm = new FormData();
+      reviewForm.append("ratings", JSON.stringify(ratings));
+      reviewForm.append("title", title);
+      reviewForm.append("experience", experience);
+      reviewForm.append("image_urls", imageUrls.join(","));
+
+      const reviewerId = localStorage.getItem("userId");
+      if (reviewerId) reviewForm.append("reviewer_id", reviewerId);
+
+      const selectedBookingID = localStorage.getItem("selectedBookingId");
+      if (selectedBookingID) reviewForm.append("event_id", selectedBookingID);
+
+      for (const [key, value] of reviewForm.entries()) {
+        console.log(key, value);
+      }
+
+      const reviewRes = await fetch("http://localhost:5000/api/submit-review", {
+        method: "POST",
+        body: reviewForm,
+      });
+
+      const reviewText = await reviewRes.text();
+
+      if (!reviewRes.ok) {
+        throw new Error(
+          `Review submission failed. Status: ${reviewRes.status}, Body: ${reviewText}`
+        );
+      }
+
+      try {
+        const result = JSON.parse(reviewText);
+        console.log("Review submitted successfully", result);
+      } catch (err) {
+        console.warn("Review response not valid JSON:", reviewText);
+      }
+
+      onClose();
+    } catch (err) {
+      console.error("Error submitting review:", err);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
+    }
+  };
+
 
   return (
     <div className="fixed inset-0 z-50 bg-gray-800/40 backdrop-blur-md flex items-center justify-center px-4 py-10 overflow-y-auto">
@@ -36,9 +114,10 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
               key: "overall",
             },
             { label: "Clear and prompt communication?", key: "communication" },
-            { label: "On time and prepared?", key: "prepared" },
+            { label: "On time and prepared?", key: "preparedness" },
             { label: "Professional and respectful?", key: "professional" },
-            { label: "Worth the price?", key: "price" },
+            { label: "Worth the price?", key: "perceived_value" },
+
           ].map((item) => (
             <div
               key={item.key}
@@ -130,7 +209,11 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
             >
               Cancel
             </button>
-            <button className="w-full bg-blue-700 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-800">
+            <button
+              onClick={handleSubmit}
+              className="w-full bg-blue-700 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-800"
+            >
+
               Post
             </button>
           </div>

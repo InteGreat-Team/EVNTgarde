@@ -8,7 +8,7 @@ import FindActionCard from "./FindActionCard";
 type DetailsProps = {
   isModal: boolean;
   onBackClick: () => void;
-  activeStatus: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft";
+  activeStatus: "Pending" | "Upcoming" | "Past" | "Rejected" |  "Cancelled";
   selectedBooking: any;
   showStatus?: boolean;
 };

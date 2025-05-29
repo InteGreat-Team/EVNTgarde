@@ -88,6 +88,16 @@ export interface User {
   name: string
   email: string
 }
+export interface CustomerRegistrationData {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  email: string;
+  phoneNo?: number;
+  location?: string;
+  password: string;
+  customerType: string;
+
 
 export interface EventData {
   name: string;
@@ -148,4 +158,5 @@ export interface FormFieldProps {
 export interface SelectOption {
   value: string
   label: string
+
 }
