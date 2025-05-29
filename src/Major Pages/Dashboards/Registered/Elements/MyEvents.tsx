@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState, useEffect } from "react";
 import Card from "./MyEventsCard";
@@ -82,6 +80,7 @@ interface EventData {
 }
 
 const MyEvents: React.FC<Props> = ({ onAdd }) => {
+  const [, setSelectedEvent] = useState<(typeof allEvents)[0] | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [events, setEvents] = useState<EventData[]>([]);
   const [customerId, setCustomerId] = useState<string | null>(null);
@@ -101,6 +100,7 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
     });
     return () => unsubscribe();
   }, []);
+
 
   // Fetch user's events
   const fetchUserEvents = async (userId: string) => {
@@ -136,7 +136,6 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
       setLoading(false);
     }
   };
-
   const handleCreateEvent = () => {
     if (onAdd) onAdd();
     setIsCreateModalOpen(true);

@@ -1,5 +1,3 @@
-"use client"
-
 import { Eye, EyeOff } from "lucide-react"
 import type React from "react"
 import { useState, useEffect } from "react"
@@ -290,6 +288,7 @@ const validateStep = (): boolean => {
     return;
   }
 
+
   // Save current step data to session storage
   saveStepData();
 
@@ -319,6 +318,7 @@ const validateStep = (): boolean => {
     setCurrentStep(1); // Budget confirmation back to Budget selection
   }
 };
+
 
   // Save step data to session storage
   const saveStepData = () => {
@@ -482,7 +482,7 @@ const validateStep = (): boolean => {
 
   // Terms and conditions modal
   const TermsAndConditionsModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 bg-white/10 backdrop-brightness-50">
+    <div className="fixed inset-0 bg-black-40 bg-opacity-50 flex items-center justify-center z-50 bg-white/10 backdrop-brightness-50">
       <div
         className={`w-full max-w-2xl p-6 rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}
         style={{ fontFamily: "'Poppins', sans-serif" }}
@@ -766,20 +766,23 @@ const validateStep = (): boolean => {
                   {errors.industry && <p className="text-red-500 text-sm mt-1">{errors.industry}</p>}
                 </div>
 
-                <div className="flex justify-between mt-6">
+                <div className="flex justify-center items-center gap-5">
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
+
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
+
                     Back
                   </button>
                   <button
                     type="button"
-                    onClick={handleNext}
-                    className={`px-6 py-3 text-white rounded-lg ${
-                      isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
+
+                    onClick={goToNextStep}
+                     className={`flex-1 px-6 py-3 text-white ${
+                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
                   >
                     Next
                   </button>
@@ -947,20 +950,20 @@ const validateStep = (): boolean => {
                   </select>
                 </div>
 
-                <div className="flex justify-between mt-6">
+                <div className="flex justify-center items-center gap-5">
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
                     Back
                   </button>
                   <button
                     type="button"
-                    onClick={handleNext}
-                    className={`px-6 py-3 text-white rounded-lg ${
-                      isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
+                    onClick={goToNextStep}
+                   className={`flex-1 px-6 py-3 text-white ${
+                      isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+                    } rounded-xl shadow-lg overflow-hidden font-poppins`}
                   >
                     Next
                   </button>
@@ -1097,28 +1100,27 @@ const validateStep = (): boolean => {
                 </div>
                 {errors.terms && <p className="text-red-500 text-sm">{errors.terms}</p>}
 
-                <div className="flex justify-between mt-6">
+                		 <div className="flex justify-center items-center gap-4 mt-6">
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                    >
                     Back
                   </button>
                   <button
                     type="submit"
-                    className={`px-6 py-3 text-white rounded-lg ${
-                      isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    ) : (
-                      "Create Account"
-                    )}
-                  </button>
-                </div>
+                   className={`flex-1 px-6 py-3 text-white ${
+					isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600 hover:bg-blue-300"
+					} rounded-xl shadow-lg overflow-hidden font-poppins`}
+					disabled={isLoading}
+				>
+                    {isLoading && (
+					<div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+					)}
+					Create Account
+				</button>
+				</div>
               </form>
             </>
           )}
@@ -1135,20 +1137,20 @@ const validateStep = (): boolean => {
                 </p>
               </div>
 
-              <div className="flex justify-center items-center gap-5">
-                <button
+              <div className="flex justify-between gap-4 mt-2">
+                  <button
                   type="button"
                   onClick={handleBack}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                >
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
+                  >
                   Start Over
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)} // Go to company details step
-                  className={`px-6 py-3 text-white rounded-lg ${
-                    isDarkMode ? "bg-blue-700 hover:bg-blue-800" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                  className={`flex-1 px-6 py-3 text-white ${
+                    isDarkMode ? "bg-gray-800 hover:bg-gray-300" : "bg-blue-600"
+                  } rounded-xl shadow-lg overflow-hidden font-poppins`}
                 >
                   Get Started
                 </button>

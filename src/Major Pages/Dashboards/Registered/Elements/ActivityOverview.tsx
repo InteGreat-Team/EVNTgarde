@@ -1,4 +1,3 @@
-"use client";
 
 import { useEffect, useState } from "react";
 import { CalendarCard } from "./calendar-card";
@@ -6,42 +5,60 @@ import type React from "react";
 import { ArrowUp, User, MapPin, Star } from "lucide-react";
 import papa from "papaparse";
 
+type userType = "organizer" | "vendor" | "customer";
+
+
 const ActivityOverview: React.FC = () => {
-  const [customerRating, setCustomerRating] = useState<number | null>(null);
-  const [reviewCount, setReviewCount] = useState<number>(0);
+ const [userType, setUserRole] = useState<userType>("organizer");
 
-  const takenDates = [
-    "April 10, 2025",
-    "April 11, 2025",
-    "April 15, 2025",
-    "April 16, 2025",
-    "April 22, 2025",
-  ];
 
-  const upcomingEvents = [
-    {
-      id: 2,
-      date: "Mar 29",
-      day: "Saturday",
-      title: "Super Duper Long Event Placeholder",
-      startTime: "5:30 PM",
-      endTime: "10:00 PM",
-      customer: "Customer Name",
-      location: "Location Name",
-      guests: "1,234 Guests",
-    },
-    {
-      id: 6,
-      date: "Mar 30",
-      day: "Sunday",
-      title: "Upcoming Event Placeholder",
-      startTime: "2:00 PM",
-      endTime: "7:00 PM",
-      customer: "Upcoming Customer",
-      location: "Upcoming Location",
-      guests: "456 Guests",
-    },
-  ];
+ useEffect(() => {
+   const storedRole = localStorage.getItem("userType");
+   if (storedRole === "organizer" || storedRole === "vendor" || storedRole === "customer") {
+     setUserRole(storedRole);
+   } else if (storedRole === "individual") {
+     setUserRole("customer");
+   } else {
+     setUserRole("organizer");
+   }
+ }, []);
+
+
+ const takenDates = [
+   "April 10, 2025",
+   "April 11, 2025",
+   "April 15, 2025",
+   "April 16, 2025",
+   "April 22, 2025",
+ ];
+
+
+ const upcomingEvents = [
+   {
+     id: 2,
+     date: "Mar 29",
+     day: "Saturday",
+     title: "Super Duper Long Event Placeholder",
+     startTime: "5:30 PM",
+     endTime: "10:00 PM",
+     customer: "Customer Name",
+     location: "Location Name",
+     guests: "1,234 Guests",
+   },
+   {
+     id: 6,
+     date: "Mar 30",
+     day: "Sunday",
+     title: "Upcoming Event Placeholder",
+     startTime: "2:00 PM",
+     endTime: "7:00 PM",
+     customer: "Upcoming Customer",
+     location: "Upcoming Location",
+     guests: "456 Guests",
+   },
+ ];
+
+
 
   useEffect(() => {
     papa.parse("/Reviews.csv", {
@@ -237,5 +254,6 @@ const ActivityOverview: React.FC = () => {
     </div>
   );
 };
+
 
 export default ActivityOverview;

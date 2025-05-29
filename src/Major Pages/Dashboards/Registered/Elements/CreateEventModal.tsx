@@ -1,8 +1,12 @@
-"use client"
-
 import { useState, useEffect, useRef } from "react"
 import { X, Calendar, Clock, Plus, Minus, ChevronDown, Upload, Check } from "lucide-react"
 import { getAuth, onAuthStateChanged } from "firebase/auth"
+import { EventDetailsStep } from "./EventDetailsStep";
+import { ServicesStep } from "./ServicesStep";
+import { PreviewStep } from "./PreviewStep";
+import { ProgressSteps } from "./ProgressSteps";
+import { EventData } from "../../../../functions/types";
+
 
 interface CreateEventModalProps {
   isOpen: boolean
@@ -25,6 +29,7 @@ interface EventData {
   customServices: string[]
   budget: string
   files: File[]
+
 }
 
 interface ErrorState {
@@ -32,6 +37,7 @@ interface ErrorState {
 }
 
 export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalProps) {
+
   const [step, setStep] = useState(1)
   const [errors, setErrors] = useState<ErrorState>({})
   const [loading, setLoading] = useState(false)
@@ -52,9 +58,9 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
     customServices: [],
     budget: "",
     files: [],
-  })
-  const [customService, setCustomService] = useState("")
-  const modalRef = useRef<HTMLDivElement>(null)
+  });
+
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Add authentication state listener
   useEffect(() => {
@@ -82,24 +88,19 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
   // Prevent background scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto"
+      document.body.style.overflow = "auto";
     }
     return () => {
-      document.body.style.overflow = "auto"
-    }
-  }, [isOpen])
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const handleInputChange = (field: keyof EventData, value: any) => {
-    setEventData({
-      ...eventData,
-      [field]: value,
-    })
-
-    // Clear error for this field if it exists
+    setEventData({ ...eventData, [field]: value });
     if (errors[field]) {
       const newErrors = { ...errors }
       delete newErrors[field]
@@ -161,28 +162,49 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
     if (!eventData.budget.trim()) {
       newErrors.budget = true
     }
+  };
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+  const validators = {
+    1: () => {
+      const newErrors: Record<string, boolean> = {};
+      const requiredFields = [
+        "name", "overview", "startDate", "endDate", 
+        "startTime", "endTime", "location", "eventType", "attire"
+      ];
+      
+      requiredFields.forEach(field => {
+        if (!eventData[field as keyof EventData] || 
+            (typeof eventData[field as keyof EventData] === 'string' && 
+             !(eventData[field as keyof EventData] as string).trim())) {
+          newErrors[field] = true;
+        }
+      });
+      
+      if (eventData.numberOfGuests <= 0) newErrors.numberOfGuests = true;
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    },
+    2: () => {
+      const newErrors: Record<string, boolean> = {};
+      if (eventData.services.length === 0 && eventData.customServices.length === 0) {
+        newErrors.services = true;
+      }
+      if (!eventData.budget.trim()) newErrors.budget = true;
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    },
+    3: () => true
+  };
 
   const handleNext = () => {
-    if (step === 1) {
-      if (validateStep1()) {
-        setStep(2)
-      }
-    } else if (step === 2) {
-      if (validateStep2()) {
-        setStep(3)
-      }
+    if (validators[step as keyof typeof validators]()) {
+      setStep(step + 1);
     }
-  }
+  };
 
   const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1)
-    }
-  }
+    if (step > 1) setStep(step - 1);
+  };
 
   const handleSave = async () => {
     setLoading(true);
@@ -284,10 +306,10 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
     if (eventData.numberOfGuests > 0) {
       handleInputChange("numberOfGuests", eventData.numberOfGuests - 1)
     }
-  }
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm overflow-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div
         ref={modalRef}
         className="bg-white rounded-xl w-full max-w-2xl mx-4 my-4 overflow-hidden shadow-xl transform transition-all"
@@ -707,5 +729,5 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -97,4 +97,66 @@ export interface CustomerRegistrationData {
   location?: string;
   password: string;
   customerType: string;
+
+
+export interface EventData {
+  name: string;
+  overview: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  numberOfGuests: number;
+  location: string;
+  eventType: string;
+  attire: string;
+  services: string[];
+  customServices: string[];
+  budget: string;
+  files: File[];
+}
+
+export interface StepProps {
+  eventData: EventData;
+  errors: Record<string, boolean>;
+  onInputChange: (field: keyof EventData, value: any) => void;
+  onNext?: () => void;
+  onBack?: () => void;
+}
+
+export interface VendorFormData {
+  vendorType: "solo" | "company" | ""
+  vendorName: string
+  businessOffering: string
+  gender: string
+  phoneNumber: string
+  email: string
+  password: string
+  confirmPassword: string
+  address: {
+    buildingId: string
+    street: string
+    barangay: string
+    city: string
+    province: string
+    zipCode: string
+    country: string
+  }
+  termsAccepted: boolean
+}
+
+export interface FormFieldProps {
+  label: string
+  type?: string
+  placeholder?: string
+  value: string
+  onChange: (value: string) => void
+  required?: boolean
+  children?: React.ReactNode
+}
+
+export interface SelectOption {
+  value: string
+  label: string
+
 }

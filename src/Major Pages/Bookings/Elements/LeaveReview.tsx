@@ -11,6 +11,7 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
     communication: 0,
     preparedness: 0,
     professional: 0,
+
     perceived_value: 0,
   });
   const [title, setTitle] = useState("");
@@ -20,6 +21,7 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
   const handleRating = (field: keyof typeof ratings, value: number) => {
     setRatings((prev) => ({ ...prev, [field]: value }));
   };
+
 
   const handleSubmit = async () => {
     try {
@@ -95,6 +97,7 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
     }
   };
 
+
   return (
     <div className="fixed inset-0 z-50 bg-gray-800/40 backdrop-blur-md flex items-center justify-center px-4 py-10 overflow-y-auto">
       <div className="bg-white rounded-md w-full max-w-2xl p-8 shadow-xl relative max-h-[90vh] overflow-y-auto">
@@ -114,6 +117,7 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
             { label: "On time and prepared?", key: "preparedness" },
             { label: "Professional and respectful?", key: "professional" },
             { label: "Worth the price?", key: "perceived_value" },
+
           ].map((item) => (
             <div
               key={item.key}
@@ -176,7 +180,6 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
                 multiple
                 className="hidden"
                 id="fileUpload"
-                onChange={handleFileChange}
               />
               <label htmlFor="fileUpload" className="cursor-pointer">
                 <div className="flex flex-col items-center">
@@ -210,6 +213,7 @@ const LeaveReview: React.FC<LeaveReviewProps> = ({ onClose }) => {
               onClick={handleSubmit}
               className="w-full bg-blue-700 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-800"
             >
+
               Post
             </button>
           </div>

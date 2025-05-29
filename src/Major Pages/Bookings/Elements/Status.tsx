@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Facebook, Instagram, Linkedin, Globe } from "lucide-react";
-import LeaveReview from "./LeaveReview";
+import { useNavigate } from "react-router-dom";
+import LeaveReviewOrganizer from "./LeaveReviewOrganizer";
+import LeaveReviewCustomer from "./LeaveReview";
+import CancelEvent from "./CancelEvent";
 
 interface StatusProps {
-  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft";
+  activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Cancelled";
   selectedBooking?: any;
   userRole?: "organizer" | "individual" | "vendor";
   organizer?: {
@@ -20,16 +22,8 @@ interface StatusProps {
     phone?: string;
     avatar?: string;
   };
-  socialLinks?: {
-    facebook?: string;
-    instagram?: string;
-    linkedin?: string;
-    website?: string;
-  };
-  onMarkCompleted?: () => void;
   onAccept?: () => void;
   onReject?: () => void;
-  onShareExperience?: () => void;
 }
 
 const Status: React.FC<StatusProps> = ({
@@ -38,18 +32,14 @@ const Status: React.FC<StatusProps> = ({
   userRole,
   organizer,
   customer,
-  socialLinks = {
-    facebook: "@linktofacebook",
-    instagram: "@linktoinstagram",
-    linkedin: "@linktolinkedin",
-    website: "@linktowebsite",
-  },
-  onMarkCompleted,
   onAccept,
   onReject,
-  onShareExperience,
 }) => {
+  const navigate = useNavigate();
+
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewMode, setReviewMode] = useState<"event" | "vendor">("event");
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const dates = {
     requestDate: selectedBooking?.requestDate || "Aug 1, 2025",
@@ -60,8 +50,8 @@ const Status: React.FC<StatusProps> = ({
     completedDate: selectedBooking?.completedDate || "Aug 10, 2025",
   };
 
-  const displayStatus = activeStatus
-    ? activeStatus === "Pending"
+  const displayStatus =
+    activeStatus === "Pending"
       ? "awaiting"
       : activeStatus === "Upcoming"
         ? "accepted"
@@ -69,8 +59,9 @@ const Status: React.FC<StatusProps> = ({
           ? "completed"
           : activeStatus === "Rejected"
             ? "rejected"
-            : "awaiting"
-    : "awaiting";
+            : activeStatus === "Cancelled"
+              ? "cancelled"
+              : "awaiting";
 
   const renderOrganizerInfo = () => {
     const displayInfo = userRole === "organizer" ? customer : organizer;
@@ -115,6 +106,28 @@ const Status: React.FC<StatusProps> = ({
     );
   };
 
+  const renderLeaveReview = () => {
+    if (userRole === "organizer") {
+      return (
+        <LeaveReviewOrganizer
+          onClose={() => setShowReviewModal(false)}
+          mode={reviewMode === "vendor" ? "client" : "vendor"}
+        />
+      );
+    }
+    return <LeaveReviewCustomer onClose={() => setShowReviewModal(false)} />;
+  };
+
+    const renderCancelEvent = () => {
+    return (
+      <CancelEvent
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        eventName={selectedBooking?.eventName}
+      />
+    )
+  }
+
   const renderStatusContent = () => {
     switch (displayStatus) {
       case "awaiting":
@@ -145,36 +158,6 @@ const Status: React.FC<StatusProps> = ({
                 </div>
               )}
             </div>
-
-            {userRole !== "organizer" && (
-              <div className="border border-gray-300 rounded-md p-4 bg-white">
-                <h2 className="text-2xl font-bold mb-4">Get in Touch</h2>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Facebook className="w-5 h-5 text-gray-600" />
-                    <span className="text-gray-500">
-                      {socialLinks.facebook}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Instagram className="w-5 h-5 text-gray-600" />
-                    <span className="text-gray-500">
-                      {socialLinks.instagram}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Linkedin className="w-5 h-5 text-gray-600" />
-                    <span className="text-gray-500">
-                      {socialLinks.linkedin}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-gray-600" />
-                    <span className="text-gray-500">{socialLinks.website}</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </>
         );
       case "accepted":
@@ -211,10 +194,50 @@ const Status: React.FC<StatusProps> = ({
                   <p className="text-gray-500">-</p>
                 </div>
                 <button
-                  className="w-full border border-gray-300 rounded-md py-3 px-4 text-black font-medium hover:bg-gray-300"
-                  onClick={onMarkCompleted}
+                  className="w-full bg-red-500 rounded-md py-3 px-4 text-white font-medium hover:bg-red-600"
+                  onClick={() => setShowCancelModal(true)}
                 >
-                  Mark Event as Completed
+                  Cancel Event
+                </button>
+                <div className="pt-2">
+                  <h3 className="text-lg font-semibold mb-3">Attendees</h3>
+                  <button
+                    className="w-full bg-yellow-400 rounded-md py-3 px-4 text-black font-medium hover:bg-yellow-500"
+                    //onClick={() => navigate("/rsvp-tracker")} //
+                  >
+                    View RSVP Tracker
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        );
+      case "rejected":
+        return (
+          <>
+            {renderOrganizerInfo()}
+            <div className="border border-gray-300 rounded-md overflow-hidden">
+              <div className="bg-red-700 p-6 text-white">
+                <h2 className="text-3xl font-bold mb-2">Rejected</h2>
+                <p>
+                  The event proposal has been rejected, and will not proceed to
+                  event planning.
+                </p>
+              </div>
+              <div className="p-4 space-y-4 bg-white">
+                <div>
+                  <h3 className="text-lg font-semibold">Request Date</h3>
+                  <p className="text-gray-500">{dates.requestDate}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Date Rejected</h3>
+                  <p className="text-gray-500">Aug 2, 2025</p>
+                </div>
+                <button
+                  className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                  //onClick={() => navigate("/vendors")} //
+                >
+                  Browse Other Vendors
                 </button>
               </div>
             </div>
@@ -249,48 +272,68 @@ const Status: React.FC<StatusProps> = ({
                   <h3 className="text-lg font-semibold">Payment Date</h3>
                   <p className="text-gray-500">{dates.paymentDate}</p>
                 </div>
-                <button
-                  className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                  onClick={() => {
-                    if (onShareExperience) {
-                      onShareExperience();
-                    } else {
+                <div className="flex flex-col gap-3">
+                  <button
+                    className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
+                    onClick={() => {
+                      setReviewMode("event");
                       setShowReviewModal(true);
-                    }
-                  }}
-                >
-                  Share Experience
-                </button>
+                    }}
+                  >
+                    {userRole === "organizer"
+                      ? "Leave Client Review"
+                      : "Share Experience"}
+                  </button>
+                  {userRole === "organizer" && (
+                    <button
+                      className="w-full border border-blue-600 text-blue-600 rounded-md py-3 px-4 font-medium hover:bg-blue-50"
+                      onClick={() => {
+                        setReviewMode("vendor");
+                        setShowReviewModal(true);
+                      }}
+                    >
+                      Leave Organizer Review
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </>
         );
-      case "rejected":
+      case "cancelled":
         return (
           <>
             {renderOrganizerInfo()}
             <div className="border border-gray-300 rounded-md overflow-hidden">
-              <div className="bg-red-700 p-6 text-white">
-                <h2 className="text-3xl font-bold mb-2">Rejected</h2>
-                <p>
-                  The event proposal has been rejected, and will not proceed to
-                  event planning.
-                </p>
+              <div className="bg-red-600 p-6 text-white">
+                <h2 className="text-3xl font-bold mb-2">Cancelled</h2>
+                <p>The event will no longer proceed as scheduled.</p>
               </div>
               <div className="p-4 space-y-4 bg-white">
+                <div className="text-red-600 mb-2">
+                  <h3 className="text-sm font-medium">Issues:</h3>
+                  <ul className="ml-4 mt-1">
+                    <li>• Low attendance expected</li>
+                    <li>• Venue issues</li>
+                  </ul>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  We're sorry to announce the cancellation of this event. We
+                  understand this may be disappointing.
+                </p>
                 <div>
                   <h3 className="text-lg font-semibold">Request Date</h3>
                   <p className="text-gray-500">{dates.requestDate}</p>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">Date Rejected</h3>
-                  <p className="text-gray-500">Aug 2, 2025</p>
+                  <h3 className="text-lg font-semibold">Date Accepted</h3>
+                  <p className="text-gray-500">{dates.acceptedDate}</p>
                 </div>
                 <button
                   className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-800"
-                  onClick={() => console.log("Browsing vendors")}
+                  onClick={() => navigate("/dashboard")}
                 >
-                  Browse Other Vendors
+                  Go to Dashboard
                 </button>
               </div>
             </div>
@@ -301,14 +344,13 @@ const Status: React.FC<StatusProps> = ({
     }
   };
 
-  return (
+   return (
     <div className="flex flex-col gap-5 pr-5">
       {renderStatusContent()}
-      {showReviewModal && (
-        <LeaveReview onClose={() => setShowReviewModal(false)} />
-      )}
+      {showReviewModal && renderLeaveReview()}
+      {showCancelModal && renderCancelEvent()}
     </div>
-  );
-};
+  )
+}
 
 export default Status;

@@ -13,14 +13,16 @@ import ProtectedLayout from "./functions/ProtectedRoute"
 import CombinedLayout from "./Layout/combined-layout"
 
 // consolidated role selection
-import RoleSelection from "./Major Pages/Login Page/RoleSelection"
+
+import RoleSelection from "./Major Pages/Login Page/Elements/RoleSelection";
+
 
 // Registration Components
 import OrganizerRegistration from "./Major Pages/Login Page/OrganizerRegistration"
 import IndividualRegistration from "./Major Pages/Login Page/IndividualRegistration"
 import VendorRegistration from "./Major Pages/Login Page/VendorRegistration"
 
-// Main Pages
+
 import Dashboard from "./Major Pages/Dashboards/Registered/Dashboard"
 import Bookings from "./Major Pages/Bookings/Bookings"
 import RSVP from "./Major Pages/RSVP/RSVP"
@@ -31,6 +33,7 @@ import Reviews from "./Major Pages/Reviews/Reviews"
 
 // Super Admin Pages
 import SuperAdminDashboard from "./Major Pages/Dashboards/Registered/SuperAdminDashboard"
+
 
 // Misc Pages
 import OrganizerDetails from "./Major Pages/Dashboards/Registered/Elements/OrganizerDetails"
@@ -109,9 +112,20 @@ const App: React.FC = () => {
         <Route path="/register/organizer/step2" element={<OrganizerRegistration step={2} />} />
         <Route path="/register/organizer/step3" element={<OrganizerRegistration step={3} />} />
 
-        <Route path="/register/individual" element={<IndividualRegistration step={1} />} />
-        <Route path="/register/individual/step2" element={<IndividualRegistration step={2} />} />
-        <Route path="/register/individual/step3" element={<IndividualRegistration step={3} />} />
+
+        <Route
+          path="/register/individual"
+          element={<IndividualRegistration />}
+        />
+        <Route
+          path="/register/individual/step2"
+          element={<IndividualRegistration />}
+        />
+        <Route
+          path="/register/individual/step3"
+          element={<IndividualRegistration />}
+        />
+
 
         <Route path="/register/vendor" element={<VendorRegistration step={1} />} />
         <Route path="/register/vendor/step2" element={<VendorRegistration step={2} />} />
@@ -127,8 +141,8 @@ const App: React.FC = () => {
             <Route path="/rsvp" element={<RSVP />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/user-management" element={<UserManagement />} />
-            <Route path="/track" element={<Track />} />
-            <Route path="/profile-settings" element={<ProfileSettings />} />
+
+            <Route path="/profile-settings" element={<ProfileSettings />} />s
 
             {/* temp route for organizer viewing */}
             <Route path="/organizers/:id" element={<OrganizerDetails />} />
