@@ -18,22 +18,34 @@ type Booking = {
 }
 
 // User type to check if user is an organizer
-type UserRole = "organizer" | "individual"
+type UserRole = "organizer" | "customer" | "vendor"
+type BookingStatus = "Pending" | "Upcoming" | "Past" | "Rejected" | "Cancelled";
 
 const Bookings: React.FC = () => {
-  const [activeStatus, setActiveStatus] = useState<"Pending" | "Upcoming" | "Past" | "Rejected">("Pending")
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null) // Track selected booking
+  const [activeStatus, setActiveStatus] = useState<BookingStatus>("Pending");
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
-  // Mock user role - in a real app, this would come from authentication
-  // Change this to "organizer" or "individual" to test different views
-  const userRole: UserRole = "organizer"
+  const getUserTypeFromAuth = (): UserRole => {
+    const storedType = localStorage.getItem("userType");
+    if (
+      storedType === "individual" ||
+      storedType === "vendor" ||
+      storedType === "organizer"
+    ) {
+      return storedType as UserRole;
+    }
 
-  const handleStatusChange = (status: "Pending" | "Upcoming" | "Past" | "Rejected") => {
-    setActiveStatus(status)
-  }
+    // Default fallback
+    return "customer";
+  };
 
-  // sample lang to see if the buttons work
-  const bookingsData = {
+  const userRole = getUserTypeFromAuth();
+   
+  const handleStatusChange = (status: BookingStatus) => {
+    setActiveStatus(status);
+  };
+
+  const bookingsData: Record<BookingStatus, Booking[]> = {
     Pending: [
       {
         id: 1,
@@ -184,26 +196,60 @@ const Bookings: React.FC = () => {
         guests: "2,000 Guests",
       },
     ],
-  }
+    Cancelled: [{
+        id: 13,
+        date: "Mar 22",
+        day: "Friday",
+        title: "Cancelled Birthday Party",
+        startTime: "6:00 PM",
+        endTime: "11:00 PM",
+        customer: "Cancelled Customer",
+        location: "Cancelled Venue",
+        guests: "50 Guests",
+      },
+      {
+        id: 14,
+        date: "Mar 21",
+        day: "Thursday",
+        title: "Cancelled Corporate Event",
+        startTime: "2:00 PM",
+        endTime: "7:00 PM",
+        customer: "Corporate Client",
+        location: "Business Center",
+        guests: "100 Guests",
+      },
+      {
+        id: 15,
+        date: "Mar 20",
+        day: "Wednesday",
+        title: "Cancelled Debut Event",
+        startTime: "6:00 PM",
+        endTime: "10:00 PM",
+        customer: "Debutante",
+        location: "Antipolo",
+        guests: "100 Guests",
+      },
+    ], 
+  };
 
   // Sort the bookings based on the date
   const sortedPendingBookings = [...bookingsData.Pending].sort((a, b) => {
-    const dateA = new Date(a.date)
-    const dateB = new Date(b.date)
-    return dateB.getTime() - dateA.getTime()
-  })
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
 
   const sortedPastBookings = [...bookingsData.Past].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  )
+  );
 
   const sortedUpcomingBookings = [...bookingsData.Upcoming].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-  )
+  );
 
   const sortedRejectedBookings = [...bookingsData.Rejected].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  )
+  );
 
   const displayedBookings =
     activeStatus === "Pending"
@@ -214,26 +260,27 @@ const Bookings: React.FC = () => {
           ? sortedPastBookings
           : activeStatus === "Rejected"
             ? sortedRejectedBookings
-            : bookingsData[activeStatus]
+            : activeStatus === "Cancelled"
+              ? bookingsData.Cancelled
+              : bookingsData[activeStatus];
 
   const onBookingClick = (booking: Booking) => {
-    setSelectedBooking(booking) // Set the selected booking
-  }
+    setSelectedBooking(booking);
+  };
   const onBackClick = () => {
-    setSelectedBooking(null) // Go back to the booking list
-  }
+    setSelectedBooking(null);
+  };
+  const isGuestListSubmitted = (booking: Booking): boolean => {
+    return booking.guestListStatus === "Submitted";
+  };
 
-  const isGuestListSubmitted = (booking: any): boolean => {
-    return booking.guestListStatus === "Submitted"
-  }
+  const isRsvpListCreated = (booking: Booking): boolean => {
+    return booking.rsvpListStatus === "Created";
+  };
 
-  const isRsvpListCreated = (booking: any): boolean => {
-    return booking.rsvpListStatus === "Created"
-  }
-
-  const hasRsvpListStatus = (booking: any): boolean => {
-    return booking.hasOwnProperty("rsvpListStatus")
-  }
+  const hasRsvpListStatus = (booking: Booking): boolean => {
+    return booking.hasOwnProperty("rsvpListStatus");
+  };
 
   if (selectedBooking) {
     return (
@@ -244,7 +291,7 @@ const Bookings: React.FC = () => {
         selectedBooking={selectedBooking}
         showStatus={true}
       />
-    )
+    );
   }
 
   return (
@@ -253,10 +300,10 @@ const Bookings: React.FC = () => {
       {/* Status buttons */}
       <div className="flex justify-end mb-6">
         <div className="inline-flex bg-gray-100 rounded-lg p-1">
-          {["Pending", "Upcoming", "Past", "Rejected"].map((status) => (
+          {["Pending", "Upcoming", "Past", "Rejected", ...(userRole === "organizer" || userRole === "customer" ? ["Cancelled"] : [])].map((status) => (
             <button
               key={status}
-              onClick={() => handleStatusChange(status as "Pending" | "Upcoming" | "Past" | "Rejected")}
+              onClick={() => handleStatusChange(status as BookingStatus)}
               className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeStatus === status ? "bg-white shadow-sm text-gray-800" : "text-gray-600 hover:text-gray-800"
               }`}
@@ -266,10 +313,9 @@ const Bookings: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* Bookings List (sample only) */}
+      {/* Bookings List */}
       <div className="relative">
-        {/* Timeline Line - nag aadjust based sa event placeholders */}
+        {/* Timeline Line */}
         <div
           className={`absolute left-[12.95rem] w-0.5 ${activeStatus === "Rejected" ? "bg-red-600" : "bg-gray-600"}`}
           style={{
@@ -292,8 +338,7 @@ const Bookings: React.FC = () => {
             <div className="w-32 text-center mr-4 relative">
               <div className="font-bold">{booking.date}</div>
               <div className="text-gray-500 text-sm">{booking.day}</div>
-
-              {/* Timeline Circle - every event may circle */}
+              {/* Timeline Circle */}
               <div className="absolute left-[13rem] top-[calc(50%-4.3rem)] transform -translate-y-1/2 -translate-x-1/2">
                 <div
                   className={`w-4.5 h-4.5 rounded-full ${activeStatus === "Rejected" ? "bg-red-600" : "bg-gray-600"}`}
@@ -305,7 +350,6 @@ const Bookings: React.FC = () => {
                 className={`w-4.5 h-4.5 ${activeStatus === "Rejected" ? "bg-red-500" : "bg-gray-600"} rounded-full`}
               ></div>
             </div>
-
             {/* Placeholder Section */}
             <div className="flex-1 border-transparent rounded-lg p-6 shadow-sm bg-white ml-25">
               <h3
@@ -316,7 +360,6 @@ const Bookings: React.FC = () => {
               <p className="text-gray-600 mb-4">
                 {booking.startTime} – {booking.endTime}
               </p>
-
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-4">
                 <div className="flex flex-col space-y-1">
                   {/* Customer */}
@@ -324,11 +367,10 @@ const Bookings: React.FC = () => {
                     <User className="text-gray-400 mr-2" size={18} />
                     <span className="text-gray-600">{booking.customer}</span>
                   </div>
-
                   {/* Status Indicators */}
                   {activeStatus === "Upcoming" && (
                     <div className="flex flex-col space-y-1 mt-2">
-                      {/* Guest List Status - always shown */}
+                      {/* Guest List Status */}
                       {isGuestListSubmitted(booking) ? (
                         <div className="flex items-center py-1 px-3 rounded-sm bg-green-100 w-fit">
                           <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
@@ -340,7 +382,6 @@ const Bookings: React.FC = () => {
                           <span className="text-sm text-gray-500 font-medium">Guest List: Not Submitted</span>
                         </div>
                       )}
-
                       {/* RSVP List Status */}
                       {userRole === "organizer" && hasRsvpListStatus(booking) && (
                         isRsvpListCreated(booking) ? (
@@ -352,26 +393,24 @@ const Bookings: React.FC = () => {
                           <div className="flex items-center py-1 px-3 rounded-sm bg-gray-200 w-fit">
                             <span className="w-2 h-2 rounded-full bg-gray-400 mr-2"></span>
                             <span className="text-sm text-gray-500 font-medium">RSVP List: Not Created</span>
-                                            </div>
-                        ))}
+                          </div>
+                        )
+                      )}
                     </div>
                   )}
                 </div>
-
                 <div className="flex flex-col justify-between">
                   {/* Location */}
                   <div className="flex items-center">
                     <MapPin className="text-gray-400 mr-2" size={18} />
                     <span className="text-gray-600">{booking.location}</span>
                   </div>
-
                   {/* Guests */}
                   <div className="flex items-center mt-auto">
                     <User className="text-gray-400 mr-2" size={18} />
                     <span className="text-gray-600">{booking.guests}</span>
                   </div>
                 </div>
-
                 {/* Event Details Button */}
                 <div className="lg:col-span-2 flex justify-end mt-2">
                   <button
@@ -387,7 +426,7 @@ const Bookings: React.FC = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Bookings
+export default Bookings;
