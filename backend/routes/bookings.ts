@@ -44,7 +44,8 @@ router.get("/bookings", async (req, res) => {
         guests,
         attire,
         budget,
-        liking_score
+        liking_score,
+        services
       FROM events
       WHERE event_status IN ('Pending', 'Upcoming', 'Past', 'Rejected', 'Draft')
       ORDER BY start_datetime DESC
