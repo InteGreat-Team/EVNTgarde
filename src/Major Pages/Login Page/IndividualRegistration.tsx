@@ -1,3 +1,4 @@
+
 import { Eye, EyeOff } from "lucide-react"
 import type React from "react"
 import { useState, useEffect } from "react"
@@ -9,45 +10,46 @@ import { FcGoogle } from "react-icons/fc"
 import { AiFillYahoo } from "react-icons/ai"
 import { useNavigate } from "react-router-dom";
 
-const IndividualRegistration: React.FC = () => {
-    const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1)
-  const { isDarkMode } = useTheme()
+const IndividualRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(step);
+  const { isDarkMode } = useTheme();
+
 
   // Step 2 form state
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [phoneNumber, setPhoneNumber] = useState("")
-  const [preferences, setPreferences] = useState<string[]>([])
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [preferences, setPreferences] = useState<string[]>([]);
 
-  // Add new state variables for address form after the existing form state variables
-  const [houseNo, setHouseNo] = useState("")
-  const [street, setStreet] = useState("")
-  const [barangay, setBarangay] = useState("")
-  const [city, setCity] = useState("")
-  const [province, setProvince] = useState("")
-  const [zipCode, setZipCode] = useState("")
-  const [country, setCountry] = useState("")
+  // Add new state variables for address form
+  const [houseNo, setHouseNo] = useState("");
+  const [street, setStreet] = useState("");
+  const [barangay, setBarangay] = useState("");
+  const [city, setCity] = useState("");
+  const [province, setProvince] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [country, setCountry] = useState("");
 
   // Step 3 form state
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [passwordError, setPasswordError] = useState("")
-  const [confirmPasswordError, setConfirmPasswordError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [termsAgreed, setTermsAgreed] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   // Terms and conditions modal
-  const [showTermsModal, setShowTermsModal] = useState(false)
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
-  const [userRole, setUserRole] = useState<string>("")
-  const [eventPreferencesError, setEventPreferencesError] = useState("")
+  const [userRole, setUserRole] = useState<string>("");
+  const [eventPreferencesError, setEventPreferencesError] = useState("");
 
   // Common state
-  const [error, setError] = useState("")
+  const [error, setError] = useState("");
 
   // Available event types
   const eventTypes = [
@@ -79,83 +81,64 @@ const IndividualRegistration: React.FC = () => {
     "Charity Event",
     "Outreach/Volunteering Drive",
     "Religious Ceremony (e.g. Baptism)",
-  ]
+  ];
+
+  useEffect(() => {
+    setCurrentStep(step);
+  }, [step]);
 
   // Password validation
   useEffect(() => {
     const validatePassword = (pass: string): string => {
-      if (pass.length < 12) return "Password must be at least 12 characters long."
-      if (!/[A-Z]/.test(pass)) return "Password must include at least one uppercase letter."
-      if (!/\d/.test(pass)) return "Password must include at least one number."
-      if (!/[!@#$%^&*_]/.test(pass)) return "Password must include at least one special character (!@#$%^&*_)."
-      return ""
-    }
+      if (pass.length < 12)
+        return "Password must be at least 12 characters long.";
+      if (!/[A-Z]/.test(pass))
+        return "Password must include at least one uppercase letter.";
+      if (!/\d/.test(pass)) return "Password must include at least one number.";
+      if (!/[!@#$%^&*_]/.test(pass))
+        return "Password must include at least one special character (!@#$%^&*_).";
+      return "";
+    };
 
-    setPasswordError(validatePassword(password))
-  }, [password])
+    setPasswordError(validatePassword(password));
+  }, [password]);
 
   // Confirm password validation
   useEffect(() => {
     if (confirmPassword && password !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match.")
+      setConfirmPasswordError("Passwords do not match.");
     } else {
-      setConfirmPasswordError("")
+      setConfirmPasswordError("");
     }
-  }, [password, confirmPassword])
+  }, [password, confirmPassword]);
 
   // Load data from session storage when moving to step 3
   useEffect(() => {
     if (currentStep === 3) {
-      const storedData = sessionStorage.getItem("individualRegistration")
+      const storedData = sessionStorage.getItem("individualRegistration");
       if (storedData) {
-        const data = JSON.parse(storedData)
-        setFirstName(data.firstName || "")
-        setLastName(data.lastName || "")
-        setPhoneNumber(data.phoneNumber ? data.phoneNumber.replace("+63", "") : "")
-        setPreferences(data.preferences || [])
-        setUserRole(data.userRole || "")
+        const data = JSON.parse(storedData);
+        setFirstName(data.firstName || "");
+        setLastName(data.lastName || "");
+        setPhoneNumber(data.phoneNumber ? data.phoneNumber.replace("+63", "") : "");
+        setPreferences(data.preferences || []);
+        setUserRole(data.userRole || "");
 
         // Load address data
         if (data.address) {
-          setHouseNo(data.address.houseNo || "")
-          setStreet(data.address.street || "")
-          setBarangay(data.address.barangay || "")
-          setCity(data.address.city || "")
-          setProvince(data.address.province || "")
-          setZipCode(data.address.zipCode || "")
-          setCountry(data.address.country || "")
+          setHouseNo(data.address.houseNo || "");
+          setStreet(data.address.street || "");
+          setBarangay(data.address.barangay || "");
+          setCity(data.address.city || "");
+          setProvince(data.address.province || "");
+          setZipCode(data.address.zipCode || "");
+          setCountry(data.address.country || "");
         }
       }
     }
-  }, [currentStep])
+  }, [currentStep]);
 
-  // Load user role from session storage
-  useEffect(() => {
-    if (currentStep === 1.25) {
-      const storedData = sessionStorage.getItem("individualRegistration")
-      if (storedData) {
-        const data = JSON.parse(storedData)
-        if (data.userRole) {
-          setUserRole(data.userRole)
-        }
-      }
-    }
-  }, [currentStep])
-
-  // Load preferences from session storage
-  useEffect(() => {
-    if (currentStep === 1.5) {
-      const storedData = sessionStorage.getItem("individualRegistration")
-      if (storedData) {
-        const data = JSON.parse(storedData)
-        if (data.preferences) {
-          setPreferences(data.preferences)
-        }
-      }
-    }
-  }, [currentStep])
-
-  // Handle role selection
+   // Handle role selection
   const handleRoleSelect = (role: string) => {
     setUserRole(role)
 
@@ -172,35 +155,35 @@ const IndividualRegistration: React.FC = () => {
 
     // Go to welcome screen
     setCurrentStep(1.25)
-  }
+  };
 
   // Handle welcome screen proceed button
   const handleProceed = () => {
-    setCurrentStep(1.5)
-  }
+    setCurrentStep(1.5);
+  };
 
   // Handle event preference toggle
   const toggleEventPreference = (eventType: string) => {
-    setEventPreferencesError("")
+    setEventPreferencesError("");
 
     if (preferences.includes(eventType)) {
       // Remove the event type if it's already selected
-      setPreferences(preferences.filter((type) => type !== eventType))
+      setPreferences(preferences.filter((type) => type !== eventType));
     } else {
       // Add the event type if it's not already selected and we haven't reached the limit
       if (preferences.length < 5) {
-        setPreferences([...preferences, eventType])
+        setPreferences([...preferences, eventType]);
       } else {
-        setEventPreferencesError("You can select up to 5 event types")
+        setEventPreferencesError("You can select up to 5 event types");
       }
     }
-  }
+  };
 
   // Handle event preferences submission
   const handlePreferencesNext = () => {
     // Store preferences in session storage
-    const storedData = sessionStorage.getItem("individualRegistration") || "{}"
-    const parsedData = JSON.parse(storedData)
+    const storedData = sessionStorage.getItem("individualRegistration") || "{}";
+    const parsedData = JSON.parse(storedData);
 
     sessionStorage.setItem(
       "individualRegistration",
@@ -208,24 +191,24 @@ const IndividualRegistration: React.FC = () => {
         ...parsedData,
         preferences,
       }),
-    )
+    );
 
     // Go to personal info step
-    setCurrentStep(2)
-  }
+    setCurrentStep(2);
+  };
 
-  // Update the handleNext function to go to address form instead of step 3
+  // Handle step 2 submission
   const handleNext = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!firstName || !lastName) {
-      setError("First name and last name are required")
-      return
+      setError("First name and last name are required");
+      return;
     }
 
     // Store form data in sessionStorage
-    const storedData = sessionStorage.getItem("individualRegistration") || "{}"
-    const parsedData = JSON.parse(storedData)
+    const storedData = sessionStorage.getItem("individualRegistration") || "{}";
+    const parsedData = JSON.parse(storedData);
 
     sessionStorage.setItem(
       "individualRegistration",
@@ -235,24 +218,24 @@ const IndividualRegistration: React.FC = () => {
         lastName,
         phoneNumber: phoneNumber ? `+63${phoneNumber}` : "",
       }),
-    )
+    );
 
     // Navigate to address form step
-    setCurrentStep(2.5)
-  }
+    setCurrentStep(2.5);
+  };
 
-  // Add a new function to handle address form submission
+  // Handle address form submission
   const handleAddressNext = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!city) {
-      setError("City is required")
-      return
+      setError("City is required");
+      return;
     }
 
-    // Store address data in sessionStorage
-    const storedData = sessionStorage.getItem("individualRegistration") || "{}"
-    const parsedData = JSON.parse(storedData)
+    // Store address data in session storage
+    const storedData = sessionStorage.getItem("individualRegistration") || "{}";
+    const parsedData = JSON.parse(storedData);
 
     sessionStorage.setItem(
       "individualRegistration",
@@ -268,78 +251,78 @@ const IndividualRegistration: React.FC = () => {
           country,
         },
       }),
-    )
+    );
 
     // Navigate to account creation step
-    setCurrentStep(3)
-  }
+    setCurrentStep(3);
+  };
 
-  // Update the handleBack function to handle the new step
+  // Handle back button
   const handleBack = () => {
     if (currentStep === 1) {
       navigate("/role-selection")
       return
     } else if (currentStep === 1.25) {
-      setCurrentStep(1)
+      setCurrentStep(1);
     } else if (currentStep === 1.5) {
-      setCurrentStep(1.25)
+      setCurrentStep(1.25);
     } else if (currentStep === 2) {
-      setCurrentStep(1.5)
+      setCurrentStep(1.5);
     } else if (currentStep === 2.5) {
-      setCurrentStep(2)
+      setCurrentStep(2);
     } else {
-      setCurrentStep(2.5)
+      setCurrentStep(2.5);
     }
-  }
+  };
 
   // Open terms and conditions modal
   const openTermsModal = (e: React.MouseEvent | React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    setShowTermsModal(true)
-  }
+    e.preventDefault();
+    setShowTermsModal(true);
+  };
 
   // Close terms and conditions modal
   const closeTermsModal = () => {
-    setShowTermsModal(false)
-  }
+    setShowTermsModal(false);
+  };
 
   // Accept terms and conditions
   const acceptTerms = () => {
-    setTermsAgreed(true)
-    closeTermsModal()
-  }
+    setTermsAgreed(true);
+    closeTermsModal();
+  };
 
   // Handle final submission
   const handleCreateAccount = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (!email || !password || !confirmPassword) {
-      setError("All fields are required")
-      return
+      setError("All fields are required");
+      return;
     }
 
     if (!termsAgreed) {
-      setError("You must agree to the Terms and Conditions")
-      return
+      setError("You must agree to the Terms and Conditions");
+      return;
     }
 
     if (passwordError) {
-      setError(passwordError)
-      return
+      setError(passwordError);
+      return;
     }
 
     if (confirmPasswordError) {
-      setError(confirmPasswordError)
-      return
+      setError(confirmPasswordError);
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // Get stored data including userRole
-      const storedData = sessionStorage.getItem("individualRegistration")
-      const userData = storedData ? JSON.parse(storedData) : {}
+      const storedData = sessionStorage.getItem("individualRegistration");
+      const userData = storedData ? JSON.parse(storedData) : {};
 
       // Create user account with data from all parts
       const userAccountData = createUserAccount("individual", email, {
@@ -357,69 +340,114 @@ const IndividualRegistration: React.FC = () => {
           zipCode,
           country,
         },
-      })
+      });
 
-      // Register user with Firebase
-      await registerUser(email, password, "individual", userAccountData)
+      const firebaseUser = await registerUser(email, password, "individual", userAccountData);
+console.log("firebaseUser:", firebaseUser);
+const firebaseUid = firebaseUser?.uid;
+console.log("firebaseUid:", firebaseUid);
+
+if (!firebaseUid) {
+  setError("Registration failed: No Firebase UID returned.");
+  setIsLoading(false);
+  return;
+}
+      // Register user with PostgreSQL
+    try {
+      const response = await fetch('http://localhost:5000/api/registerCustomer', {
+        method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firebaseUid, // <-- send this
+            firstName,
+            lastName,
+            email,
+            password,
+            phoneNo: phoneNumber ? `+63${phoneNumber}` : null,
+            preferences: preferences.join(','),
+            customerType: userData.userRole || "enthusiast"
+          }),
+        });
+
+        if (!response.ok) {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to register with database');
+          } else {
+            throw new Error(`Server error: ${response.status}`);
+          }
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.message || 'Registration failed');
+        }
+      } catch (dbError: any) {
+        console.error('Database registration error:', dbError);
+        // If database registration fails, we should clean up the Firebase user
+        if (firebaseUser) {
+          await firebaseUser.delete();
+        }
+        throw new Error(dbError.message || 'Failed to register with database. Please try again.');
+      }
 
       // Clear session storage
-      sessionStorage.removeItem("individualRegistration")
+      sessionStorage.removeItem("individualRegistration");
 
       // Navigate to dashboard or login page
-      // For now, we'll just show a success message
-      setError("")
-      alert("Account created successfully! You can now log in.")
-      // Reset to first step
-      setCurrentStep(1)
+      navigate("/login");
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleGoogleSignUp = async () => {
-    setIsLoading(true)
-    setError("")
+    setIsLoading(true);
+    setError("");
     try {
-      await signInWithGoogle("individual")
+      await signInWithGoogle("individual");
       // Navigate to customer dashboard
-      alert("Signed in with Google successfully!")
+      navigate("/login");
     } catch (err: any) {
-      setError("Failed to sign up with Google. Please try again.")
-      console.error(err)
+      setError("Failed to sign up with Google. Please try again.");
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleYahooSignUp = async () => {
-    setIsLoading(true)
-    setError("")
+    setIsLoading(true);
+    setError("");
     try {
-      await signInWithYahoo("individual")
+      await signInWithYahoo("individual");
       // Navigate to customer dashboard
-      alert("Signed in with Yahoo successfully!")
+      navigate("/login");
     } catch (err: any) {
-      setError("Failed to sign up with Yahoo. Please try again.")
-      console.error(err)
+      setError("Failed to sign up with Yahoo. Please try again.");
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Get the appropriate welcome message based on user role
   const getWelcomeMessage = () => {
     if (userRole === "enthusiast") {
-      return "You're a Customer - an Event Enthusiast!"
+      return "You're a Customer - an Event Enthusiast!";
     } else if (userRole === "student") {
-      return "You're a Customer - a Student!"
+      return "You're a Customer - a Student!";
     } else if (userRole === "church") {
-      return "You're a Customer - a Church Member!"
+      return "You're a Customer - a Church Member!";
     } else {
-      return "You're a Client!"
+      return "You're a Client!";
     }
-  }
+  };
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-300 font-[Poppins] p-4">
@@ -434,9 +462,17 @@ const IndividualRegistration: React.FC = () => {
             isDarkMode ? "bg-gray-800" : "bg-blue-600"
           } text-white flex flex-col items-center justify-center text-center p-8`}
         >
-          <img src={Logo || "/placeholder.svg"} className="max-w-xs mb-4" alt="Logo" />
-          <p className="text-lg font-medium mb-2">Discover tailored events services.</p>
-          <p className="text-lg font-medium mb-2">Sign up for personalized services today!</p>
+          <img
+            src={Logo || "/placeholder.svg"}
+            className="max-w-xs mb-4"
+            alt="Logo"
+          />
+          <p className="text-lg font-medium mb-2">
+            Discover tailored events services.
+          </p>
+          <p className="text-lg font-medium mb-2">
+            Sign up for personalized services today!
+          </p>
         </div>
 
         {/* Right Side - Form */}
@@ -530,15 +566,17 @@ const IndividualRegistration: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleBack}
+
                   className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-blue-600 bg-white hover:bg-gray-100 dark:text-blue-400 dark:border-gray-600 dark:bg-transparent dark:hover:bg-gray-700"
                   >
+
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={() => handleRoleSelect(userRole)}
                   disabled={!userRole}
-                  className={`flex-1 px-6 py-3 text-white rounded-lg ${
+                  className={`flex-1 px-6 py-3 text-white ${
                     !userRole
                       ? "bg-gray-400 cursor-not-allowed"
                       : isDarkMode
@@ -662,6 +700,7 @@ const IndividualRegistration: React.FC = () => {
               </p>
             </>
           ) : currentStep === 2 ? (
+            /* Personal Information Form */
             <>
               <h2 className="text-4xl font-bold text-blue-600 mt-30 mb-6">Sign Up</h2>
               <p className="text-sm text-blue-600 mb-4">Step 1 of 3</p>
@@ -783,11 +822,10 @@ const IndividualRegistration: React.FC = () => {
               </form>
             </>
           ) : currentStep === 2.5 ? (
-            /* Step 2.5 - Address Form */
+            /* Address Form */
             <>
-            <h2 className="text-4xl font-bold text-blue-600 mt-30 mb-6">Sign Up</h2>
-            <p className="text-sm text-blue-600 mb-6">Step 2 of 3</p>
-
+              <h2 className="text-4xl font-bold text-blue-600 mt-30 mb-6">Sign Up</h2>
+              <p className="text-sm text-blue-600 mb-6">Step 2 of 3</p>
 
               {error && <div className="bg-red-500 text-white p-3 rounded-md mb-4">{error}</div>}
 
@@ -968,15 +1006,15 @@ const IndividualRegistration: React.FC = () => {
               </form>
             </>
           ) : (
-            /* Step 3 Form */
+            /* Account Creation Form */
             <>
-              <h2 className="text-4xl font-bold text-blue-60 0mt-30 mb-6">Sign Up</h2>
+              <h2 className="text-4xl font-bold text-blue-600 mt-30 mb-6">Sign Up</h2>
               <p className="text-sm text-blue-600 mb-6">Step 3 of 3</p>
 
               {error && <div className="bg-red-500 text-white p-3 rounded-md mb-4">{error}</div>}
 
               <form onSubmit={handleCreateAccount}>
-                <div className="mb-4">
+                      <div className="mb-4">
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-white" : "text-gray-700"}`}>
                     Phone Number (optional)
                   </label>
@@ -1135,92 +1173,99 @@ const IndividualRegistration: React.FC = () => {
 
       {/* Terms and Conditions Modal */}
       {showTermsModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden">
-      {/* Modal Header */}
-      <div className="p-6 border-b">
-        <h2 className="text-2xl font-bold text-blue-600 text-center mb-2">Terms and Conditions</h2>
-        <p className="text-sm text-gray-700 text-center">
-          By using our platform, you agree to these Terms and Conditions. Please read them carefully.
-        </p>
-      </div>
-
-      {/* Modal Body */}
-      <div className="p-6 max-h-[70vh] overflow-y-auto text-sm text-gray-800 space-y-4">
-        <ol className="list-decimal pl-5 space-y-4">
-          <li>
-            <strong>Acceptance of Terms</strong> By accessing or using EVNTgarde, you agree to be bound by these Terms and our Privacy Policy. If you do not agree, please do not use our services.
-          </li>
-
-          <li>
-            <strong>User Roles and Responsibilities</strong>
-            <ul className="list-disc pl-5 mt-2 space-y-2">
-              <li>Clients: Responsible for providing accurate event details and timely payments.</li>
-              <li>Organizers: Must communicate requirements clearly and honor commitments.</li>
-              <li>Vendors: Must deliver services as described and adhere to agreed timelines.</li>
-            </ul>
-          </li>
-
-          <li>
-            <strong>Account Registration</strong> You must provide accurate information and keep your account secure. You are responsible for all activities under your account.
-          </li>
-
-          <li>
-            <strong>Payments and Fees</strong> Payments are processed through secure third-party providers. Service fees may apply and will be disclosed before confirmation.
-          </li>
-
-          <li>
-            <strong>Cancellations and Refunds</strong> Cancellation policies vary by vendor. Refund eligibility is subject to individual service agreements.
-          </li>
-
-          <li>
-            <strong>Prohibited Activities</strong> Users may not:
-            <ul className="list-disc pl-5 mt-2 space-y-2">
-              <li>Misrepresent services or credentials</li>
-              <li>Engage in fraudulent or illegal activities</li>
-              <li>Abuse or harass other users</li>
-            </ul>
-          </li>
-
-          <li>
-            <strong>Limitation of Liability</strong> EVNTgarde is not liable for disputes between users or issues with third-party services. We provide the platform, but service agreements are between users.
-          </li>
-
-          <li>
-            <strong>Changes to Terms</strong> We may update these Terms from time to time. Continued use of the platform means you accept the revised Terms.
-          </li>
-
-          <li>
-            <strong>Contact Us</strong> For questions or concerns, contact us at evntgarde@gmail.com.
-          </li>
-        </ol>
-
-        <p className="mt-4">
-          By using EVNTgarde, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
-        </p>
-      </div>
-
-      {/* Modal Footer */}
-      <div className="p-4 border-t flex justify-end gap-3 bg-white">
-        <button
-          onClick={closeTermsModal}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
-        >
-          Close
-        </button>
-        <button
-          onClick={acceptTerms}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          Accept
-        </button>
-      </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-6 border-b">
+              <h2 className="text-2xl font-bold text-blue-600 text-center mb-2">Terms and Conditions</h2>
+              <p className="text-sm text-gray-700 text-center">
+                By using our platform, you agree to these Terms and Conditions. Please read them carefully.
+              </p>
     </div>
-  </div>
-)}
 
+            {/* Modal Body */}
+            <div className="p-6 max-h-[70vh] overflow-y-auto text-sm text-gray-800 space-y-4">
+              <ol className="list-decimal pl-5 space-y-4">
+                <li>
+                  <strong>Acceptance of Terms</strong> By accessing or using EVNTgarde, you agree to be bound by these
+                  Terms and our Privacy Policy. If you do not agree, please do not use our services.
+                </li>
+
+                <li>
+                  <strong>User Roles and Responsibilities</strong>
+                  <ul className="list-disc pl-5 mt-2 space-y-2">
+                    <li>Clients: Responsible for providing accurate event details and timely payments.</li>
+                    <li>Organizers: Must communicate requirements clearly and honor commitments.</li>
+                    <li>Vendors: Must deliver services as described and adhere to agreed timelines.</li>
+                  </ul>
+                </li>
+
+                <li>
+                  <strong>Account Registration</strong> You must provide accurate information and keep your account
+                  secure. You are responsible for all activities under your account.
+                </li>
+
+                <li>
+                  <strong>Payments and Fees</strong> Payments are processed through secure third-party providers. Service
+                  fees may apply and will be disclosed before confirmation.
+                </li>
+
+                <li>
+                  <strong>Cancellations and Refunds</strong> Cancellation policies vary by vendor. Refund eligibility is
+                  subject to individual service agreements.
+                </li>
+
+                <li>
+                  <strong>Prohibited Activities</strong> Users may not:
+                  <ul className="list-disc pl-5 mt-2 space-y-2">
+                    <li>Misrepresent services or credentials</li>
+                    <li>Engage in fraudulent or illegal activities</li>
+                    <li>Abuse or harass other users</li>
+                  </ul>
+                </li>
+
+                <li>
+                  <strong>Limitation of Liability</strong> EVNTgarde is not liable for disputes between users or issues
+                  with third-party services. We provide the platform, but service agreements are between users.
+                </li>
+
+                <li>
+                  <strong>Changes to Terms</strong> We may update these Terms from time to time. Continued use of the
+                  platform means you accept the revised Terms.
+                </li>
+
+                <li>
+                  <strong>Contact Us</strong> For questions or concerns, contact us at evntgarde@gmail.com.
+                </li>
+              </ol>
+
+              <p className="mt-4">
+                By using EVNTgarde, you acknowledge that you have read, understood, and agree to be bound by these Terms
+                and Conditions.
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t flex justify-end gap-3 bg-white">
+              <button
+                onClick={closeTermsModal}
+                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+              >
+                Close
+              </button>
+              <button
+                onClick={acceptTerms}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Accept
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default IndividualRegistration
+export default IndividualRegistration;
+

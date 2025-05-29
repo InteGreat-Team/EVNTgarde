@@ -53,24 +53,6 @@ export const registerUser = async (
   userData: any
 ) => {
   try {
-    // Check if email already exists
-    const emailExists = await checkEmailExists(email);
-    if (emailExists) {
-      throw new Error(
-        "Email is already registered. Please use a different email address."
-      );
-    }
-
-    // Check if phone number already exists (if provided)
-    if (userData.phoneNumber) {
-      const phoneExists = await checkPhoneExists(userData.phoneNumber);
-      if (phoneExists) {
-        throw new Error(
-          "Phone number is already registered. Please use a different phone number."
-        );
-      }
-    }
-
     // Create user in Firebase Authentication
     const userCredential = await createUserWithEmailAndPassword(
       auth,
@@ -78,24 +60,47 @@ export const registerUser = async (
       password
     );
     const user = userCredential.user;
+    return userCredential.user; // This must return the user object with .uid
 
-    // Create user document in Firestore
-    await setDoc(doc(db, "users", user.uid), {
+    // Prepare user data
+    const userDocData = {
       uid: user.uid,
       email: email,
       userType: userType,
       ...userData,
       createdAt: new Date().toISOString(),
+    };
+
+    // Create user document in Firestore with timeout
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Operation timed out")), 10000); // 10 second timeout
     });
 
-    return user;
+    try {
+      await Promise.race([
+        setDoc(doc(db, "users", user.uid), userDocData),
+        timeoutPromise
+      ]);
+      return user;
+    } catch (firestoreError: any) {
+      // If Firestore write fails, delete the auth user
+      await user.delete();
+      if (firestoreError.message === "Operation timed out") {
+        throw new Error("Registration timed out. Please try again.");
+      }
+      throw new Error("Failed to create user profile. Please try again.");
+    }
   } catch (error: any) {
     if (error.code === "auth/email-already-in-use") {
-      throw new Error(
-        "Email is already registered. Please use a different email address."
-      );
+      throw new Error("Email is already registered. Please use a different email address.");
     }
-    throw error;
+    if (error.code === "auth/network-request-failed") {
+      throw new Error("Network error. Please check your internet connection and try again.");
+    }
+    if (error.code === "auth/too-many-requests") {
+      throw new Error("Too many attempts. Please try again later.");
+    }
+    throw new Error(error.message || "Failed to create account. Please try again.");
   }
 };
 
@@ -119,6 +124,7 @@ export const loginUser = async (email: string, password: string) => {
       localStorage.setItem("userType", userData.userType);
       localStorage.setItem("vendorType", userData.vendorType);
       localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("loginTimestamp", Date.now().toString());
 
       return {
         user,
@@ -162,6 +168,7 @@ export const signInWithGoogle = async (userType: string) => {
     // Store user type in localStorage
     localStorage.setItem("userType", userType);
     localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("loginTimestamp", Date.now().toString());
 
     return user;
   } catch (error) {
@@ -194,6 +201,7 @@ export const signInWithYahoo = async (userType: string) => {
     // Store user type in localStorage
     localStorage.setItem("userType", userType);
     localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("loginTimestamp", Date.now().toString());
 
     return user;
   } catch (error) {
@@ -211,6 +219,7 @@ export const logoutUser = async () => {
     }
     localStorage.removeItem("userType");
     localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("loginTimestamp");
   } catch (error) {
     throw error;
   }
@@ -223,7 +232,7 @@ export const checkSessionExpiry = () => {
   if (loginTimestamp) {
     const elapsedTime = Date.now() - Number.parseInt(loginTimestamp, 10);
     if (elapsedTime > SESSION_DURATION) {
-      logoutUser(); // Fix: Changed from logout() to logoutUser()
+      logoutUser();
       return true; // Session expired
     }
   }

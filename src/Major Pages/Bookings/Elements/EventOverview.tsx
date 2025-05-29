@@ -12,8 +12,13 @@ type Booking = {
   customer: string;
   startTime: string;
   endTime: string;
-  guests: string;
+
+  startDateTime: string;
+  endDateTime: string;
+  customer: string;
   location: string;
+  guests: string;
+  eventType: string;
 };
 
 interface EventOverviewProps {
@@ -22,7 +27,24 @@ interface EventOverviewProps {
   userRole: "organizer" | "individual" | "vendor";
 }
 
+
+// Helper function to format date and time
+const formatDateTime = (dateTimeStr: string): string => {
+  if (!dateTimeStr) return '';
+  const date = new Date(dateTimeStr);
+  return date.toLocaleString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  });
+};
+
 const EventOverview: React.FC<EventOverviewProps> = ({
+  activeStatus,
   selectedBooking,
   activeStatus,
   userRole,
@@ -38,7 +60,7 @@ const EventOverview: React.FC<EventOverviewProps> = ({
             <h2 className="text-blue-600 font-bold text-xl">
               {selectedBooking.title}
             </h2>
-            <p className="text-gray-500 text-sm">Concert</p>
+            <p className="text-gray-500 text-sm">{selectedBooking.eventType}</p>
           </div>
           <div className="mb-4">
             <p className="text-gray-600 text-sm">
@@ -50,8 +72,13 @@ const EventOverview: React.FC<EventOverviewProps> = ({
             <div>
               <p className="text-gray-500 text-xs">Date</p>
               <p className="font-medium text-sm">
-                {selectedBooking.date} ({selectedBooking.day})
+                {formatDateTime(selectedBooking.startDateTime)}
               </p>
+              {selectedBooking.startDateTime !== selectedBooking.endDateTime && (
+                <p className="font-medium text-sm">
+                  to {formatDateTime(selectedBooking.endDateTime)}
+                </p>
+              )}
             </div>
             <div>
               <p className="text-gray-500 text-xs">Organizer</p>

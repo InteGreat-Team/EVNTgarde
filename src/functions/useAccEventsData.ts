@@ -14,7 +14,7 @@ const useAccEventsData = () => {
 	useEffect(() => {
 		const eventsRef = collection(db, "events");
 		const customersRef = collection(db, "customers");
-		const vendorsRef = collection(db, "cendors");
+		const vendorsRef = collection(db, "vendors");
 		const organizersRef = collection(db, "organizers");
 
 		const eventsQuery = query(eventsRef, orderBy("eventDate", "desc"));
