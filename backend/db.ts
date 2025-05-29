@@ -1,12 +1,13 @@
-// filepath: c:\Users\Liam-Laptop\Documents\GitHub\EVNTgarde\backend\db.ts
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
-import * as fs from 'fs';
+// filepath: backend/db.ts
 
-// Load environment variables from .env file
-dotenv.config();
+import { Pool } from "pg";
+import dotenv from "dotenv";
+import path from "path";
 
-console.log('Loaded Environment Variables:', {
+// ✅ Explicitly load .env from backend folder
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+
+console.log("Loaded DB ENV:", {
   PGUSER: process.env.PGUSER,
   PGHOST: process.env.PGHOST,
   PGDATABASE: process.env.PGDATABASE,
@@ -14,19 +15,22 @@ console.log('Loaded Environment Variables:', {
   PGPORT: process.env.PGPORT,
 });
 
-// Ensure environment variables are properly set
-if (!process.env.PGPASSWORD || typeof process.env.PGPASSWORD !== 'string') {
-  throw new Error('Database password (PGPASSWORD) must be set and must be a string.');
+// ✅ Environment check
+if (!process.env.PGPASSWORD || typeof process.env.PGPASSWORD !== "string") {
+  throw new Error("Database password (PGPASSWORD) must be set and must be a string.");
 }
 
+// ✅ PostgreSQL connection using DATABASE_URL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: true, // Enable SSL
+  ssl: { rejectUnauthorized: false }, // Required for Neon and SSL-based hosts
 });
 
+console.log("✅ PostgreSQL pool initialized");
+
 export const query = (text: string, params?: any[]) => {
-  console.log('Executing SQL:', text);
-  console.log('With parameters:', params);
+  console.log("Running SQL:", text);
+  console.log("With params:", params);
   return pool.query(text, params);
 };
 
