@@ -27,4 +27,13 @@ const response = await fetch('http://localhost:5000/api/registerCustomer', {
 
 the frontend is calling the index.ts file from the backend then the auth.ts file handles the request. 
 
+to run the website, make sure you have two terminals on your ide (one for backend and one for frontend)
+
+for backend, run cd backend para pumunta sa folder and run npm start
+for frontend, simply run npm run dev
+
+make sure naka connect pgadmin nyo sa neondb otherwise di mapapapass yun data nyo
+
+also no need to worry about the db credentials, its already set up na sa .env file
+
 hopefully this helps. let me know if you have any questions. thank you!
