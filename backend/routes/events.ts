@@ -50,9 +50,8 @@ router.get("/events/user/:userId", async (req: Request, res: Response) => {
     console.log("Fetching events for user...");
     const result = await query(
       `SELECT 
-        event_id, event_name, event_desc, start_date, end_date, 
-        start_time, end_time, guests, location, event_type_name, 
-        attire, services, additional_services, budget, event_status
+        event_id, event_name, event_desc, event_type_id, venue_id, organizer_id, customer_id, event_status,
+        start_date, end_date, guests, attire, budget, liking_score, start_datetime, end_datetime, services, revenue
       FROM events 
       WHERE customer_id = $1
       ORDER BY start_date DESC`,
@@ -93,7 +92,6 @@ router.post(
         budget,
         customerId,
         organizerId,
-        vendorId,
         venueId,
       } = req.body;
 
@@ -118,15 +116,22 @@ router.post(
         return;
       }
 
-  
+      // Combine date and time into datetime strings
+      // If startTime/endTime are not provided, fallback to just the date
+      let start_datetime = startDate;
+      let end_datetime = endDate;
+      if (startDate && startTime) {
+        start_datetime = `${startDate}T${startTime}`;
+      }
+      if (endDate && endTime) {
+        end_datetime = `${endDate}T${endTime}`;
+      }
 
       // Quick validation of required fields (use unary + to coerce)
       const requiredFields = {
         eventName,
-        startDate,
-        endDate,
-        startTime,
-        endTime,
+        start_datetime,
+        end_datetime,
         guests: +guests,
         budget: +budget,
         eventTypeId: +eventTypeId,
@@ -145,13 +150,11 @@ router.post(
       const insertSQL = `
         INSERT INTO events (
           event_id, event_name, event_type_id, event_desc, venue_id,
-          organizer_id, vendor_id, customer_id,
-          start_date, end_date, start_time, end_time,
-          guests, attire, additional_services, services,
-          location, budget, event_type_name, event_status
+          organizer_id, customer_id,
+          start_date, end_date, guests, attire, budget, liking_score, start_datetime, end_datetime, services, revenue, event_status
         ) VALUES (
-          DEFAULT, $1,$2,$3,$4,$5,$6,$7,
-          $8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,'pending'
+          DEFAULT, $1,$2,$3,$4,$5,$6,
+          $7,$8,$9,$10,$11,DEFAULT,$12,$13,$14,DEFAULT,'pending'
         ) RETURNING *
       `;
       const vals = [
@@ -160,19 +163,15 @@ router.post(
         eventOverview || "",    // $3
         venueId || null,        // $4
         organizerId || null,    // $5
-        vendorId || null,       // $6
-        customerId,             // $7
-        startDate,              // $8
-        endDate,                // $9
-        startTime,              // $10
-        endTime,                // $11
-        +guests,                // $12
-        attire || "",           // $13
-        additionalServices || "", // $14
-        Array.isArray(services) ? services.join(",") : "", // $15
-        location || "",         // $16
-        +budget,                // $17
-        eventTypeName           // $18
+        customerId,             // $6
+        startDate,              // $7
+        endDate,                // $8
+        +guests,                // $9
+        attire || "",           // $10
+        +budget,                // $11
+        start_datetime,         // $12
+        end_datetime,           // $13
+        Array.isArray(services) ? services.join(",") : "", // $14
       ];
       console.log("Executing database insertion...");
       const result = await query(insertSQL, vals);

@@ -106,9 +106,13 @@ export interface EventData {
   files: File[];
 }
 
+export interface ErrorState {
+  [key: string]: boolean | string;
+}
+
 export interface StepProps {
   eventData: EventData;
-  errors: Record<string, boolean>;
+  errors: ErrorState;
   onInputChange: (field: keyof EventData, value: any) => void;
   onNext?: () => void;
   onBack?: () => void;

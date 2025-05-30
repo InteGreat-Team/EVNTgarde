@@ -1,8 +1,10 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Card from "./MyEventsCard";
 import clipboardImage from "../../../../assets/clipboard.png";
 import { CreateEventModal } from "./CreateEventModal";
+import { getAuth } from "firebase/auth";
+import { EventData } from "../../../../functions/types";
 
 // mockEvents if there are no events
 //const allEvents: any[] = []
@@ -43,71 +45,121 @@ interface Props {
   onAdd: () => void;
 }
 
-interface EventData {
-  name: string;
-  overview: string;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  numberOfGuests: number;
+interface BackendEvent {
+  event_id: string;
+  event_name: string;
+  event_desc: string;
+  start_date: string;
+  end_date: string;
+  start_time: string;
+  end_time: string;
+  guests: number;
   location: string;
-  eventType: string;
+  event_type_name: string;
   attire: string;
-  services: string[];
-  customServices: string[];
+  services: string;
+  additional_services: string;
   budget: string;
-  files: File[];
+  event_status: string;
 }
 
 const MyEvents: React.FC<Props> = ({ onAdd }) => {
-  const [, setSelectedEvent] = useState<(typeof allEvents)[0] | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<BackendEvent | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [events, setEvents] = useState<any[]>(allEvents);
+  const [events, setEvents] = useState<BackendEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const auth = getAuth();
 
-  const handleView = (event: (typeof allEvents)[0]) => {
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setError("User not authenticated");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/api/events/user/${user.uid}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch events");
+      }
+
+      const data = await response.json();
+      setEvents(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch events");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleView = (event: BackendEvent) => {
     setSelectedEvent(event);
   };
 
   const handleCreateEvent = () => {
-    // Call the original onAdd function for backward compatibility
     if (onAdd) onAdd();
-
-    // Open the create event modal
     setIsCreateModalOpen(true);
   };
 
-  const handleSaveEvent = (eventData: EventData) => {
-    // Create a new event object from the form data
-    const newEvent = {
-      title: eventData.name,
-      price: eventData.budget,
-      intro:
-        eventData.overview.substring(0, 100) +
-        (eventData.overview.length > 100 ? "..." : ""),
-      fullDetails: eventData.overview,
-      included: [
-        {
-          section: "Event Details",
-          bullets: [
-            `Date: ${new Date(eventData.startDate).toLocaleDateString()} to ${new Date(eventData.endDate).toLocaleDateString()}`,
-            `Time: ${eventData.startTime} to ${eventData.endTime}`,
-            `Location: ${eventData.location}`,
-            `Type: ${eventData.eventType}`,
-            `Attire: ${eventData.attire}`,
-            `Guests: ${eventData.numberOfGuests}`,
-          ],
-        },
-        {
-          section: "Services",
-          bullets: [...eventData.services, ...eventData.customServices],
-        },
-      ],
-    };
+  const handleSaveEvent = async (eventData: EventData) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
 
-    // Add the new event to the events array
-    setEvents((prevEvents) => [...prevEvents, newEvent]);
+      const eventPayload = {
+        eventName: eventData.name,
+        eventOverview: eventData.overview,
+        startDate: eventData.startDate,
+        endDate: eventData.endDate,
+        startTime: eventData.startTime,
+        endTime: eventData.endTime,
+        guests: eventData.numberOfGuests,
+        location: eventData.location,
+        eventTypeName: eventData.eventType,
+        attire: eventData.attire,
+        services: eventData.services.join(", ") || null,
+        additionalServices: eventData.customServices.join(", ") || null,
+        budget: eventData.budget,
+        customerId: user.uid,
+        organizerId: null,
+        vendorId: null,
+        venueId: null
+      };
+
+      const response = await fetch("http://localhost:5000/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventPayload)
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create event");
+      }
+
+      // Refresh events list
+      await fetchEvents();
+      setIsCreateModalOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create event");
+    }
   };
+
+  if (loading) {
+    return <div className="p-4">Loading events...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error}</div>;
+  }
+
   return (
     <div className="p-4">
       <div>
@@ -140,15 +192,15 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
       {/* Display event cards if there are events */}
       {events.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {allEvents.map((event, idx) => (
+          {events.map((event) => (
             <Card
-              key={idx}
-              name={event.name}
-              date={event.date}
+              key={event.event_id}
+              name={event.event_name}
+              date={event.start_date}
               location={event.location}
               guests={event.guests}
-              image={event.image}
-              description={event.description}
+              image="/placeholder.svg"
+              description={event.event_desc}
               onView={() => handleView(event)}
             />
           ))}
@@ -158,10 +210,7 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
       <CreateEventModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onSave={(eventData: EventData) => {
-          handleSaveEvent(eventData);
-          setIsCreateModalOpen(false);
-        }}
+        onSave={handleSaveEvent}
       />
     </div>
   );
