@@ -19,10 +19,7 @@ type Booking = {
   guests: string;
   eventType: string;
   event_desc: string;
-  services: {
-    service_name: string;
-    price: string;
-  }[];
+  services: string | { service_name: string }[]; // changed type to string | array
 };
 
 type BookingDetailsProps = {
@@ -40,7 +37,7 @@ const formatDateTime = (dateTimeStr: string): string => {
       day: "numeric",
       year: "numeric",
     });
-  } catch (e) {
+  } catch {
     return "";
   }
 };
@@ -51,7 +48,16 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
   userRole = "organizer",
 }) => {
   const guestsNumber = selectedBooking.guests.split(" ")[0];
-  const services = selectedBooking.services || [];
+
+  // Normalize services on the frontend
+  const services: { service_name: string }[] = Array.isArray(selectedBooking.services)
+    ? selectedBooking.services
+    : typeof selectedBooking.services === "string"
+      ? selectedBooking.services
+          .split(",")
+          .map((s) => ({ service_name: s.trim() }))
+          .filter((s) => s.service_name !== "")
+      : [];
 
   const [activeTab, setActiveTab] = useState<"Services" | "Venue Map" | "Timeline">("Services");
   const [editing, setEditing] = useState(false);
@@ -142,10 +148,6 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
                       </div>
                       <span>{service.service_name}</span>
                     </div>
-                    <div>
-                      <p className="text-blue-600 font-medium">{service.price}</p>
-                      <p className="text-gray-500 text-sm">Included</p>
-                    </div>
                   </div>
                 ))
               )}
@@ -165,43 +167,50 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
 
               {!editing ? (
                 <>
-                  <p className="text-[17px] font-bold leading-tight mb-1">{buildingName || " "}</p>
+                  <p className="text-[17px] font-bold leading-tight mb-1">{buildingName || "\u00A0"}</p>
                   <div className="flex text-gray-500 text-sm justify-between mb-2">
                     <div>
                       <p className="text-xs font-semibold">Floor, Building</p>
-                      <p className="text-black font-bold min-h-[24px]">{floor || " "}</p>
+                      <p className="text-black font-bold min-h-[24px]">{floor || "\u00A0"}</p>
                     </div>
                     <div>
                       <p className="text-xs font-semibold">ZIP Code</p>
-                      <p className="text-black font-bold min-h-[24px]">{zipCode || " "}</p>
+                      <p className="text-black font-bold min-h-[24px]">{zipCode || "\u00A0"}</p>
                     </div>
                   </div>
                   <div className="text-sm text-gray-500">
                     <p className="text-xs font-semibold">Street Address, District, City, Province/State</p>
-                    <p className="text-black font-bold min-h-[24px]">{`${address || " "}, ${district || " "}, ${city || " "}, ${province || " "}`}</p>
+                    <p className="text-black font-bold min-h-[24px]">
+                      {`${address || "\u00A0"}, ${district || "\u00A0"}, ${city || "\u00A0"}, ${province || "\u00A0"}`}
+                    </p>
                     <p className="text-xs font-semibold mt-1">Country</p>
-                    <p className="text-black font-bold min-h-[24px]">{country || " "}</p>
+                    <p className="text-black font-bold min-h-[24px]">{country || "\u00A0"}</p>
                   </div>
                 </>
               ) : (
                 <div className="space-y-2">
                   <div className="grid grid-cols-3 gap-3 items-center">
-                    <label className="text-sm text-gray-700">Building Name</label>
-                    <input className="col-span-2 w-full border rounded p-1" value={buildingName} onChange={(e) => setBuildingName(e.target.value)} />
-                    <label className="text-sm text-gray-700">Floor</label>
-                    <input className="col-span-2 w-full border rounded p-1" value={floor} onChange={(e) => setFloor(e.target.value)} />
-                    <label className="text-sm text-gray-700">ZIP Code</label>
-                    <input className="col-span-2 w-full border rounded p-1" value={zipCode} onChange={(e) => setZipCode(e.target.value)} />
-                    <label className="text-sm text-gray-700">Street Address</label>
-                    <input className="col-span-2 w-full border rounded p-1" value={address} onChange={(e) => setAddress(e.target.value)} />
-                    <label className="text-sm text-gray-700">District</label>
-                    <input className="col-span-2 w-full border rounded p-1" value={district} onChange={(e) => setDistrict(e.target.value)} />
-                    <label className="text-sm text-gray-700">City</label>
-                    <input className="col-span-2 w-full border rounded p-1" value={city} onChange={(e) => setCity(e.target.value)} />
-                    <label className="text-sm text-gray-700">Province/State</label>
-                    <input className="col-span-2 w-full border rounded p-1" value={province} onChange={(e) => setProvince(e.target.value)} />
-                    <label className="text-sm text-gray-700">Country</label>
-                    <input className="col-span-2 w-full border rounded p-1" value={country} onChange={(e) => setCountry(e.target.value)} />
+                    {([
+                      ["Building Name", buildingName, setBuildingName],
+                      ["Floor", floor, setFloor],
+                      ["ZIP Code", zipCode, setZipCode],
+                      ["Street Address", address, setAddress],
+                      ["District", district, setDistrict],
+                      ["City", city, setCity],
+                      ["Province/State", province, setProvince],
+                      ["Country", country, setCountry],
+                    ] as [string, string, React.Dispatch<React.SetStateAction<string>>][]).map(
+                      ([label, value, setter], i) => (
+                        <React.Fragment key={i}>
+                          <label className="text-sm text-gray-700">{label}</label>
+                          <input
+                            className="col-span-2 w-full border rounded p-1"
+                            value={value}
+                            onChange={(e) => setter(e.target.value)}
+                          />
+                        </React.Fragment>
+                      )
+                    )}
                   </div>
                   <div className="mt-4 flex justify-end gap-3">
                     <button onClick={() => setEditing(false)} className="px-4 py-2 bg-blue-600 text-white rounded-md">Confirm</button>

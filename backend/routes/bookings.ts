@@ -6,7 +6,6 @@ dotenv.config();
 
 const router = express.Router();
 
-// Setup PostgreSQL pool connection
 const pool = new Pool({
   user: process.env.PGUSER,
   host: process.env.PGHOST,
@@ -16,7 +15,6 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
-// Valid statuses
 const validStatuses = ["Pending", "Upcoming", "Past", "Rejected", "Draft"] as const;
 type Status = (typeof validStatuses)[number];
 
@@ -24,35 +22,36 @@ router.get("/bookings", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        event_id AS id,
-        event_name AS title,
-        event_status,
-        event_type_id,
-        event_desc,
-        venue_id,
-        organizer_id,
-        customer_id,
-        start_date,
-        end_date,
-        TO_CHAR(start_datetime, 'Mon DD') AS date,
-        TO_CHAR(start_datetime, 'Day') AS day,
-        TO_CHAR(start_datetime, 'HH12:MI AM') AS starttime,
-        TO_CHAR(end_datetime, 'HH12:MI AM') AS endtime,
-        start_datetime,
-        end_datetime,
-        guests,
-        attire,
-        budget,
-        liking_score,
-        revenue,
-        services
-      FROM events
-      WHERE event_status IN ('Pending', 'Upcoming', 'Past', 'Rejected', 'Draft')
-      ORDER BY start_datetime DESC
+        e.event_id AS id,
+        e.event_name AS title,
+        e.event_status,
+        e.event_type_id,
+        et.event_type_name AS event_type,
+        e.event_desc,
+        e.venue_id,
+        e.organizer_id,
+        e.customer_id,
+        e.start_date,
+        e.end_date,
+        TO_CHAR(e.start_datetime, 'Mon DD') AS date,
+        TO_CHAR(e.start_datetime, 'Day') AS day,
+        TO_CHAR(e.start_datetime, 'HH12:MI AM') AS starttime,
+        TO_CHAR(e.end_datetime, 'HH12:MI AM') AS endtime,
+        e.start_datetime,
+        e.end_datetime,
+        e.guests,
+        e.attire,
+        e.budget,
+        e.liking_score,
+        e.revenue,
+        e.services
+      FROM events e
+      LEFT JOIN event_type et ON e.event_type_id = et.event_type_id
+      WHERE e.event_status IN ('Pending', 'Upcoming', 'Past', 'Rejected', 'Draft')
+      ORDER BY e.start_datetime DESC
     `);
 
     const bookings = result.rows;
-    console.log("✅ Raw bookings count:", bookings.length);
 
     const groupedData: Record<Status, any[]> = {
       Pending: [],
@@ -88,11 +87,13 @@ router.get("/bookings", async (req, res) => {
           endTime: event.endtime,
           start_datetime: event.start_datetime,
           end_datetime: event.end_datetime,
+          eventType: event.event_type || "",
+          eventDesc: event.event_desc || "",
+          services: event.services || "", // raw string passed to frontend
         });
       }
     });
 
-    console.log("✅ Grouped bookings:", Object.keys(groupedData));
     res.status(200).json(groupedData);
   } catch (error) {
     console.error("❌ Error fetching bookings:", error);

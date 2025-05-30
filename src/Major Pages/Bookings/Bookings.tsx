@@ -18,6 +18,9 @@ type Booking = {
   guests: string;
   start_datetime: string;
   end_datetime: string;
+  eventType: string;
+  event_desc: string;
+  services: { service_name: string }[];
 };
 
 const Bookings: React.FC = () => {
@@ -31,8 +34,6 @@ const Bookings: React.FC = () => {
     Draft: [],
   });
   const [error, setError] = useState<string | null>(null);
-
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -102,7 +103,7 @@ const Bookings: React.FC = () => {
               key={status}
               onClick={() => {
                 setActiveStatus(status as Status);
-                setCurrentPage(1); // Reset page on tab change
+                setCurrentPage(1);
               }}
               className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeStatus === status
@@ -188,7 +189,6 @@ const Bookings: React.FC = () => {
               </div>
             ))}
 
-            {/* Pagination Controls */}
             <div className="flex justify-center mt-8 space-x-4">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
