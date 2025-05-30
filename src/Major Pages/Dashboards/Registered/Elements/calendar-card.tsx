@@ -128,9 +128,6 @@ export function CalendarCard({
     }
   }
 
-  const handleViewDates = () => {
-    setIsViewModalOpen(true)
-  }
 
   const handleCloseBlockModal = () => {
     setIsBlockModalOpen(false)
