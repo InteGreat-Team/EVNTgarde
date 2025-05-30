@@ -8,23 +8,47 @@ import Explore from "./Elements/Explore"
 import MyEvents from "./Elements/MyEvents"
 import AnalyticsOverview from "./Elements/AnalyticsOverview"
 
-type UserType = "customer" | "vendor" | "organizer"
+type RoleId = "1" | "2" | "3" // 1: customer, 2: organizer, 3: vendor
 
 const Dashboard: React.FC = () => {
   const location = useLocation()
   const [activeTab, setActiveTab] = useState("analytics")
+  const [roleId, setRoleId] = useState<RoleId | null>(null)
 
-  const getUserTypeFromAuth = (): UserType => {
-    const storedType = localStorage.getItem("userType")
-    if (storedType === "customer" || storedType === "vendor" || storedType === "organizer") {
-      return storedType as UserType
+  const getRoleIdFromAuth = async (): Promise<RoleId> => {
+    try {
+      const firebaseUid = localStorage.getItem("firebaseUid")
+      if (!firebaseUid) {
+        throw new Error("No Firebase UID found")
+      }
+
+      const response = await fetch("/api/getRole", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ firebaseUid }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch role")
+      }
+
+      const data = await response.json()
+      return data.roleId as RoleId
+    } catch (error) {
+      console.error("Error fetching role:", error)
+      return "1" // Default to customer role
     }
-
-    // Default fallback
-    return "customer"
   }
 
-  const userType = getUserTypeFromAuth()
+  useEffect(() => {
+    const fetchRole = async () => {
+      const role = await getRoleIdFromAuth()
+      setRoleId(role)
+    }
+    fetchRole()
+  }, [])
 
   useEffect(() => {
     if (location.state?.activeTab) {
@@ -33,7 +57,7 @@ const Dashboard: React.FC = () => {
   }, [location.state])
 
   const tabs = (() => {
-    if (userType === "customer") {
+    if (roleId === "1") { // customer
       return [
         {
           key: "analytics",
@@ -45,7 +69,7 @@ const Dashboard: React.FC = () => {
       ]
     }
 
-    if (userType === "vendor") {
+    if (roleId === "3") { // vendor
       return [
         {
           key: "analytics",
@@ -60,7 +84,7 @@ const Dashboard: React.FC = () => {
       ]
     }
 
-    // organizer
+    // organizer (roleId === "2")
     return [
       {
         key: "analytics",

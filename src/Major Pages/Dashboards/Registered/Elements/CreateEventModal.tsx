@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Calendar, Clock, Plus, Minus, ChevronDown, Upload, Check } from "lucide-react";
+import { X, Calendar, Clock, Plus, Minus, ChevronDown, Check } from "lucide-react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { EventData, StepProps } from "../../../../functions/types";
+import { EventData } from "../../../../functions/types";
 
 interface CreateEventModalProps {
   isOpen: boolean;
@@ -16,10 +16,6 @@ interface ErrorState {
 interface EventType {
   event_type_id: number;
   event_type_name: string;
-}
-
-interface ServicesStepProps extends StepProps {
-  setEventData: React.Dispatch<React.SetStateAction<EventData>>;
 }
 
 export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalProps) {
