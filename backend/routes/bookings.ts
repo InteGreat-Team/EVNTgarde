@@ -31,7 +31,6 @@ router.get("/bookings", async (req, res) => {
         event_desc,
         venue_id,
         organizer_id,
-        vendor_id,
         customer_id,
         start_date,
         end_date,
@@ -45,6 +44,7 @@ router.get("/bookings", async (req, res) => {
         attire,
         budget,
         liking_score,
+        revenue,
         services
       FROM events
       WHERE event_status IN ('Pending', 'Upcoming', 'Past', 'Rejected', 'Draft')
@@ -74,7 +74,6 @@ router.get("/bookings", async (req, res) => {
           event_desc: event.event_desc,
           venue_id: event.venue_id,
           organizer_id: event.organizer_id,
-          vendor_id: event.vendor_id,
           customer: `Customer ${event.customer_id}`,
           location: `Location ${event.venue_id}`,
           guests: `${event.guests} Guests`,
