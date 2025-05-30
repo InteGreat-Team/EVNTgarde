@@ -353,3 +353,140 @@ export const mockVendors: Vendor[] = [
     certifications: ["Health & Safety", "Culinary Excellence"],
   },
 ];
+
+export interface OrganizerType {
+  id: number
+  name: string
+  category: string
+  location: string
+  timeSlot: string
+  price: number
+  ratings: number
+  image: string
+  isFavorite: boolean
+  phone: string
+  email: string
+  details: string[]
+  description: string
+}
+
+const organizersFromMock = mockOrganizers.map((org) => ({
+  phone: org.phone || "+1 (555) 123-4567",
+  email: org.email || "contact@organization.com",
+  id: org.organizerId,
+  name: org.organizationName,
+  category: org.industry || "Event Organizer",
+  location: org.address
+    ? `${org.address.address}, ${org.address.city}, ${org.address.state} ${org.address.zipCode}`
+    : "Unknown Location",
+  timeSlot: org.timeSlot && org.timeSlot.length ? org.timeSlot.join(", ") : "Flexible Hours",
+  price: org.price,
+  ratings: org.rating || 0,
+  image: org.image || "/images/vendor.jpg",
+  isFavorite: false,
+  details: ["Professional event planning", "Customized services", "Experienced staff"],
+  description:
+    org.description ||
+    `${org.organizationName} is a professional event organizing company specializing in creating memorable experiences for clients.`,
+}))
+
+const additionalOrganizers: OrganizerType[] = [
+  {
+    id: 11,
+    name: "Silver Wedding Package",
+    category: "Wedding Package",
+    location: "Tagaytay",
+    timeSlot: "Full-Day Service",
+    price: 50000,
+    ratings: 15,
+    image: "/images/vendor.jpg",
+    isFavorite: false,
+    phone: "+63 912 345 6789",
+    email: "silverwedding@example.com",
+    details: ["Professional wedding planning", "Customized decor and setup", "Luxury bridal suite access"],
+    description:
+      "The Silver Wedding Package offers a premium experience with full-day services, ensuring every detail is handled perfectly. Ideal for couples looking for an elegant yet budget-friendly wedding experience.",
+  },
+  {
+    id: 21,
+    name: "Corporate VIP Package",
+    category: "Corporate Event",
+    location: "BGC",
+    timeSlot: "Full-Day Service",
+    price: 80000,
+    ratings: 20,
+    image: "/images/vendor.jpg",
+    isFavorite: false,
+    phone: "+63 912 345 6789",
+    email: "silverwedding@example.com",
+    details: ["Exclusive venue access", "Catering and refreshments", "Professional event coordination"],
+    description:
+      "Our Corporate VIP Package is designed for high-profile business events, offering top-notch services to ensure a seamless and professional experience.",
+  },
+  {
+    id: 31,
+    name: "Birthday Bash Package",
+    category: "Birthday Package",
+    location: "Quezon City",
+    timeSlot: "Half-Day Service",
+    price: 20000,
+    ratings: 10,
+    image: "/images/vendor.jpg",
+    isFavorite: false,
+    phone: "+63 912 345 6789",
+    email: "silverwedding@example.com",
+    details: ["Themed decorations", "Fun activities for kids", "Custom cake options"],
+    description:
+      "Perfect for all ages, the Birthday Bash Package offers exciting entertainment and beautiful decorations to create unforgettable birthday memories.",
+  },
+  {
+    id: 41,
+    name: "Platinum Wedding Package",
+    category: "Wedding Package",
+    location: "Palawan",
+    timeSlot: "Full-Day Service",
+    price: 100000,
+    ratings: 35,
+    image: "/images/vendor.jpg",
+    isFavorite: false,
+    phone: "+63 912 345 6789",
+    email: "silverwedding@example.com",
+    details: ["Luxury beachside venue", "Exclusive wedding planner", "5-star catering services"],
+    description:
+      "The Platinum Wedding Package provides the ultimate dream wedding experience, with a breathtaking location and world-class services.",
+  },
+  {
+    id: 51,
+    name: "Corporate Team Building Package",
+    category: "Corporate Event",
+    location: "Batangas",
+    timeSlot: "Full-Day Service",
+    price: 60000,
+    ratings: 25,
+    image: "/images/vendor.jpg",
+    isFavorite: false,
+    phone: "+63 912 345 6789",
+    email: "silverwedding@example.com",
+    details: ["Outdoor adventure activities", "Leadership workshops", "Custom team challenges"],
+    description:
+      "Boost your team's morale and productivity with our engaging Corporate Team Building Package, designed to foster collaboration and leadership.",
+  },
+  {
+    id: 61,
+    name: "Birthday Party Package",
+    category: "Birthday Package",
+    location: "Makati",
+    timeSlot: "Half-Day Service",
+    price: 15000,
+    ratings: 12,
+    image: "/images/vendor.jpg",
+    isFavorite: false,
+    phone: "+63 912 345 6789",
+    email: "silverwedding@example.com",
+    details: ["Party hosts and entertainers", "Personalized gift bags", "Music and lighting setup"],
+    description:
+      "Celebrate in style with our Birthday Party Package, featuring entertainment, decor, and fun-filled surprises tailored for your special day.",
+  },
+]
+
+export const organizers: OrganizerType[] = [...organizersFromMock, ...additionalOrganizers]

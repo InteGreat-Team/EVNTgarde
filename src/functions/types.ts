@@ -149,3 +149,42 @@ export interface SelectOption {
   value: string
   label: string
 }
+
+export interface ReviewType {
+  title: string
+  rating: number
+  comment: string
+}
+
+export const reviews: ReviewType[] = [
+  {
+    title: "John Doe",
+    rating: 5,
+    comment: "Amazing service! Everything was well-organized.",
+  },
+  {
+    title: "Jane Smith",
+    rating: 4,
+    comment: "Great experience, but there's room for improvement.",
+  },
+  {
+    title: "Johnny Doe",
+    rating: 4,
+    comment: "Amazing service! Everything was well-organized.",
+  },
+  {
+    title: "Jane Smith",
+    rating: 3,
+    comment: "Great experience, but there's room for improvement.",
+  },
+  {
+    title: "Johnny Seen",
+    rating: 4,
+    comment: "Amazing service! Everything was well-organized.",
+  },
+  {
+    title: "Jade Smith",
+    rating: 3,
+    comment: "Great experience, but there's room for improvement.",
+  },
+]
