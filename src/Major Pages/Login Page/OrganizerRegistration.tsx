@@ -427,6 +427,15 @@ const validateStep = (): boolean => {
         userType: "organizer"
       });
 
+      // Get role_id from sessionStorage (set by RoleSelection)
+      let roleId = null;
+      const selectedRole = sessionStorage.getItem("selectedRole");
+      if (selectedRole) {
+        try {
+          roleId = JSON.parse(selectedRole).role_id;
+        } catch {}
+      }
+
       // Register user with Firebase
       const firebaseUser = await registerUser(email, password, "organizer", userData);
       const firebaseUid = firebaseUser?.uid;
@@ -445,7 +454,8 @@ const validateStep = (): boolean => {
             organizerIndustry: industry,
             organizerLocation: null,
             organizerType: "organizer",
-            organizerLogoUrl: null
+            organizerLogoUrl: null,
+            roleId // <-- pass role_id to backend
           }),
         });
 

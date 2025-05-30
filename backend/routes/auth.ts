@@ -553,4 +553,44 @@ router.post(
   }
 );
 
+router.post(
+  "/getRole",
+  async (
+    req: Request<{}, {}, { firebaseUid: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const { firebaseUid } = req.body;
+
+    try {
+      const result = await db.query<{ role_id: string }>(
+        `SELECT r.role_id
+         FROM role r
+         JOIN Customer_Account_Data c ON c.role_id = r.role_id
+         WHERE c.customer_id = $1
+         UNION
+         SELECT r.role_id
+         FROM role r
+         JOIN Vendor_Account_Data v ON v.role_id = r.role_id
+         WHERE v.vendor_id = $1
+         UNION
+         SELECT r.role_id
+         FROM role r
+         JOIN Event_Organizer_Account_Data e ON e.role_id = r.role_id
+         WHERE e.organizer_id = $1
+         LIMIT 1`,
+        [firebaseUid]
+      );
+
+      if (result.rows.length > 0) {
+        res.json({ roleId: result.rows[0].role_id });
+      } else {
+        res.status(404).json({ message: "Role not found" });
+      }
+    } catch (err: any) {
+      next(err);
+    }
+  }
+);
+
 export default router;

@@ -317,9 +317,17 @@ const IndividualRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
     setIsLoading(true);
 
     try {
-      // Get stored data including userRole
+      // Get stored data including userRole and role_id
       const storedData = sessionStorage.getItem("individualRegistration");
       const userData = storedData ? JSON.parse(storedData) : {};
+      // Get role_id from sessionStorage (set by RoleSelection)
+      let roleId = null;
+      const selectedRole = sessionStorage.getItem("selectedRole");
+      if (selectedRole) {
+        try {
+          roleId = JSON.parse(selectedRole).role_id;
+        } catch {}
+      }
 
       // Create user account with data from all parts
       const userAccountData = createUserAccount("individual", email, {
@@ -340,19 +348,16 @@ const IndividualRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
       });
 
       const firebaseUser = await registerUser(email, password, "individual", userAccountData);
-console.log("firebaseUser:", firebaseUser);
-const firebaseUid = firebaseUser?.uid;
-console.log("firebaseUid:", firebaseUid);
-
-if (!firebaseUid) {
-  setError("Registration failed: No Firebase UID returned.");
-  setIsLoading(false);
-  return;
-}
+      const firebaseUid = firebaseUser?.uid;
+      if (!firebaseUid) {
+        setError("Registration failed: No Firebase UID returned.");
+        setIsLoading(false);
+        return;
+      }
       // Register user with PostgreSQL
-    try {
-      const response = await fetch('http://localhost:5000/api/registerCustomer', {
-        method: 'POST',
+      try {
+        const response = await fetch('http://localhost:5000/api/registerCustomer', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -364,7 +369,8 @@ if (!firebaseUid) {
             password,
             phoneNo: phoneNumber ? `+63${phoneNumber}` : null,
             preferences: preferences.join(','),
-            customerType: userData.userRole || "enthusiast"
+            customerType: userData.userRole || "enthusiast",
+            roleId // <-- pass role_id to backend
           }),
         });
 

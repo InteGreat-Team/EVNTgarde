@@ -4,22 +4,61 @@ import { useNavigate } from "react-router-dom";
 import Logo from "/src/assets/OrganizerLogo.png";
 import { useTheme } from "../../functions/ThemeContext";
 
+// Allowed role keys
+const roleKeys = ["individual", "organizer", "vendor"] as const;
+type RoleKey = typeof roleKeys[number];
+
 const RoleSelection: React.FC = () => {
 	const navigate = useNavigate();
 	const { isDarkMode } = useTheme();
-	const [selectedRole, setSelectedRole] = useState<string | null>(null);
+	const [selectedRole, setSelectedRole] = useState<RoleKey | null>(null);
 
-	const handleRoleChange = (role: string) => {
+	// Role mapping based on your role table
+	const roleMap: Record<RoleKey, { role_id: string; role_name: string }> = {
+		individual: { role_id: "1", role_name: "customer" },
+		organizer: { role_id: "2", role_name: "organizer" },
+		vendor: { role_id: "3", role_name: "vendor" },
+	};
+
+	const handleRoleChange = (role: RoleKey) => {
 		setSelectedRole(role);
+		// Store role_id and role_name in sessionStorage for use in registration
+		if (roleMap[role]) {
+			sessionStorage.setItem(
+				"selectedRole",
+				JSON.stringify({
+					role_id: roleMap[role].role_id,
+					role_name: roleMap[role].role_name,
+				})
+			);
+		}
 	};
 
 	const handleGetStarted = () => {
-		if (selectedRole === "organizer") {
-			navigate("/register/organizer");
-		} else if (selectedRole === "individual") {
-			navigate("/register/individual");
-		} else if (selectedRole === "vendor") {
-			navigate("/register/vendor");
+		if (!selectedRole) return;
+		// Also store in registration session for prefill
+		const roleInfo = roleMap[selectedRole];
+		if (roleInfo) {
+			// For individual registration
+			if (selectedRole === "individual") {
+				sessionStorage.setItem(
+					"individualRegistration",
+					JSON.stringify({ userRole: roleInfo.role_name, role_id: roleInfo.role_id })
+				);
+				navigate("/register/individual");
+			} else if (selectedRole === "organizer") {
+				sessionStorage.setItem(
+					"organizerRegistrationData",
+					JSON.stringify({ userRole: roleInfo.role_name, role_id: roleInfo.role_id })
+				);
+				navigate("/register/organizer");
+			} else if (selectedRole === "vendor") {
+				sessionStorage.setItem(
+					"vendorRegistration",
+					JSON.stringify({ userRole: roleInfo.role_name, role_id: roleInfo.role_id })
+				);
+				navigate("/register/vendor");
+			}
 		}
 	};
 

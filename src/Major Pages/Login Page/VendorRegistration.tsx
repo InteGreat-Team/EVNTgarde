@@ -209,6 +209,15 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
 				address: storedData.address,
 			});
 
+			// Get role_id from sessionStorage (set by RoleSelection)
+			let roleId = null;
+			const selectedRole = sessionStorage.getItem("selectedRole");
+			if (selectedRole) {
+				try {
+					roleId = JSON.parse(selectedRole).role_id;
+				} catch {}
+			}
+
 			const firebaseUser = await registerUser(email, password, "vendor", userData);
 			const firebaseUid = firebaseUser?.uid;
 			if (!firebaseUid) {
@@ -232,6 +241,7 @@ const VendorRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
 						vendorPhoneNo: phoneNumber ? `+63${phoneNumber}` : null,
 						services: businessOffering,
 						preferences: preferences || [],
+						roleId // <-- pass role_id to backend
 					}),
 				});
 				if (!response.ok) {

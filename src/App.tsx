@@ -38,29 +38,56 @@ import OrganizerDetails from "./Major Pages/Dashboards/Registered/Elements/Organ
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userType, setUserType] = useState<string | null>(null);
+  const [roleId, setRoleId] = useState<string | null>(null);
 
   useEffect(() => {
     const authStatus = localStorage.getItem("isAuthenticated") === "true";
     const storedUserType = localStorage.getItem("userType");
+    const storedRoleId = localStorage.getItem("roleId");
 
     setIsAuthenticated(authStatus);
     setUserType(storedUserType);
+    setRoleId(storedRoleId);
   }, []);
 
-  const login = () => {
+  const login = async () => {
     setIsAuthenticated(true);
     const storedUserType = localStorage.getItem("userType");
     setUserType(storedUserType);
+    // Check user's role_id from backend using firebase_uid
+    const firebaseUid = localStorage.getItem("userId");
+    if (firebaseUid) {
+      try {
+        const response = await fetch("http://localhost:5000/api/getRole", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ firebaseUid }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Response data from backend:", data); // Debug log
+          localStorage.setItem("roleId", data.roleId);
+          setRoleId(data.roleId); // Update state
+          console.log("Set roleId in localStorage:", data.roleId); // Debug log
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }
+    }
   };
 
-  // Function to determine the correct route based on userType
+  // Function to determine the correct route based on role_id
   const getDashboardRoute = () => {
-    switch (userType) {
-      case "individual":
+    // Use state instead of localStorage
+    console.log("Current roleId (state):", roleId); // Debug log
+    switch (roleId) {
+      case "1":
         return "/dashboard";
-      case "organizer":
+      case "2":
         return "/dashboard";
-      case "vendor":
+      case "3":
         return "/dashboard";
       default:
         return "/";
@@ -117,15 +144,15 @@ const App: React.FC = () => {
 
         <Route
           path="/register/individual"
-          element={<IndividualRegistration />}
+          element={<IndividualRegistration step={1} />}
         />
         <Route
           path="/register/individual/step2"
-          element={<IndividualRegistration />}
+          element={<IndividualRegistration step={2} />}
         />
         <Route
           path="/register/individual/step3"
-          element={<IndividualRegistration />}
+          element={<IndividualRegistration step={3} />}
         />
 
         <Route
