@@ -211,14 +211,14 @@ const Status: React.FC<StatusProps> = ({
                     Create Guest List
                   </button>
                 )}
-                {userRole === "individual" && guestListCreated && (
+                {(userRole === "individual" && guestListCreated) || userRole === "organizer" ? (
                   <button
                     className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-700"
-                    onClick={() => {/* navigate to RSVP Tracker page here */}}
+                    onClick={() => navigate("/rsvp")}
                   >
                     View RSVP Tracker
                   </button>
-                )}
+                ) : null}
               </div>
             </div>
           </>
