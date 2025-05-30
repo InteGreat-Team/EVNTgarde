@@ -57,7 +57,7 @@ const PaginatedTable: React.FC<PaginatedTableProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Going":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-green-100 text-green-800";
       case "Not Going":
         return "bg-red-100 text-red-800";
       case "Pending":
