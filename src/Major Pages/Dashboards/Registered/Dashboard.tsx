@@ -59,6 +59,11 @@ const Dashboard: React.FC = () => {
           icon: <BarChart3 size={16} />,
         },
         {
+          key: "calendar",
+          label: "My Calendar",
+          icon: <Calendar size={16} />,
+        },
+        {
           key: "services",
           label: "My Services",
           icon: <Briefcase size={16} />,
@@ -72,6 +77,11 @@ const Dashboard: React.FC = () => {
         key: "analytics",
         label: "Analytics Overview",
         icon: <BarChart3 size={16} />,
+      },
+      {
+        key: "calendar",
+        label: "My Calendar",
+        icon: <Calendar size={16} />,
       },
       { key: "services", label: "My Services", icon: <Briefcase size={16} /> },
       { key: "events", label: "My Events", icon: <Briefcase size={16} /> },

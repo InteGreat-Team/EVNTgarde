@@ -153,6 +153,11 @@ export function CalendarCard({
 
   // Conditional rendering function for calendar buttons
   const renderCalendarButtons = () => {
+    // Only show edit and block buttons for non-customer users
+    if (currentUserType === "customer") {
+      return null;
+    }
+
     return (
       <>
         <button
