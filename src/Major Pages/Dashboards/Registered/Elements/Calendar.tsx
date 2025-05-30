@@ -4,7 +4,7 @@ import { CalendarCard } from "./calendar-card";
 type userType = "organizer" | "vendor" | "customer";
 
 const Calendar: React.FC = () => {
-  const [, setUserRole] = useState<userType>("organizer");
+  const [userRole, setUserRole] = useState<userType>("organizer");
 
   useEffect(() => {
     const storedRole = localStorage.getItem("userType");
@@ -17,17 +17,9 @@ const Calendar: React.FC = () => {
     }
   }, []);
 
-  const takenDates = [
-    "April 10, 2025",
-    "April 11, 2025",
-    "April 15, 2025",
-    "April 16, 2025",
-    "April 22, 2025",
-  ];
-
   return (
     <div className="w-full">
-      <CalendarCard initialMonth="April" initialYear={2025} takenDates={takenDates} />
+      <CalendarCard initialMonth="April" initialYear={2025} userType={userRole} />
     </div>
   );
 };

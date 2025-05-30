@@ -156,40 +156,28 @@ export function CalendarCard({
 
   // Conditional rendering function for calendar buttons
   const renderCalendarButtons = () => {
-    if (currentUserType === "customer") {
-      return (
+    return (
+      <>
         <button
-          className="bg-[#3061AD] text-white px-4 py-2.5 rounded-md text-sm w-full hover:opacity-90"
-          onClick={handleViewDates}
+          className={`bg-white text-gray-800 px-4 py-2.5 rounded-md text-sm w-full border ${
+            blockedDates.length > 0
+              ? "border-gray-300 hover:bg-gray-50 cursor-pointer"
+              : "border-gray-200 text-gray-400 cursor-not-allowed"
+          }`}
+          onClick={handleEditDates}
+          disabled={blockedDates.length === 0}
         >
-          View Dates
+          Edit Dates
         </button>
-      )
-    } else {
-      // For organizer and vendor
-      return (
-        <>
-          <button
-            className="text-white px-4 py-2.5 rounded-md text-sm w-full hover:opacity-90"
-            onClick={handleBlockDates}
-            style={{ backgroundColor: "#3061AD" }}
-          >
-            Block Dates
-          </button>
-          <button
-            className={`bg-white text-gray-800 px-4 py-2.5 rounded-md text-sm w-full border ${
-              blockedDates.length > 0
-                ? "border-gray-300 hover:bg-gray-50 cursor-pointer"
-                : "border-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-            onClick={handleEditDates}
-            disabled={blockedDates.length === 0}
-          >
-            Edit Dates
-          </button>
-        </>
-      )
-    }
+        <button
+          className="text-white px-4 py-2.5 rounded-md text-sm w-full hover:opacity-90"
+          onClick={handleBlockDates}
+          style={{ backgroundColor: "#3061AD" }}
+        >
+          Block Dates
+        </button>
+      </>
+    )
   }
 
   return (
