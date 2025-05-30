@@ -1,12 +1,13 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
-import { BarChart3, Briefcase, Search } from "lucide-react"
+import { BarChart3, Briefcase, Search, Calendar } from "lucide-react"
 import ActivityOverview from "./Elements/ActivityOverview"
 import EventSection from "./Elements/EventsSection"
 import Explore from "./Elements/Explore"
 import MyEvents from "./Elements/MyEvents"
 import AnalyticsOverview from "./Elements/AnalyticsOverview"
+import CalendarView from "./Elements/Calendar"
 
 type UserType = "customer" | "vendor" | "organizer"
 
@@ -39,6 +40,11 @@ const Dashboard: React.FC = () => {
           key: "analytics",
           label: "Analytics Overview",
           icon: <BarChart3 size={16} />,
+        },
+        {
+          key: "calendar",
+          label: "My Calendar",
+          icon: <Calendar size={16} />,
         },
         { key: "events", label: "My Events", icon: <Briefcase size={16} /> },
         { key: "explore", label: "Explore", icon: <Search size={16} /> },
@@ -77,6 +83,8 @@ const Dashboard: React.FC = () => {
     switch (activeTab) {
       case "analytics":
         return <AnalyticsOverview />
+      case "calendar":
+        return <CalendarView />
       case "activity":
         return <ActivityOverview />
       case "services":
