@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import axios from "axios";
 import { User, MapPin, Clock, Pencil } from "lucide-react";
 
 type Booking = {
@@ -19,7 +20,7 @@ type Booking = {
   guests: string;
   eventType: string;
   event_desc: string;
-  services: string | { service_name: string }[]; // changed type to string | array
+  services: string | { service_name: string }[];
 };
 
 type BookingDetailsProps = {
@@ -49,15 +50,14 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
 }) => {
   const guestsNumber = selectedBooking.guests.split(" ")[0];
 
-  // Normalize services on the frontend
   const services: { service_name: string }[] = Array.isArray(selectedBooking.services)
     ? selectedBooking.services
     : typeof selectedBooking.services === "string"
-      ? selectedBooking.services
-          .split(",")
-          .map((s) => ({ service_name: s.trim() }))
-          .filter((s) => s.service_name !== "")
-      : [];
+    ? selectedBooking.services
+        .split(",")
+        .map((s) => ({ service_name: s.trim() }))
+        .filter((s) => s.service_name !== "")
+    : [];
 
   const [activeTab, setActiveTab] = useState<"Services" | "Venue Map" | "Timeline">("Services");
   const [editing, setEditing] = useState(false);
@@ -80,6 +80,27 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
     setCity("");
     setProvince("");
     setCountry("");
+  };
+
+  const handleSubmitVenue = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/insert-venue-components", {
+        buildingName,
+        floor,
+        zipCode,
+        streetAddress: address,
+        district,
+        city,
+        province,
+        country,
+      });
+      console.log("✅ Venue inserted:", response.data);
+      alert("Venue details saved successfully");
+      setEditing(false);
+    } catch (err) {
+      console.error("❌ Error inserting venue:", err);
+      alert("Failed to save venue details. See console for details.");
+    }
   };
 
   return (
@@ -213,8 +234,18 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
                     )}
                   </div>
                   <div className="mt-4 flex justify-end gap-3">
-                    <button onClick={() => setEditing(false)} className="px-4 py-2 bg-blue-600 text-white rounded-md">Confirm</button>
-                    <button onClick={clearVenue} className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Clear All</button>
+                    <button
+                      onClick={handleSubmitVenue}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md transition-transform transform hover:scale-105 active:scale-95 duration-150"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      onClick={clearVenue}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md transition-transform transform hover:scale-105 active:scale-95 duration-150"
+                    >
+                      Clear All
+                    </button>
                   </div>
                 </div>
               )}
