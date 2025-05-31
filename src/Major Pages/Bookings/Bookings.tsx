@@ -4,21 +4,26 @@ import BookingDetails from "./Elements/BookingDetails";
 
 // Type for the booking structure
 type Booking = {
-  id: number
-  date: string
-  day: string
-  title: string
-  startTime: string
-  endTime: string
-  customer: string
-  location: string
-  guests: string
-  guestListStatus?: "Submitted" | "Not Submitted"
-  rsvpListStatus?: "Created" | "Not Created"
-}
+  id: number;
+  date: string;
+  day: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  customer: string;
+  location: string;
+  guests: string;
+  liking_score?: number;
+  event_type_id?: number;
+  organizer_id?: number;
+  venue_id?: number;
+  budget?: number;
+  guestListStatus?: "Submitted" | "Not Submitted";
+  rsvpListStatus?: "Created" | "Not Created";
+};
 
 // User type to check if user is an organizer
-type UserRole = "organizer" | "customer" | "vendor"
+type UserRole = "organizer" | "customer" | "vendor";
 type BookingStatus = "Pending" | "Upcoming" | "Past" | "Rejected" | "Cancelled";
 
 const Bookings: React.FC = () => {
@@ -40,7 +45,7 @@ const Bookings: React.FC = () => {
   };
 
   const userRole = getUserTypeFromAuth();
-   
+
   const handleStatusChange = (status: BookingStatus) => {
     setActiveStatus(status);
   };
@@ -59,6 +64,10 @@ const Bookings: React.FC = () => {
         guests: "1,234 Guests",
         guestListStatus: "Submitted",
         rsvpListStatus: "Not Created",
+        event_type_id: 2,
+        organizer_id: 5,
+        venue_id: 3,
+        budget: 30000,
       },
       {
         id: 4,
@@ -70,6 +79,10 @@ const Bookings: React.FC = () => {
         customer: "Another Organizer",
         location: "Another Location",
         guests: "567 Guests",
+        event_type_id: 4,
+        organizer_id: 2,
+        venue_id: 5,
+        budget: 300000,
       },
       {
         id: 5,
@@ -83,6 +96,10 @@ const Bookings: React.FC = () => {
         guests: "1,234 Guests",
         guestListStatus: "Not Submitted",
         rsvpListStatus: "Created",
+        event_type_id: 5,
+        organizer_id: 1,
+        venue_id: 6,
+        budget: 3000,
       },
     ],
     Upcoming: [
@@ -196,7 +213,8 @@ const Bookings: React.FC = () => {
         guests: "2,000 Guests",
       },
     ],
-    Cancelled: [{
+    Cancelled: [
+      {
         id: 13,
         date: "Mar 22",
         day: "Friday",
@@ -229,7 +247,7 @@ const Bookings: React.FC = () => {
         location: "Antipolo",
         guests: "100 Guests",
       },
-    ], 
+    ],
   };
 
   // Sort the bookings based on the date
@@ -240,15 +258,15 @@ const Bookings: React.FC = () => {
   });
 
   const sortedPastBookings = [...bookingsData.Past].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   const sortedUpcomingBookings = [...bookingsData.Upcoming].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
   const sortedRejectedBookings = [...bookingsData.Rejected].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   const displayedBookings =
@@ -300,12 +318,22 @@ const Bookings: React.FC = () => {
       {/* Status buttons */}
       <div className="flex justify-end mb-6">
         <div className="inline-flex bg-gray-100 rounded-lg p-1">
-          {["Pending", "Upcoming", "Past", "Rejected", ...(userRole === "organizer" || userRole === "customer" ? ["Cancelled"] : [])].map((status) => (
+          {[
+            "Pending",
+            "Upcoming",
+            "Past",
+            "Rejected",
+            ...(userRole === "organizer" || userRole === "customer"
+              ? ["Cancelled"]
+              : []),
+          ].map((status) => (
             <button
               key={status}
               onClick={() => handleStatusChange(status as BookingStatus)}
               className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeStatus === status ? "bg-white shadow-sm text-gray-800" : "text-gray-600 hover:text-gray-800"
+                activeStatus === status
+                  ? "bg-white shadow-sm text-gray-800"
+                  : "text-gray-600 hover:text-gray-800"
               }`}
             >
               {status}
@@ -374,28 +402,36 @@ const Bookings: React.FC = () => {
                       {isGuestListSubmitted(booking) ? (
                         <div className="flex items-center py-1 px-3 rounded-sm bg-green-100 w-fit">
                           <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                          <span className="text-sm text-green-600 font-medium">Guest List: Submitted</span>
+                          <span className="text-sm text-green-600 font-medium">
+                            Guest List: Submitted
+                          </span>
                         </div>
                       ) : (
                         <div className="flex items-center py-1 px-3 rounded-sm bg-gray-200 w-fit">
                           <span className="w-2 h-2 rounded-full bg-gray-400 mr-2"></span>
-                          <span className="text-sm text-gray-500 font-medium">Guest List: Not Submitted</span>
+                          <span className="text-sm text-gray-500 font-medium">
+                            Guest List: Not Submitted
+                          </span>
                         </div>
                       )}
                       {/* RSVP List Status */}
-                      {userRole === "organizer" && hasRsvpListStatus(booking) && (
-                        isRsvpListCreated(booking) ? (
+                      {userRole === "organizer" &&
+                        hasRsvpListStatus(booking) &&
+                        (isRsvpListCreated(booking) ? (
                           <div className="flex items-center py-1 px-3 rounded-sm bg-green-100 w-fit">
                             <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                            <span className="text-sm text-green-600 font-medium">RSVP List: Created</span>
+                            <span className="text-sm text-green-600 font-medium">
+                              RSVP List: Created
+                            </span>
                           </div>
                         ) : (
                           <div className="flex items-center py-1 px-3 rounded-sm bg-gray-200 w-fit">
                             <span className="w-2 h-2 rounded-full bg-gray-400 mr-2"></span>
-                            <span className="text-sm text-gray-500 font-medium">RSVP List: Not Created</span>
+                            <span className="text-sm text-gray-500 font-medium">
+                              RSVP List: Not Created
+                            </span>
                           </div>
-                        )
-                      )}
+                        ))}
                     </div>
                   )}
                 </div>
