@@ -1,0 +1,3 @@
+run ts sa baba sa kung san ka merong python interpreter but inside this directory
+like
+C:\Users\euan_\OneDrive\Documents\GitHub\EVNTgarde\review-processor> python review-processor/process_reviews.py
