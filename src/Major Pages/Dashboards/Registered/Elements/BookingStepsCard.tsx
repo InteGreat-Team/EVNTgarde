@@ -28,7 +28,7 @@ const BookingStepsCard: React.FC<BookingStepsCardProps> = ({
   onSelect,
   selectedEvent,
 }) => {
-  const activeStatus = "Draft";
+  const activeStatus = "Pending";
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const onBookingClick = (booking: Booking) => {
