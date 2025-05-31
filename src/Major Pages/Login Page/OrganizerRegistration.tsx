@@ -397,17 +397,16 @@ const validateStep = (): boolean => {
 
   // Handle form submission
   const handleCreateAccount = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateStep()) {
-      return
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // Create user account with all collected data
-
       const userData = createUserAccount("organizer", email, {
         budget,
         budgetDescription,
@@ -427,68 +426,22 @@ const validateStep = (): boolean => {
         userType: "organizer"
       });
 
-      // Get role_id from sessionStorage (set by RoleSelection)
-      let roleId = null;
-      const selectedRole = sessionStorage.getItem("selectedRole");
-      if (selectedRole) {
-        try {
-          roleId = JSON.parse(selectedRole).role_id;
-        } catch {}
-      }
-
-      // Register user with Firebase
+      // Register user with Firebase and cloud function
       const firebaseUser = await registerUser(email, password, "organizer", userData);
-      const firebaseUid = firebaseUser?.uid;
-      // Register user with PostgreSQL
-      try {
-        const response = await fetch('http://localhost:5000/api/registerOrganizer', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            organizerId: firebaseUid, // <-- use this as the primary key
-            organizerCompanyName: companyName,
-            organizerEmail: email,
-            organizerPassword: password,
-            organizerIndustry: industry,
-            organizerLocation: null,
-            organizerType: "organizer",
-            organizerLogoUrl: null,
-            roleId // <-- pass role_id to backend
-          }),
-        });
-
-        if (!response.ok) {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Database registration failed");
-          } else {
-            throw new Error("Database registration failed");
-          }
-        }
-
-        // Success: clear storage, navigate, etc.
-        sessionStorage.removeItem("organizerRegistration");
-        navigate("/login");
-      } catch (dbError: any) {
-        // If PostgreSQL registration fails, delete the Firebase user
-        if (firebaseUser) {
-          try {
-            await firebaseUser.delete();
-          } catch (deleteError) {
-            console.error("Error deleting Firebase user after failed database registration:", deleteError);
-          }
-        }
-        throw new Error(`Database registration error: ${dbError.message}`);
+      
+      if (!firebaseUser) {
+        throw new Error("Registration failed: No Firebase user returned.");
       }
+
+      // Clear session storage
+      sessionStorage.removeItem("organizerRegistration");
+      navigate("/login");
     } catch (err: any) {
-      setErrors(err.message || "Failed to create account. Please try again.");
+      setErrors({ general: err.message || "Failed to create account. Please try again." });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Terms and conditions modal
   const TermsAndConditionsModal = () => (

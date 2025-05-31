@@ -60,22 +60,40 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
   useEffect(() => {
     const fetchEventTypes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/event-types");
-        if (!response.ok) {
-          throw new Error("Failed to fetch event types");
-        }
+        console.log("Starting to fetch event types...");
+        const response = await fetch("https://asia-southeast1-evntgarde-event-management.cloudfunctions.net/getEventTypes", {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log("Response received:", response.status);
         const data = await response.json();
-        setEventTypes(data);
+        console.log("Parsed response data:", data);
+
+        if (!data.success) {
+          throw new Error(data.error || "Failed to fetch event types");
+        }
+
+        if (!Array.isArray(data.data)) {
+          throw new Error("Invalid event types data format");
+        }
+
+        console.log("Setting event types:", data.data);
+        setEventTypes(data.data);
       } catch (err) {
-        console.error("Failed to fetch event types:", err);
+        console.error("Error in fetchEventTypes:", err);
         setErrors(prev => ({
           ...prev,
-          eventTypes: "Failed to load event types. Please try again."
+          eventTypes: err instanceof Error ? err.message : "Failed to load event types. Please try again."
         }));
       }
     };
 
     if (isOpen) {
+      console.log("Modal opened, fetching event types...");
       fetchEventTypes();
     }
   }, [isOpen]);
@@ -250,27 +268,27 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
         eventTypeId: eventTypeId,
         eventTypeName: eventData.eventType,
         attire: eventData.attire,
-        services: eventData.services.join(", ") || null,
-        additionalServices: eventData.customServices.join(", ") || null,
+        services: Array.isArray(eventData.services) ? eventData.services.join(", ") : "",
+        additionalServices: Array.isArray(eventData.customServices) ? eventData.customServices.join(", ") : "",
         budget: eventData.budget,
         customerId: customerId,
         organizerId: null,
         venueId: null
       };
 
-      const response = await fetch("http://localhost:5000/api/events", {
+      const createEventResponse = await fetch("https://asia-southeast1-evntgarde-event-management.cloudfunctions.net/createEvent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(eventPayload),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create event");
+      const responseData = await createEventResponse.json();
+      if (!createEventResponse.ok || !responseData.success) {
+        throw new Error(responseData.error || "Failed to create event");
       }
 
-      // Call the original onSave callback
-      onSave(eventData);
+      // Call the original onSave callback with the event data from the response
+      onSave(responseData.data);
       onClose();
     } catch (err) {
       setErrors({ 

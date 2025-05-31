@@ -3,12 +3,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import Logo from "../../assets/OrganizerLogo.png";
 import { useNavigate } from "react-router-dom";
-import { auth, signInWithEmailAndPassword } from "../../functions/firebase";
-import {
-  checkSessionExpiry,
-  signInWithGoogle,
-  signInWithYahoo,
-} from "@/functions/authFunctions";
+import { loginUser, signInWithGoogle, signInWithYahoo, checkSessionExpiry } from "../../functions/authFunctions";
 import { useTheme } from "../../functions/ThemeContext";
 import { FcGoogle } from "react-icons/fc";
 import { AiFillYahoo } from "react-icons/ai";
@@ -22,7 +17,6 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [failedAttempts, setFailedAttempts] = useState(0);
 
   useEffect(() => {
     const sessionExpired = checkSessionExpiry();
@@ -37,60 +31,36 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
+
+    if (!email || !password) {
+      setError("Please enter both email and password");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Authenticate with Firebase
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const userId = userCredential.user.uid;
-
-      // Fetch user data from your PostgreSQL backend
-      const response = await fetch("http://localhost:5000/api/getUserType", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          firebaseUid: userId,
-          email: userCredential.user.email,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch user type from backend");
+      const { user, role } = await loginUser(email, password);
+      
+      if (!user) {
+        throw new Error("Login failed: No user returned");
       }
 
-      const userData = await response.json();
-      const userType = userData.userType;
-      const vendorType = userData.vendorType;
-      localStorage.setItem("userId", userId);
-
-      // Store authentication status and userType
+      // Store user type and authentication state
+      localStorage.setItem("userType", role);
       localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userType", userType);
-      if (vendorType) {
-        localStorage.setItem("vendorType", vendorType);
-      }
+      localStorage.setItem("loginTimestamp", Date.now().toString());
 
-      if (rememberMe) {
-        localStorage.setItem("loginTimestamp", Date.now().toString());
-      }
-
+      // Call the login callback
       login();
-      // Do NOT navigate here; let useEffect handle it
     } catch (err: any) {
-      const newFailedAttempts = failedAttempts + 1;
-      setFailedAttempts(newFailedAttempts);
-      if (newFailedAttempts >= 3) {
-        setError("Login failed. Please check your credentials and try again.");
+      if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
+        setError("Invalid email or password");
+      } else if (err.code === "auth/too-many-requests") {
+        setError("Too many failed attempts. Please try again later.");
       } else {
-        setError(err.message || "Invalid Email/Invalid Password");
+        setError(err.message || "Failed to log in. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -101,10 +71,12 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithGoogle("individual"); // Default to individual, will be updated from backend
-      login();
-      navigate("/dashboard");
-      // Redirect will happen based on userType in backend
+      const user = await signInWithGoogle("individual");
+      if (user) {
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("loginTimestamp", Date.now().toString());
+        login();
+      }
     } catch (err: any) {
       setError("Failed to sign in with Google. Please try again.");
       console.error(err);
@@ -117,10 +89,12 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithYahoo("individual"); // Default to individual, will be updated from backend
-      login();
-      navigate("/dashboard");
-      // Redirect will happen based on userType in backend
+      const user = await signInWithYahoo("individual");
+      if (user) {
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("loginTimestamp", Date.now().toString());
+        login();
+      }
     } catch (err: any) {
       setError("Failed to sign in with Yahoo. Please try again.");
       console.error(err);

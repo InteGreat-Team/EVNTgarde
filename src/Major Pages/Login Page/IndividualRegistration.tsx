@@ -320,14 +320,6 @@ const IndividualRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
       // Get stored data including userRole and role_id
       const storedData = sessionStorage.getItem("individualRegistration");
       const userData = storedData ? JSON.parse(storedData) : {};
-      // Get role_id from sessionStorage (set by RoleSelection)
-      let roleId = null;
-      const selectedRole = sessionStorage.getItem("selectedRole");
-      if (selectedRole) {
-        try {
-          roleId = JSON.parse(selectedRole).role_id;
-        } catch {}
-      }
 
       // Create user account with data from all parts
       const userAccountData = createUserAccount("individual", email, {
@@ -347,63 +339,20 @@ const IndividualRegistration: React.FC<{ step: number }> = ({ step = 1 }) => {
         },
       });
 
+      // Register user with Firebase and cloud function
       const firebaseUser = await registerUser(email, password, "individual", userAccountData);
-      const firebaseUid = firebaseUser?.uid;
-      if (!firebaseUid) {
-        setError("Registration failed: No Firebase UID returned.");
-        setIsLoading(false);
-        return;
-      }
-      // Register user with PostgreSQL
-      try {
-        const response = await fetch('http://localhost:5000/api/registerCustomer', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            firebaseUid, // <-- send this
-            firstName,
-            lastName,
-            email,
-            password,
-            phoneNo: phoneNumber ? `+63${phoneNumber}` : null,
-            preferences: preferences.join(','),
-            customerType: userData.userRole || "enthusiast",
-            roleId // <-- pass role_id to backend
-          }),
-        });
-
-        if (!response.ok) {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to register with database');
-          } else {
-            throw new Error(`Server error: ${response.status}`);
-          }
-        }
-
-        const data = await response.json();
-        if (!data.success) {
-          throw new Error(data.message || 'Registration failed');
-        }
-      } catch (dbError: any) {
-        console.error('Database registration error:', dbError);
-        // If database registration fails, we should clean up the Firebase user
-        if (firebaseUser) {
-          await firebaseUser.delete();
-        }
-        throw new Error(dbError.message || 'Failed to register with database. Please try again.');
+      
+      if (!firebaseUser) {
+        throw new Error("Registration failed: No Firebase user returned.");
       }
 
       // Clear session storage
       sessionStorage.removeItem("individualRegistration");
 
-      // Navigate to dashboard or login page
+      // Navigate to login page
       navigate("/login");
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }

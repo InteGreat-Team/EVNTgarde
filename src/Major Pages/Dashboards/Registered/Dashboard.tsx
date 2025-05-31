@@ -7,6 +7,7 @@ import EventSection from "./Elements/EventsSection"
 import Explore from "./Elements/Explore"
 import MyEvents from "./Elements/MyEvents"
 import AnalyticsOverview from "./Elements/AnalyticsOverview"
+import { CLOUD_FUNCTIONS } from "../../../config/cloudFunctions"
 
 type RoleId = "1" | "2" | "3" // 1: customer, 2: organizer, 3: vendor
 
@@ -17,36 +18,44 @@ const Dashboard: React.FC = () => {
 
   const getRoleIdFromAuth = async (): Promise<RoleId> => {
     try {
-      const firebaseUid = localStorage.getItem("firebaseUid")
+      const firebaseUid = localStorage.getItem("firebaseUid") || localStorage.getItem("userId");
+      console.log("Dashboard is sending firebaseUid:", firebaseUid);
       if (!firebaseUid) {
-        throw new Error("No Firebase UID found")
+        throw new Error("No Firebase UID found");
       }
 
-      const response = await fetch("/api/getRole", {
-        method: "POST",
+      const response = await fetch(CLOUD_FUNCTIONS.getRole, {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ firebaseUid }),
-      })
+        body: JSON.stringify({
+          firebaseUid
+        }),
+      });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch role")
+      const data = await response.json();
+      console.log("getRole response:", data);
+      if (!response.ok || !data.roleId) {
+        throw new Error(data.message || 'Failed to get user role');
       }
-
-      const data = await response.json()
-      return data.roleId as RoleId
+      return data.roleId as RoleId;
     } catch (error) {
-      console.error("Error fetching role:", error)
-      return "1" // Default to customer role
+      console.error("Error getting role ID:", error);
+      throw error;
     }
-  }
+  };
 
   useEffect(() => {
     const fetchRole = async () => {
-      const role = await getRoleIdFromAuth()
-      setRoleId(role)
+      try {
+        const role = await getRoleIdFromAuth()
+        setRoleId(role)
+      } catch (error) {
+        console.error("Error fetching role:", error)
+      }
     }
+
     fetchRole()
   }, [])
 
@@ -122,24 +131,28 @@ const Dashboard: React.FC = () => {
           <div>
             <h1 className="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
             {/* Tabs */}
-            <div className="flex space-x-4 text-sm text-gray-500 pb-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  className={`flex items-center space-x-1 ${
-                    activeTab === tab.key ? "text-blue-600 font-semibold" : "text-gray-400"
-                  }`}
-                  onClick={() => setActiveTab(tab.key)}
-                >
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </div>
+            {roleId ? (
+              <div className="flex space-x-4 text-sm text-gray-500 pb-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    className={`flex items-center space-x-1 ${
+                      activeTab === tab.key ? "text-blue-600 font-semibold" : "text-gray-400"
+                    }`}
+                    onClick={() => setActiveTab(tab.key)}
+                  >
+                    {tab.icon}
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-red-500 font-semibold">Unable to determine user role. Please contact support or try logging in again.</div>
+            )}
           </div>
 
           {/* Dynamic Tab Content */}
-          <div>{renderContent()}</div>
+          <div>{roleId ? renderContent() : null}</div>
         </div>
       </div>
     </div>

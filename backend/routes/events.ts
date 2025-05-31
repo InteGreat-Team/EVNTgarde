@@ -14,10 +14,16 @@ router.get("/event-types", async (req, res) => {
       "SELECT event_type_id, event_type_name FROM event_type"
     );
     console.log("Event types fetched:", result.rows);
-    res.json(result.rows);
+    res.json({
+      success: true,
+      data: result.rows
+    });
   } catch (error) {
     console.error("Error fetching event types:", error);
-    res.status(500).json({ error: "Failed to fetch event types" });
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to fetch event types" 
+    });
   }
 });
 
@@ -95,21 +101,25 @@ router.post(
         venueId,
       } = req.body;
 
-    // Check customer exists
-    const customerCheck = await query(
-      "SELECT customer_id FROM Customer_Account_Data WHERE customer_id = $1",
-      [customerId]
-    );
-    if (customerCheck.rows.length === 0) {
-      console.log("Customer not found:", customerId);
-      res.status(400).json({ error: "Customer not found in database" });
-      return;
-    }
+      // Check customer exists
+      const customerCheck = await query(
+        "SELECT customer_id FROM Customer_Account_Data WHERE customer_id = $1",
+        [customerId]
+      );
+      if (customerCheck.rows.length === 0) {
+        console.log("Customer not found:", customerId);
+        res.status(400).json({ 
+          success: false,
+          error: "Customer not found in database" 
+        });
+        return;
+      }
 
       // Validate customerId
       if (!customerId) {
         console.log("Customer ID validation failed:", customerId);
         res.status(400).json({
+          success: false,
           error: "Valid Customer ID is required",
           receivedCustomerId: customerId,
         });
@@ -117,7 +127,6 @@ router.post(
       }
 
       // Combine date and time into datetime strings
-      // If startTime/endTime are not provided, fallback to just the date
       let start_datetime = startDate;
       let end_datetime = endDate;
       if (startDate && startTime) {
@@ -127,7 +136,7 @@ router.post(
         end_datetime = `${endDate}T${endTime}`;
       }
 
-      // Quick validation of required fields (use unary + to coerce)
+      // Quick validation of required fields
       const requiredFields = {
         eventName,
         start_datetime,
@@ -141,7 +150,11 @@ router.post(
         .map(([k]) => k);
       if (missing.length) {
         console.log("Missing required fields:", missing);
-        res.status(400).json({ error: "Missing required fields", fields: missing });
+        res.status(400).json({ 
+          success: false,
+          error: "Missing required fields", 
+          fields: missing 
+        });
         return;
       }
 
@@ -183,13 +196,16 @@ router.post(
       res.status(201).json({
         success: true,
         message: "Event created successfully",
-        event: result.rows[0],
+        data: result.rows[0]
       });
       return;
 
     } catch (err: any) {
       console.error("Error details:", err);
-      next(err);  // pass to your error handler
+      res.status(500).json({
+        success: false,
+        error: err.message || "Failed to create event"
+      });
     }
   }
 );

@@ -77,13 +77,13 @@ const RoleSelection: React.FC = () => {
 				>
 					<img
 						src={Logo || "/placeholder.svg"}
-						className="w-52 mb-6"
+						className="max-w-xs mb-4"
 						alt="Logo"
 					/>
-					<p className="text-lg font-medium">
+					<p className="text-lg font-medium mb-2">
 						Discover tailored events services.
 					</p>
-					<p className="text-lg font-medium">
+					<p className="text-lg font-medium mb-2">
 						Sign up for personalized services today!
 					</p>
 				</div>
@@ -91,120 +91,57 @@ const RoleSelection: React.FC = () => {
 				{/* Right Side - Role Selection */}
 				<div
 					className={`w-3/5 ${
-						isDarkMode ? "bg-black text-white" : "bg-white text-gray-800"
+						isDarkMode ? "bg-black" : "bg-white"
 					} p-10 flex flex-col justify-center rounded-l-[50px] shadow-md`}
 				>
 					<h2
 						className={`text-4xl font-bold ${
-							isDarkMode ? "text-white" : "text-gray-800"
-						} mb-6`}
+							isDarkMode ? "text-white" : "text-blue-600"
+						} mb-4`}
 					>
-						Sign Up
+						Choose Your Role
 					</h2>
+					<p className={`text-lg mb-8 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+						Select the role that best describes you
+					</p>
 
-					<div className="mb-6">
-						<p
-							className={`text-lg ${
-								isDarkMode ? "text-white" : "text-gray-700"
-							}`}
-						>
-							What brings you here today?
-						</p>
-						<p
-							className={`text-sm ${
-								isDarkMode ? "text-gray-300" : "text-gray-500"
-							}`}
-						>
-							Select the option that best describes your role.
-						</p>
+					<div className="space-y-4">
+						{roleKeys.map((role) => (
+							<div
+								key={role}
+								className={`p-4 border rounded-lg cursor-pointer transition-all ${
+									selectedRole === role
+										? isDarkMode
+											? "border-blue-500 bg-blue-900/20"
+											: "border-blue-500 bg-blue-50"
+										: isDarkMode
+											? "border-gray-700 hover:border-gray-500"
+											: "border-gray-300 hover:border-gray-400"
+								}`}
+								onClick={() => handleRoleChange(role)}
+							>
+								<div className="font-medium capitalize">{role}</div>
+							</div>
+						))}
 					</div>
 
-					<div className="space-y-4 mb-8">
-						<label
-							className={`flex items-start p-4 border rounded-lg cursor-pointer ${
-								selectedRole === "individual"
-									? "border-blue-500 bg-gray-500 dark:bg-blue-900/30"
-									: "border-gray-300 dark:border-gray-600"
+					<div className="mt-8">
+						<button
+							onClick={handleGetStarted}
+							disabled={!selectedRole}
+							className={`w-full py-3 rounded-lg text-white font-medium ${
+								!selectedRole
+									? "bg-gray-400 cursor-not-allowed"
+									: isDarkMode
+										? "bg-blue-600 hover:bg-blue-700"
+										: "bg-blue-600 hover:bg-blue-700"
 							}`}
 						>
-							<input
-								type="radio"
-								name="role"
-								className="mt-1 mr-3"
-								checked={selectedRole === "individual"}
-								onChange={() => handleRoleChange("individual")}
-							/>
-							<div>
-								<p className="font-medium">
-									I'm planning an event and need help organizing it
-								</p>
-							</div>
-						</label>
-
-						<label
-							className={`flex items-start p-4 border rounded-lg cursor-pointer ${
-								selectedRole === "organizer"
-									? "border-blue-500 bg-gray-500 dark:bg-blue-900/30"
-									: "border-gray-300 dark:border-gray-600"
-							}`}
-						>
-							<input
-								type="radio"
-								name="role"
-								className="mt-1 mr-3"
-								checked={selectedRole === "organizer"}
-								onChange={() => handleRoleChange("organizer")}
-							/>
-							<div>
-								<p className="font-medium">
-									I'm an event organizer looking for vendors and suppliers
-								</p>
-							</div>
-						</label>
-
-						<label
-							className={`flex items-start p-4 border rounded-lg cursor-pointer ${
-								selectedRole === "vendor"
-									? "border-blue-500 bg-gray-500 dark:bg-blue-900/30"
-									: "border-gray-300 dark:border-gray-600"
-							}`}
-						>
-							<input
-								type="radio"
-								name="role"
-								className="mt-1 mr-3"
-								checked={selectedRole === "vendor"}
-								onChange={() => handleRoleChange("vendor")}
-							/>
-							<div>
-								<p className="font-medium">
-									I'm a vendor looking to market my business
-								</p>
-							</div>
-						</label>
+							Get Started
+						</button>
 					</div>
 
-					<button
-						onClick={handleGetStarted}
-						disabled={!selectedRole}
-						className={`w-full py-3 rounded-lg font-semibold text-white ${
-							isDarkMode
-								? selectedRole
-									? "bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
-									: "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed"
-								: selectedRole
-								? "bg-blue-600 border-gray-300 text-gray-500 hover:bg-blue-300"
-								: "bg-blue-600 hover:bg-blue-300 border-gray-300 text-gray-400 cursor-not-allowed"
-						}`}
-					>
-						Get Started
-					</button>
-
-					<p
-						className={`text-center mt-4 ${
-							isDarkMode ? "text-white" : "text-gray-700"
-						}`}
-					>
+					<p className={`text-center mt-4 ${isDarkMode ? "text-white" : "text-gray-700"}`}>
 						Already have an account?{" "}
 						<a href="/login" className="text-blue-600 hover:underline">
 							Log in

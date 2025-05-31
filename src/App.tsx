@@ -50,6 +50,21 @@ const App: React.FC = () => {
     setRoleId(storedRoleId);
   }, []);
 
+  // Function to determine the correct route based on role_id
+  const getDashboardRoute = () => {
+    switch (roleId) {
+      case "1":
+        return "/dashboard"; // Customer
+      case "2":
+        return "/dashboard"; // Organizer
+      case "3":
+        return "/dashboard"; // Vendor
+      // Add more cases here for new user types as needed
+      default:
+        return "/dashboard";
+    }
+  };
+
   const login = async () => {
     setIsAuthenticated(true);
     const storedUserType = localStorage.getItem("userType");
@@ -67,30 +82,12 @@ const App: React.FC = () => {
         });
         if (response.ok) {
           const data = await response.json();
-          console.log("Response data from backend:", data); // Debug log
           localStorage.setItem("roleId", data.roleId);
           setRoleId(data.roleId); // Update state
-          console.log("Set roleId in localStorage:", data.roleId); // Debug log
         }
       } catch (error) {
         console.error("Error fetching user role:", error);
       }
-    }
-  };
-
-  // Function to determine the correct route based on role_id
-  const getDashboardRoute = () => {
-    // Use state instead of localStorage
-    console.log("Current roleId (state):", roleId); // Debug log
-    switch (roleId) {
-      case "1":
-        return "/dashboard";
-      case "2":
-        return "/dashboard";
-      case "3":
-        return "/dashboard";
-      default:
-        return "/";
     }
   };
 
