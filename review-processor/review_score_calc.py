@@ -25,10 +25,6 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 # Connection string should come from env var DATABASE_URL
 DB_DSN = "postgresql://eventgardedb_owner:npg_rG4Lwl7oZtTI@ep-fragrant-shape-a1boxp1j-pooler.ap-southeast-1.aws.neon.tech:5432/eventgardedb?sslmode=require"
 
-
-# -- your existing computation pipeline begins here --
-# (unchanged, nested inside notification loop below)
-
 # Load sentiment and emotion models
 sentiment_pipe = pipeline(
     "text-classification",
@@ -169,8 +165,6 @@ def compute_liking_score(features, has_sentiment, has_valence):
     else:
         w = torch.ones_like(w) / len(w)
     return float((features * w).sum())
-# -- end of computation pipeline --
-
 
 def main():
     conn = psycopg2.connect(DB_DSN)
@@ -190,9 +184,7 @@ def main():
             # fetch the new row
             cur.execute("SELECT * FROM reviews WHERE review_id = %s", (review_id,))
             row = cur.fetchone()
-
-            # Re-use the existing CSV-based pipeline by dumping this single row
-            # to a temporary DataFrame and processing exactly the same way:
+            
             temp_df = pd.DataFrame([row])
             temp_df['images'] = temp_df['images'].replace('', np.nan)
 
