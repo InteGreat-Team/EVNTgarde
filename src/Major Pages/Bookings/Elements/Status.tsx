@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import LeaveReviewOrganizer from "./LeaveReviewOrganizer";
 import LeaveReviewCustomer from "./LeaveReview";
 import CancelEvent from "./CancelEvent";
+import CreateGuestListModal from "./CreateGuestListModal";
 
 interface StatusProps {
   activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Cancelled";
@@ -40,6 +41,8 @@ const Status: React.FC<StatusProps> = ({
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewMode, setReviewMode] = useState<"event" | "vendor">("event");
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showGuestListModal, setShowGuestListModal] = useState(false);
+  const [guestListCreated, setGuestListCreated] = useState(false);
 
   const dates = {
     requestDate: selectedBooking?.requestDate || "Aug 1, 2025",
@@ -199,15 +202,23 @@ const Status: React.FC<StatusProps> = ({
                 >
                   Cancel Event
                 </button>
-                <div className="pt-2">
-                  <h3 className="text-lg font-semibold mb-3">Attendees</h3>
+                <h3 className="text-lg font-semibold mb-3">Attendees</h3>
+                {userRole === "individual" && !guestListCreated && (
                   <button
                     className="w-full bg-yellow-400 rounded-md py-3 px-4 text-black font-medium hover:bg-yellow-500"
-                    //onClick={() => navigate("/rsvp-tracker")} //
+                    onClick={() => setShowGuestListModal(true)}
+                  >
+                    Create Guest List
+                  </button>
+                )}
+                {(userRole === "individual" && guestListCreated) || userRole === "organizer" ? (
+                  <button
+                    className="w-full bg-blue-600 rounded-md py-3 px-4 text-white font-medium hover:bg-blue-700"
+                    onClick={() => navigate("/rsvp")}
                   >
                     View RSVP Tracker
                   </button>
-                </div>
+                ) : null}
               </div>
             </div>
           </>
@@ -349,6 +360,16 @@ const Status: React.FC<StatusProps> = ({
       {renderStatusContent()}
       {showReviewModal && renderLeaveReview()}
       {showCancelModal && renderCancelEvent()}
+      {userRole === "individual" && (
+        <CreateGuestListModal
+          isOpen={showGuestListModal}
+          onClose={() => setShowGuestListModal(false)}
+          onNext={() => {
+            setShowGuestListModal(false);
+            setGuestListCreated(true);
+          }}
+        />
+      )}
     </div>
   )
 }
