@@ -51,6 +51,22 @@ export function Sidebar({
 	}, []);
 
 	const sidebarItems = useMemo(() => {
+		if (userType === "superadmin") {
+			return [
+				{ title: "Dashboard", icon: LayoutDashboard, href: `/dashboard` },
+				{
+					title: "User Management",
+					icon: UserRound,
+					href: `/user-management`,
+				},
+				{
+					title: "Profile Settings",
+					icon: UserCircle,
+					href: `/profile-settings`,
+				},
+			]
+		}
+
 		const items = [
 			{ title: "Dashboard", icon: LayoutDashboard, href: `/dashboard` },
 			{ title: "Bookings", icon: CalendarDays, href: `/bookings` },
@@ -77,10 +93,10 @@ export function Sidebar({
 				icon: UserCircle,
 				href: `/profile-settings`,
 			},
-		];
+		]
 
-		return items;
-	}, [userType]);
+		return items
+	}, [userType])
 	const { isDarkMode } = useTheme();
 
 	return (

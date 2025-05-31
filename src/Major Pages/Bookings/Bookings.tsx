@@ -18,7 +18,7 @@ type Booking = {
 }
 
 // User type to check if user is an organizer
-type UserRole = "organizer" | "customer" | "vendor"
+type UserRole = "organizer" | "customer" | "vendor" | "superadmin"
 type BookingStatus = "Pending" | "Upcoming" | "Past" | "Rejected" | "Cancelled";
 
 const Bookings: React.FC = () => {

@@ -9,7 +9,7 @@ import MyEvents from "./Elements/MyEvents"
 import AnalyticsOverview from "./Elements/AnalyticsOverview"
 import CalendarView from "./Elements/Calendar"
 
-type UserType = "customer" | "vendor" | "organizer"
+type UserType = "customer" | "vendor" | "organizer" | "superadmin"
 
 const Dashboard: React.FC = () => {
   const location = useLocation()
@@ -17,7 +17,7 @@ const Dashboard: React.FC = () => {
 
   const getUserTypeFromAuth = (): UserType => {
     const storedType = localStorage.getItem("userType")
-    if (storedType === "customer" || storedType === "vendor" || storedType === "organizer") {
+    if (storedType === "customer" || storedType === "vendor" || storedType === "organizer" || storedType === "superadmin") {
       return storedType as UserType
     }
 
@@ -34,6 +34,16 @@ const Dashboard: React.FC = () => {
   }, [location.state])
 
   const tabs = (() => {
+    if (userType === "superadmin") {
+      return [
+        {
+          key: "analytics",
+          label: "Analytics Overview",
+          icon: <BarChart3 size={16} />,
+        }
+      ]
+    }
+
     if (userType === "customer") {
       return [
         {

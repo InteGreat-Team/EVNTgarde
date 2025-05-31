@@ -4,6 +4,56 @@ import { Check, XIcon } from "lucide-react"
 const RoleManagement: React.FC = () => {
   return (
     <div className="space-y-6">
+      {/* Superadmin Role */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center space-x-4 mb-4">
+          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+            <span className="text-purple-600 text-xl font-semibold">S</span>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold">Superadmin</h3>
+            <p className="text-gray-600">Complete system access and control</p>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h4 className="font-medium mb-3">Permissions:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="flex items-center space-x-2">
+              <Check className="text-green-500" size={18} />
+              <span>Full System Access</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Check className="text-green-500" size={18} />
+              <span>Manage All Users</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Check className="text-green-500" size={18} />
+              <span>Manage All Events</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Check className="text-green-500" size={18} />
+              <span>Manage All Bookings</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Check className="text-green-500" size={18} />
+              <span>Manage All RSVPs</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Check className="text-green-500" size={18} />
+              <span>System Configuration</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Check className="text-green-500" size={18} />
+              <span>Access All Reports</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Check className="text-green-500" size={18} />
+              <span>Manage Roles & Permissions</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center space-x-4 mb-4">
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
