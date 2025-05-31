@@ -3,7 +3,7 @@ import { ArrowUp, User, MapPin, Star } from "lucide-react";
 import { CalendarCard } from "./calendar-card";
 
 
-type userType = "organizer" | "vendor" | "customer";
+type userType = "organizer" | "vendor" | "customer" | "superadmin";
 
 
 const ActivityOverview: React.FC = () => {
@@ -12,7 +12,7 @@ const ActivityOverview: React.FC = () => {
 
  useEffect(() => {
    const storedRole = localStorage.getItem("userType");
-   if (storedRole === "organizer" || storedRole === "vendor" || storedRole === "customer") {
+   if (storedRole === "organizer" || storedRole === "vendor" || storedRole === "customer" || storedRole === "superadmin") {
      setUserRole(storedRole);
    } else if (storedRole === "individual") {
      setUserRole("customer");
@@ -57,7 +57,7 @@ const ActivityOverview: React.FC = () => {
  ];
 
 
- const isCustomer = userType === "customer";
+ const isCustomer = userType === "customer" || userType === "superadmin";
 
 
  return (

@@ -229,3 +229,42 @@ export const checkSessionExpiry = () => {
   }
   return false; // Session active
 };
+
+// Create superadmin account
+export const createSuperadminAccount = async () => {
+  try {
+    const email = "admin@evntgarde.com";
+    const password = "Admin@EVNTgarde2024!";
+    
+    // Check if email already exists
+    const emailExists = await checkEmailExists(email);
+    if (emailExists) {
+      console.log("Superadmin account already exists");
+      return null;
+    }
+
+    // Create user in Firebase Authentication
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Create user document in Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      email: email,
+      userType: "superadmin",
+      firstName: "System",
+      lastName: "Admin",
+      createdAt: new Date().toISOString(),
+    });
+
+    console.log("Superadmin account created successfully");
+    return user;
+  } catch (error: any) {
+    if (error.code === "auth/email-already-in-use") {
+      console.log("Superadmin account already exists");
+      return null;
+    }
+    console.error("Error creating superadmin account:", error);
+    throw error;
+  }
+};
