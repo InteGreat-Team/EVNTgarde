@@ -1,30 +1,28 @@
-"use client"
-
-import type React from "react"
-import { useState } from "react"
-import { UploadCloud, UserPlus } from "lucide-react"
-import EmployeeTable from "./Elements/EmployeeTable"
-import RoleManagement from "./Elements/RoleManagement"
-import UploadEmployeeModal from "./Elements/UploadEmployeeModal"
-import AddEmployeeModal from "./Elements/AddEmployeeModal"
-import DeleteConfirmationModal from "./Elements/DeleteConfirmModal"
+import type React from "react";
+import { useState } from "react";
+import { UploadCloud, UserPlus } from "lucide-react";
+import EmployeeTable from "./Elements/EmployeeTable";
+import RoleManagement from "./Elements/RoleManagement";
+import UploadEmployeeModal from "./Elements/UploadEmployeeModal";
+import AddEmployeeModal from "./Elements/AddEmployeeModal";
+import DeleteConfirmationModal from "./Elements/DeleteConfirmModal";
 
 interface Employee {
-  id: string
-  name: string
-  gender: string
-  sms: string
-  email: string
-  role: string
-  status: "active" | "inactive"
+  id: string;
+  name: string;
+  gender: string;
+  sms: string;
+  email: string;
+  role: string;
+  status: "active" | "inactive";
 }
 
 interface ParsedEmployee {
-  name: string
-  gender: string
-  sms: string
-  email: string
-  role: string
+  name: string;
+  gender: string;
+  sms: string;
+  email: string;
+  role: string;
 }
 
 const mockEmployees: Employee[] = [
@@ -136,21 +134,25 @@ const mockEmployees: Employee[] = [
     role: "Staff",
     status: "active",
   },
-]
+];
 
 const UserManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"employees" | "roles">("employees")
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
-  const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false)
-  const [employees, setEmployees] = useState<Employee[]>(mockEmployees)
+  const [activeTab, setActiveTab] = useState<"employees" | "roles">(
+    "employees"
+  );
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
 
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null)
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(
+    null
+  );
 
   const handleFileUpload = (employees: ParsedEmployee[]) => {
-    console.log("Employees to upload:", employees)
+    console.log("Employees to upload:", employees);
 
     // Convert parsed CSV data to Employee objects and add to the list
     const newEmployees: Employee[] = employees.map((emp, index) => ({
@@ -161,19 +163,19 @@ const UserManagement: React.FC = () => {
       email: emp.email,
       role: emp.role,
       status: "active" as "active" | "inactive", // Default to active
-    }))
+    }));
 
-    setEmployees((prev) => [...prev, ...newEmployees])
-    console.log("CSV employees added:", newEmployees)
-  }
+    setEmployees((prev) => [...prev, ...newEmployees]);
+    console.log("CSV employees added:", newEmployees);
+  };
 
   const handleAddEmployee = (newEmployee: {
-    name: string
-    gender: string
-    sms: string
-    email: string
-    role: string
-    status: string
+    name: string;
+    gender: string;
+    sms: string;
+    email: string;
+    role: string;
+    status: string;
   }) => {
     const employee: Employee = {
       id: `#EMP${String(employees.length + 1).padStart(2, "0")}`,
@@ -183,21 +185,21 @@ const UserManagement: React.FC = () => {
       email: newEmployee.email,
       role: newEmployee.role,
       status: newEmployee.status as "active" | "inactive",
-    }
+    };
 
-    setEmployees((prev) => [...prev, employee])
-    console.log("New employee added:", employee)
-  }
+    setEmployees((prev) => [...prev, employee]);
+    console.log("New employee added:", employee);
+  };
 
   const handleEditEmployee = (updatedEmployee: {
-    name: string
-    gender: string
-    sms: string
-    email: string
-    role: string
-    status: string
+    name: string;
+    gender: string;
+    sms: string;
+    email: string;
+    role: string;
+    status: string;
   }) => {
-    if (!editingEmployee) return
+    if (!editingEmployee) return;
 
     setEmployees((prev) =>
       prev.map((emp) =>
@@ -211,33 +213,35 @@ const UserManagement: React.FC = () => {
               role: updatedEmployee.role,
               status: updatedEmployee.status as "active" | "inactive",
             }
-          : emp,
-      ),
-    )
+          : emp
+      )
+    );
 
-    setEditingEmployee(null)
-    setIsEditModalOpen(false)
-    console.log("Employee updated:", updatedEmployee)
-  }
+    setEditingEmployee(null);
+    setIsEditModalOpen(false);
+    console.log("Employee updated:", updatedEmployee);
+  };
 
   const handleDeleteEmployee = () => {
-    if (!employeeToDelete) return
+    if (!employeeToDelete) return;
 
-    setEmployees((prev) => prev.filter((emp) => emp.id !== employeeToDelete.id))
-    setEmployeeToDelete(null)
-    setIsDeleteModalOpen(false)
-    console.log("Employee deleted:", employeeToDelete)
-  }
+    setEmployees((prev) =>
+      prev.filter((emp) => emp.id !== employeeToDelete.id)
+    );
+    setEmployeeToDelete(null);
+    setIsDeleteModalOpen(false);
+    console.log("Employee deleted:", employeeToDelete);
+  };
 
   const openEditModal = (employee: Employee) => {
-    setEditingEmployee(employee)
-    setIsEditModalOpen(true)
-  }
+    setEditingEmployee(employee);
+    setIsEditModalOpen(true);
+  };
 
   const openDeleteModal = (employee: Employee) => {
-    setEmployeeToDelete(employee)
-    setIsDeleteModalOpen(true)
-  }
+    setEmployeeToDelete(employee);
+    setIsDeleteModalOpen(true);
+  };
 
   return (
     <div className="p-6 ml-64">
@@ -281,7 +285,11 @@ const UserManagement: React.FC = () => {
 
       <div className="mt-8 bg-white rounded-xl shadow p-8">
         {activeTab === "employees" && (
-          <EmployeeTable employees={employees} onEditEmployee={openEditModal} onDeleteEmployee={openDeleteModal} />
+          <EmployeeTable
+            employees={employees}
+            onEditEmployee={openEditModal}
+            onDeleteEmployee={openDeleteModal}
+          />
         )}
         {activeTab === "roles" && <RoleManagement />}
       </div>
@@ -301,8 +309,8 @@ const UserManagement: React.FC = () => {
       <AddEmployeeModal
         isOpen={isEditModalOpen}
         onClose={() => {
-          setIsEditModalOpen(false)
-          setEditingEmployee(null)
+          setIsEditModalOpen(false);
+          setEditingEmployee(null);
         }}
         onAdd={handleEditEmployee}
         isEditMode={true}
@@ -324,14 +332,14 @@ const UserManagement: React.FC = () => {
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => {
-          setIsDeleteModalOpen(false)
-          setEmployeeToDelete(null)
+          setIsDeleteModalOpen(false);
+          setEmployeeToDelete(null);
         }}
         onConfirm={handleDeleteEmployee}
         employeeName={employeeToDelete?.name || ""}
       />
     </div>
-  )
-}
+  );
+};
 
-export default UserManagement
+export default UserManagement;

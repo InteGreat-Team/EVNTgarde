@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { FcGoogle } from "react-icons/fc";
 import { AiFillYahoo } from "react-icons/ai";

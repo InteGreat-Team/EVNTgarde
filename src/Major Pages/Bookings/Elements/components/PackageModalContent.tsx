@@ -1,14 +1,13 @@
 interface PackageModalContentProps {
-  selectedRate: string | null
-  organizerName: string
-  onCloseModal: () => void
-  onBookVendor: () => void
+  selectedRate: string | null;
+  organizerName: string;
+  onCloseModal: () => void;
+  onBookVendor: () => void;
 }
 
 export function PackageModalContent({
   selectedRate,
   organizerName,
-  onCloseModal,
   onBookVendor,
 }: PackageModalContentProps) {
   if (selectedRate === "basic-setup") {
@@ -16,15 +15,20 @@ export function PackageModalContent({
       <div>
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           <div className="md:w-2/3">
-            <h3 className="text-lg font-medium mb-2">Your stage. Your crowd. Our sound.</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Your stage. Your crowd. Our sound.
+            </h3>
             <p className="text-gray-700 mb-4">
-              At <span className="font-semibold">{organizerName}</span>, we provide reliable and budget-friendly concert
-              setup services perfect for small events, bar gigs, or local community shows. This package is designed to
-              give you all the essentials to run a smooth live performance—from the first mic check to the last encore.
+              At <span className="font-semibold">{organizerName}</span>, we
+              provide reliable and budget-friendly concert setup services
+              perfect for small events, bar gigs, or local community shows. This
+              package is designed to give you all the essentials to run a smooth
+              live performance—from the first mic check to the last encore.
             </p>
             <p className="text-gray-700">
-              Whether you're hosting an indie band night or a mini open-air show, we'll handle the production side while
-              you take the spotlight.
+              Whether you're hosting an indie band night or a mini open-air
+              show, we'll handle the production side while you take the
+              spotlight.
             </p>
           </div>
           <div className="md:w-1/3">
@@ -91,7 +95,9 @@ export function PackageModalContent({
           </div>
         </div>
 
-        <h3 className="text-xl font-semibold mb-4">Services and Amenities Inclusions</h3>
+        <h3 className="text-xl font-semibold mb-4">
+          Services and Amenities Inclusions
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="border rounded-lg p-4">
             <h4 className="font-medium mb-3">Technical Crew</h4>
@@ -161,7 +167,7 @@ export function PackageModalContent({
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   if (selectedRate === "full-production") {
@@ -169,15 +175,19 @@ export function PackageModalContent({
       <div>
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           <div className="md:w-2/3">
-            <h3 className="text-lg font-medium mb-2">Professional production for mid-sized events.</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Professional production for mid-sized events.
+            </h3>
             <p className="text-gray-700 mb-4">
-              At <span className="font-semibold">{organizerName}</span>, our Full Production Package delivers enhanced
-              sound and lighting solutions perfect for mid-sized events that require professional quality and reliable
-              performance.
+              At <span className="font-semibold">{organizerName}</span>, our
+              Full Production Package delivers enhanced sound and lighting
+              solutions perfect for mid-sized events that require professional
+              quality and reliable performance.
             </p>
             <p className="text-gray-700">
-              From corporate functions to medium-sized concerts, this package ensures your event has the technical
-              excellence and production value to impress your audience.
+              From corporate functions to medium-sized concerts, this package
+              ensures your event has the technical excellence and production
+              value to impress your audience.
             </p>
           </div>
           <div className="md:w-1/3">
@@ -252,7 +262,9 @@ export function PackageModalContent({
           </div>
         </div>
 
-        <h3 className="text-xl font-semibold mb-4">Services and Amenities Inclusions</h3>
+        <h3 className="text-xl font-semibold mb-4">
+          Services and Amenities Inclusions
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="border rounded-lg p-4">
             <h4 className="font-medium mb-3">Technical Crew</h4>
@@ -330,7 +342,7 @@ export function PackageModalContent({
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   if (selectedRate === "headliner") {
@@ -338,14 +350,18 @@ export function PackageModalContent({
       <div>
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           <div className="md:w-2/3">
-            <h3 className="text-lg font-medium mb-2">Premium production for headline performances.</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Premium production for headline performances.
+            </h3>
             <p className="text-gray-700 mb-4">
-              At <span className="font-semibold">{organizerName}</span>, our Headliner Package delivers top-tier
-              production quality for major performances and headline acts that demand excellence.
+              At <span className="font-semibold">{organizerName}</span>, our
+              Headliner Package delivers top-tier production quality for major
+              performances and headline acts that demand excellence.
             </p>
             <p className="text-gray-700">
-              This comprehensive package includes premium sound systems, advanced lighting design, and professional crew
-              to ensure your headline performance creates an unforgettable experience.
+              This comprehensive package includes premium sound systems,
+              advanced lighting design, and professional crew to ensure your
+              headline performance creates an unforgettable experience.
             </p>
           </div>
           <div className="md:w-1/3">
@@ -436,7 +452,9 @@ export function PackageModalContent({
           </div>
         </div>
 
-        <h3 className="text-xl font-semibold mb-4">Services and Amenities Inclusions</h3>
+        <h3 className="text-xl font-semibold mb-4">
+          Services and Amenities Inclusions
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="border rounded-lg p-4">
             <h4 className="font-medium mb-3">Expert Crew</h4>
@@ -514,7 +532,7 @@ export function PackageModalContent({
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   if (selectedRate === "festival") {
@@ -522,15 +540,19 @@ export function PackageModalContent({
       <div>
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           <div className="md:w-2/3">
-            <h3 className="text-lg font-medium mb-2">Complete festival production solution.</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Complete festival production solution.
+            </h3>
             <p className="text-gray-700 mb-4">
-              At <span className="font-semibold">{organizerName}</span>, our Festival Package provides comprehensive
-              production services for large-scale events with multiple stages, extensive sound and lighting
-              requirements, and complex logistics.
+              At <span className="font-semibold">{organizerName}</span>, our
+              Festival Package provides comprehensive production services for
+              large-scale events with multiple stages, extensive sound and
+              lighting requirements, and complex logistics.
             </p>
             <p className="text-gray-700">
-              This all-inclusive package handles every technical aspect of your festival, allowing you to focus on
-              creating an amazing experience for your attendees.
+              This all-inclusive package handles every technical aspect of your
+              festival, allowing you to focus on creating an amazing experience
+              for your attendees.
             </p>
           </div>
           <div className="md:w-1/3">
@@ -609,7 +631,9 @@ export function PackageModalContent({
           </div>
         </div>
 
-        <h3 className="text-xl font-semibold mb-4">Services and Amenities Inclusions</h3>
+        <h3 className="text-xl font-semibold mb-4">
+          Services and Amenities Inclusions
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="border rounded-lg p-4">
             <h4 className="font-medium mb-3">Festival Management</h4>
@@ -691,7 +715,7 @@ export function PackageModalContent({
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   if (selectedRate === "custom-experience") {
@@ -699,15 +723,20 @@ export function PackageModalContent({
       <div>
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           <div className="md:w-2/3">
-            <h3 className="text-lg font-medium mb-2">Tailored solutions for unique events.</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Tailored solutions for unique events.
+            </h3>
             <p className="text-gray-700 mb-4">
-              At <span className="font-semibold">{organizerName}</span>, our Custom Experience Package is designed for
-              clients with specific requirements that don't fit into standard packages. We work closely with you to
-              create a tailored solution that perfectly matches your vision and venue.
+              At <span className="font-semibold">{organizerName}</span>, our
+              Custom Experience Package is designed for clients with specific
+              requirements that don't fit into standard packages. We work
+              closely with you to create a tailored solution that perfectly
+              matches your vision and venue.
             </p>
             <p className="text-gray-700">
-              Whether you need specialized equipment, unique staging, or creative production elements, our team will
-              craft a custom package that delivers exactly what you need.
+              Whether you need specialized equipment, unique staging, or
+              creative production elements, our team will craft a custom package
+              that delivers exactly what you need.
             </p>
           </div>
           <div className="md:w-1/3">
@@ -786,7 +815,9 @@ export function PackageModalContent({
           </div>
         </div>
 
-        <h3 className="text-xl font-semibold mb-4">Services and Amenities Inclusions</h3>
+        <h3 className="text-xl font-semibold mb-4">
+          Services and Amenities Inclusions
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="border rounded-lg p-4">
             <h4 className="font-medium mb-3">Consultation & Planning</h4>
@@ -868,8 +899,8 @@ export function PackageModalContent({
           </button>
         </div>
       </div>
-    )
+    );
   }
 
-  return null
+  return null;
 }

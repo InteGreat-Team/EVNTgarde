@@ -2,8 +2,8 @@ import type React from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
-import { AiFillYahoo } from "react-icons/ai";
+// import { FcGoogle } from "react-icons/fc";
+// import { AiFillYahoo } from "react-icons/ai";
 import {
   registerUser,
   signInWithGoogle,
@@ -380,38 +380,38 @@ const VendorRegistration = ({ step = 1 }: { step: number }) => {
     navigate(routes[currentStep - 1] || routes[0]);
   };
 
-  const SocialSignUpButtons = () => (
-    <div className="flex items-center justify-center gap-4 mb-4">
-      {[
-        {
-          icon: FcGoogle,
-          text: "Google",
-          handler: () => handleSocialSignUp("google"),
-        },
-        {
-          icon: AiFillYahoo,
-          text: "Yahoo",
-          handler: () => handleSocialSignUp("yahoo"),
-          iconClass: "text-purple-600",
-        },
-      ].map(({ icon: Icon, text, handler, iconClass }) => (
-        <button
-          key={text}
-          type="button"
-          onClick={handler}
-          disabled={isLoading}
-          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg border w-full ${
-            isDarkMode
-              ? "bg-black border-gray-600 text-white hover:bg-gray-700"
-              : "bg-white border-gray-300 text-gray-500 hover:bg-gray-100"
-          }`}
-        >
-          <Icon size={20} className={iconClass} />
-          <span className="font-medium">Sign up with {text}</span>
-        </button>
-      ))}
-    </div>
-  );
+  // const SocialSignUpButtons = () => (
+  //   <div className="flex items-center justify-center gap-4 mb-4">
+  //     {[
+  //       {
+  //         icon: FcGoogle,
+  //         text: "Google",
+  //         handler: () => handleSocialSignUp("google"),
+  //       },
+  //       {
+  //         icon: AiFillYahoo,
+  //         text: "Yahoo",
+  //         handler: () => handleSocialSignUp("yahoo"),
+  //         iconClass: "text-purple-600",
+  //       },
+  //     ].map(({ icon: Icon, text, handler, iconClass }) => (
+  //       <button
+  //         key={text}
+  //         type="button"
+  //         onClick={handler}
+  //         disabled={isLoading}
+  //         className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg border w-full ${
+  //           isDarkMode
+  //             ? "bg-black border-gray-600 text-white hover:bg-gray-700"
+  //             : "bg-white border-gray-300 text-gray-500 hover:bg-gray-100"
+  //         }`}
+  //       >
+  //         <Icon size={20} className={iconClass} />
+  //         <span className="font-medium">Sign up with {text}</span>
+  //       </button>
+  //     ))}
+  //   </div>
+  // );
 
   const renderStep = () => {
     if (currentStep === 1) {
