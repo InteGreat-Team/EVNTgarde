@@ -2,7 +2,6 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
 import { BarChart3, Briefcase, Search, Calendar } from "lucide-react"
-import ActivityOverview from "./Elements/ActivityOverview"
 import EventSection from "./Elements/EventsSection"
 import Explore from "./Elements/Explore"
 import MyEvents from "./Elements/MyEvents"
@@ -46,8 +45,8 @@ const Dashboard: React.FC = () => {
           label: "My Calendar",
           icon: <Calendar size={16} />,
         },
-        { key: "events", label: "My Events", icon: <Briefcase size={16} /> },
-        { key: "explore", label: "Explore", icon: <Search size={16} /> },
+        { key: "services", label: "My Services", icon: <Briefcase size={16} /> },
+    
       ]
     }
 
@@ -95,8 +94,7 @@ const Dashboard: React.FC = () => {
         return <AnalyticsOverview />
       case "calendar":
         return <CalendarView />
-      case "activity":
-        return <ActivityOverview />
+    
       case "services":
         return <EventSection />
       case "events":
