@@ -1,4 +1,3 @@
-// BookingDetails.tsx
 import { useEffect, useState } from "react";
 import AttachedFiles from "./AttachedFiles";
 import BudgetBreakdown from "./BudgetBreakdown";
@@ -11,13 +10,10 @@ type DetailsProps = {
   isModal: boolean;
   onBackClick: () => void;
   activeStatus: "Pending" | "Upcoming" | "Past" | "Rejected" | "Cancelled";
-  selectedBooking: any; // ideally you’d type this more strictly
+  selectedBooking: any;
   showStatus?: boolean;
 };
 
-/**
- * Parses "Mar 26" + "5:30 PM" into a JavaScript Date object (using the current year).
- */
 export function parseBookingDateTime(dateStr: string, timeStr: string): Date {
   const [monthAbbrev, dayPart] = dateStr.trim().split(" ");
   const day = parseInt(dayPart, 10);
@@ -41,7 +37,7 @@ export function parseBookingDateTime(dateStr: string, timeStr: string): Date {
     throw new Error(`Unrecognized month abbreviation: "${monthAbbrev}"`);
   }
 
-  const [timePart, ampmPart] = timeStr.trim().split(" "); // e.g. ["5:30", "PM"]
+  const [timePart, ampmPart] = timeStr.trim().split(" ");
   let [hour, minute] = timePart.split(":").map((x) => parseInt(x, 10));
   const isPM = ampmPart.toUpperCase() === "PM";
   const isAM = ampmPart.toUpperCase() === "AM";
@@ -50,7 +46,7 @@ export function parseBookingDateTime(dateStr: string, timeStr: string): Date {
     hour += 12;
   }
   if (isAM && hour === 12) {
-    hour = 0; // 12:xx AM → 00:xx
+    hour = 0;
   }
 
   const year = new Date().getFullYear();
@@ -59,14 +55,14 @@ export function parseBookingDateTime(dateStr: string, timeStr: string): Date {
 
 type Booking = {
   id: number;
-  date: string; // e.g. "Mar 26"
-  day: string; // e.g. "Wednesday"
+  date: string;
+  day: string;
   title: string;
-  startTime: string; // e.g. "5:30 PM"
-  endTime: string; // e.g. "10:00 PM"
+  startTime: string;
+  endTime: string;
   customer: string;
   location: string;
-  guests: string; // e.g. "1,234 Guests"
+  guests: string;
 
   liking_score?: number;
   event_type_id?: number;
@@ -85,10 +81,10 @@ const BookingDetails: React.FC<DetailsProps> = ({
   selectedBooking,
   showStatus = true,
 }) => {
-  // Will hold whatever the Python script returns
   const [predictedScore, setPredictedScore] = useState<number | null>(null);
+  const [pendingScore, setPendingScore] = useState<number | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // 1) Form state that we will send to Python. Notice start_datetime/end_datetime are Date | null
   const [form, setForm] = useState<{
     liking_score: number | null;
     event_type_id: number | null;
@@ -109,11 +105,9 @@ const BookingDetails: React.FC<DetailsProps> = ({
     guests: "",
   });
 
-  // 2) When selectedBooking changes, populate form with actual values
   useEffect(() => {
     if (!selectedBooking) return;
 
-    // Convert “Mar 26” + “5:30 PM” → Date object
     const isoStart = parseBookingDateTime(
       selectedBooking.date,
       selectedBooking.startTime
@@ -135,7 +129,6 @@ const BookingDetails: React.FC<DetailsProps> = ({
     });
   }, [selectedBooking]);
 
-  // 3) Fetch userRole from localStorage
   const [userRole, setUserRole] = useState<
     "organizer" | "individual" | "vendor"
   >("individual");
@@ -150,18 +143,15 @@ const BookingDetails: React.FC<DetailsProps> = ({
     }
   }, []);
 
-  // 4) When the user clicks “Accept” (Predict Liking Score), call this:
   const handleAccept = async () => {
     if (!selectedBooking) return;
 
-    // Ensure start_datetime and end_datetime are not null
     if (!form.start_datetime || !form.end_datetime) {
       console.error("Missing start or end datetime in form");
       return;
     }
 
     try {
-      // Convert Date to ISO string because predict.py uses pandas.to_datetime(...)
       const payload = {
         event_type_id: form.event_type_id,
         organizer_id: form.organizer_id,
@@ -181,11 +171,25 @@ const BookingDetails: React.FC<DetailsProps> = ({
       const { liking_score } = response.data as { liking_score: number };
 
       console.log("👀 Predicted liking_score from Python:", liking_score);
-      setPredictedScore(liking_score);
+      setPendingScore(liking_score);
+      setShowConfirmModal(true);
     } catch (error) {
       console.error("Submission/Prediction failed:", error);
       alert("Failed to predict liking score.");
     }
+  };
+
+  const confirmScore = () => {
+    if (pendingScore !== null) {
+      setPredictedScore(pendingScore);
+    }
+    setPendingScore(null);
+    setShowConfirmModal(false);
+  };
+
+  const cancelScore = () => {
+    setPendingScore(null);
+    setShowConfirmModal(false);
   };
 
   return (
@@ -195,7 +199,6 @@ const BookingDetails: React.FC<DetailsProps> = ({
         isModal ? {} : { width: "calc(100vw - 21rem)", marginLeft: "16rem" }
       }
     >
-      {/* Back Button */}
       <div className="mb-5 font-poppins">
         <button
           onClick={onBackClick}
@@ -223,7 +226,6 @@ const BookingDetails: React.FC<DetailsProps> = ({
           userRole={userRole}
         />
 
-        {/* Middle Column (Attached Files & Budget) */}
         <div className="bg-white h-fit w-full">
           <div className="flex flex-col gap-5 pr-5 p-5 font-poppins">
             <AttachedFiles />
@@ -231,7 +233,6 @@ const BookingDetails: React.FC<DetailsProps> = ({
           </div>
         </div>
 
-        {/* Right Column (Organizer Info & Predict Button) */}
         <div className="font-poppins">
           {showStatus ? (
             <Status
@@ -243,7 +244,6 @@ const BookingDetails: React.FC<DetailsProps> = ({
                 email: "customer@example.com",
                 phone: "123-456-7890",
               }}
-              // Instead of inlining axios here, call handleAccept()
               onAccept={handleAccept}
               onReject={() => {
                 console.log("Booking rejected:", selectedBooking?.id);
@@ -269,7 +269,32 @@ const BookingDetails: React.FC<DetailsProps> = ({
             />
           )}
 
-          {/* 5) Show the predicted score, if available */}
+          {showConfirmModal && pendingScore !== null && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-80">
+                <p className="mb-4 text-gray-800 font-medium">
+                  Are you sure? The possible liking score for this event is{" "}
+                  <span className="font-semibold">
+                    {Math.round(pendingScore * 100) / 100}
+                  </span>
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={cancelScore}
+                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmScore}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Accept
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {predictedScore !== null && (
             <div className="mt-4 p-4 border rounded bg-green-50 text-gray-800">
               <strong>Predicted Liking Score:</strong>{" "}
