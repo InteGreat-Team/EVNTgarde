@@ -35,6 +35,8 @@ import ProfileSettings from "./Major Pages/ProfileSettings/ProfileSettings";
 // Misc Pages
 import OrganizerDetails from "./Major Pages/Dashboards/Registered/Elements/OrganizerDetails";
 
+import { CLOUD_FUNCTIONS } from "./config/cloudFunctions";
+
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [, setUserType] = useState<string | null>(null);
@@ -73,7 +75,7 @@ const App: React.FC = () => {
     const firebaseUid = localStorage.getItem("userId");
     if (firebaseUid) {
       try {
-        const response = await fetch("http://localhost:5000/api/getRole", {
+        const response = await fetch(CLOUD_FUNCTIONS.login, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
