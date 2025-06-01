@@ -1,39 +1,50 @@
-import { useTheme } from "@/functions/ThemeContext"
-import { Link, useLocation } from "react-router-dom"
+import { useTheme } from "@/functions/ThemeContext";
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   CalendarDays,
   Star,
   LogOut,
   UserRound,
-  MapPin,
   MailOpenIcon,
   UserCircle,
   X,
-} from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./combined-ui"
-import { useEffect, useMemo, useState } from "react"
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./combined-ui";
+import { useEffect, useMemo, useState } from "react";
+import OragnizerLogo from "../assets/OrganizerLogo.png";
 
 interface SidebarProps {
-  logout: () => void
+  logout: () => void;
 }
 
 export function Sidebar({ logout }: SidebarProps) {
-  const location = useLocation()
-  const isCollapsed = false
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const location = useLocation();
+  const isCollapsed = false;
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [userType, setUserType] = useState(
-    localStorage.getItem("userType") === "individual" ? "customer" : localStorage.getItem("userType"),
-  )
+    localStorage.getItem("userType") === "individual"
+      ? "customer"
+      : localStorage.getItem("userType")
+  );
 
   useEffect(() => {
     const handleStorageChange = () => {
-      setUserType(localStorage.getItem("userType") === "individual" ? "customer" : localStorage.getItem("userType"))
-    }
+      setUserType(
+        localStorage.getItem("userType") === "individual"
+          ? "customer"
+          : localStorage.getItem("userType")
+      );
+    };
 
-    window.addEventListener("storage", handleStorageChange)
-    return () => window.removeEventListener("storage", handleStorageChange)
-  }, [])
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const sidebarItems = useMemo(() => {
     const items = [
@@ -43,8 +54,9 @@ export function Sidebar({ logout }: SidebarProps) {
         ? [{ title: "RSVP", icon: MailOpenIcon, href: `/rsvp` }]
         : []),
       { title: "Reviews", icon: Star, href: `/reviews` },
-      ...(userType === "vendor" || userType === "organizer" ? [{ title: "Track", icon: MapPin, href: `/track` }] : []),
-      ...((userType === "vendor" && localStorage.getItem("vendorType") === "Company Vendor") || userType === "organizer"
+      ...((userType === "vendor" &&
+        localStorage.getItem("vendorType") === "Company Vendor") ||
+      userType === "organizer"
         ? [
             {
               title: "User Management",
@@ -58,32 +70,36 @@ export function Sidebar({ logout }: SidebarProps) {
         icon: UserCircle,
         href: `/profile-settings`,
       },
-    ]
+    ];
 
-    return items
-  }, [userType])
+    return items;
+  }, [userType]);
 
-  const { isDarkMode } = useTheme()
+  const { isDarkMode } = useTheme();
 
   const handleLogoutClick = () => {
-    setShowLogoutConfirm(true)
-  }
+    setShowLogoutConfirm(true);
+  };
 
   const handleLogoutConfirm = () => {
-    logout()
-    setShowLogoutConfirm(false)
-  }
+    logout();
+    setShowLogoutConfirm(false);
+  };
 
   const handleCancelLogout = () => {
-    setShowLogoutConfirm(false)
-  }
+    setShowLogoutConfirm(false);
+  };
 
   return (
     <TooltipProvider delayDuration={0}>
       {/* Logo at the top of sidebar */}
       <div className="p-6 mb-6 flex justify-center">
         <Link to="/" className="flex items-center justify-center">
-          <img src="/src/assets/OrganizerLogo.png" alt="Logo" className="h-24 w-auto object-contain" />
+          <img
+            src={OragnizerLogo}
+            alt="Logo"
+            className="h-24 w-auto object-contain"
+          />
         </Link>
       </div>
 
@@ -139,7 +155,9 @@ export function Sidebar({ logout }: SidebarProps) {
       {/* Custom Logout Confirmation Dialog */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className={`w-full max-w-md p-6 rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+          <div
+            className={`w-full max-w-md p-6 rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+          >
             <div className="flex justify-between items-center mb-4">
               <h3
                 className={`text-lg font-medium flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}
@@ -156,8 +174,11 @@ export function Sidebar({ logout }: SidebarProps) {
               </button>
             </div>
             <div className="mb-6">
-              <p className={`${isDarkMode ? "text-gray-300" : "text-gray-500"}`}>
-                Are you sure you want to logout? You will need to sign in again to access your account.
+              <p
+                className={`${isDarkMode ? "text-gray-300" : "text-gray-500"}`}
+              >
+                Are you sure you want to logout? You will need to sign in again
+                to access your account.
               </p>
             </div>
             <div className="flex justify-end gap-3">
@@ -182,5 +203,5 @@ export function Sidebar({ logout }: SidebarProps) {
         </div>
       )}
     </TooltipProvider>
-  )
+  );
 }
