@@ -39,7 +39,11 @@ const AnalyticsOverview: React.FC = () => {
           title="Organizer Dashboard"
         />
       ) : (
-        <AnalyticsOverviewDashboard reportId={""} ctid={""} title={""} />
+        <AnalyticsOverviewDashboard
+          reportId="ce84b595-b49e-4b45-86d5-df0fe15ab14e"
+          ctid="2840082d-702c-4fb1-9885-abddd1ddaa1e"
+          title="Vendor Dashboard"
+        />
       )}
     </div>
   );
