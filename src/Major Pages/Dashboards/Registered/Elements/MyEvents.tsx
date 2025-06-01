@@ -5,40 +5,13 @@ import clipboardImage from "../../../../assets/clipboard.png";
 import { CreateEventModal } from "./CreateEventModal";
 import { getAuth } from "firebase/auth";
 import { EventData } from "../../../../functions/types";
+import { CLOUD_FUNCTIONS } from "@/config/cloudFunctions";
+import { getCustomerEvents, getOrganizerEvents } from "../../../../functions/eventFunctions";
 
 // mockEvents if there are no events
 //const allEvents: any[] = []
 
 // mockEvents if there are events
-const allEvents = [
-  {
-    name: "Event Name Placeholder Here",
-    date: "2025-09-11",
-    location: "Location Name",
-    guests: 1234,
-    image: "/placeholder.svg",
-    description:
-      "Lorem ipsum this one is for the boys with the booming system top down AC",
-  },
-  {
-    name: "Event Name Placeholder Here",
-    date: "2025-09-11",
-    location: "Location Name",
-    guests: 1234,
-    image: "/placeholder.svg",
-    description:
-      "Lorem ipsum this one is for the boys with the booming system top down AC",
-  },
-  {
-    name: "Event Name Placeholder Here",
-    date: "2025-09-11",
-    location: "Location Name",
-    guests: 1234,
-    image: "/placeholder.svg",
-    description:
-      "Lorem ipsum this one is for the boys with the booming system top down AC",
-  },
-];
 
 interface Props {
   onBack: () => void;
@@ -63,16 +36,23 @@ interface BackendEvent {
   event_status: string;
 }
 
+interface EventType {
+  event_type_id: number;
+  event_type_name: string;
+}
+
 const MyEvents: React.FC<Props> = ({ onAdd }) => {
-  const [selectedEvent, setSelectedEvent] = useState<BackendEvent | null>(null);
+  const [, setSelectedEvent] = useState<BackendEvent | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [events, setEvents] = useState<BackendEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const auth = getAuth();
+  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
 
   useEffect(() => {
     fetchEvents();
+    fetchEventTypes();
   }, []);
 
   const fetchEvents = async () => {
@@ -84,17 +64,76 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/events/user/${user.uid}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch events");
+      // First try to get role from Firebase custom claims
+      const idTokenResult = await user.getIdTokenResult();
+      let roleId = idTokenResult.claims.role_id;
+      console.log("User role ID from claims:", roleId);
+
+      // If role_id is not in claims, fetch it from backend
+      if (!roleId) {
+        console.log("Role ID not found in claims, fetching from backend...");
+        const response = await fetch(CLOUD_FUNCTIONS.getRole, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firebaseUid: user.uid
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get user role');
+        }
+
+        const data = await response.json();
+        roleId = data.roleId;
+        console.log("User role ID from backend:", roleId);
       }
 
-      const data = await response.json();
-      setEvents(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch events");
-    } finally {
+      let events;
+      // Check if roleId exists and is a number
+      if (typeof roleId === 'number' || (typeof roleId === 'string' && !isNaN(Number(roleId)))) {
+        const numericRoleId = Number(roleId);
+        if (numericRoleId === 1) { // Customer role
+          console.log("Fetching customer events..."); // Debug log
+          events = await getCustomerEvents(user.uid, roleId);
+        } else if (numericRoleId === 2) { // Organizer role
+          console.log("Fetching organizer events..."); // Debug log
+          events = await getOrganizerEvents(user.uid, roleId);
+        } else {
+          console.error("Invalid role ID value:", roleId); // Debug log
+          throw new Error(`Invalid role ID: ${roleId}`);
+        }
+      } else {
+        console.error("Role ID is not a valid number:", roleId); // Debug log
+        throw new Error("Role ID is not a valid number");
+      }
+
+      setEvents(events?.data || []);
       setLoading(false);
+    } catch (err: any) {
+      console.error("Error in fetchEvents:", err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const fetchEventTypes = async () => {
+    try {
+      const response = await fetch("https://asia-southeast1-evntgarde-event-management.cloudfunctions.net/getEventTypes", {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      if (data.success && Array.isArray(data.data)) {
+        setEventTypes(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching event types:", err);
     }
   };
 
@@ -114,27 +153,35 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
         throw new Error("User not authenticated");
       }
 
+      console.log("eventData before payload", eventData);
+      // Use event_type_id directly from eventData.eventType
+      const eventTypeId = Number(eventData.eventType);
+      console.log("eventTypeId:", eventTypeId, typeof eventTypeId);
+      if (eventTypeId === null || isNaN(eventTypeId)) {
+        throw new Error("Invalid event type selected.");
+      }
+
       const eventPayload = {
-        eventName: eventData.name,
-        eventOverview: eventData.overview,
-        startDate: eventData.startDate,
-        endDate: eventData.endDate,
-        startTime: eventData.startTime,
-        endTime: eventData.endTime,
+        event_name: eventData.name,
+        event_type_id: eventTypeId,
+        start_date: eventData.startDate,
+        end_date: eventData.endDate,
+        start_time: eventData.startTime,
+        end_time: eventData.endTime,
+        event_location: eventData.location,
+        // Optional/extra fields
+        event_overview: eventData.overview,
         guests: eventData.numberOfGuests,
-        location: eventData.location,
-        eventTypeName: eventData.eventType,
         attire: eventData.attire,
-        services: eventData.services.join(", ") || null,
-        additionalServices: eventData.customServices.join(", ") || null,
+        services: Array.isArray(eventData.services) ? eventData.services.join(", ") : "",
+        additional_services: Array.isArray(eventData.customServices) ? eventData.customServices.join(", ") : "",
         budget: eventData.budget,
-        customerId: user.uid,
-        organizerId: null,
-        vendorId: null,
-        venueId: null
+        customer_id: user.uid,
+        organizer_id: null,
+        venue_id: null
       };
 
-      const response = await fetch("http://localhost:5000/api/events", {
+      const response = await fetch("https://asia-southeast1-evntgarde-event-management.cloudfunctions.net/createEvent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(eventPayload)
