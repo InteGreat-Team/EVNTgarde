@@ -23,7 +23,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 # Connection string should come from env var DATABASE_URL
-DB_DSN = "postgresql://eventgardedb_owner:npg_rG4Lwl7oZtTI@ep-fragrant-shape-a1boxp1j-pooler.ap-southeast-1.aws.neon.tech:5432/eventgardedb?sslmode=require"
+DB_DSN = "postgresql://eventgardedb_owner:npg_rG4Lwl7oZtTI@ep-fragrant-shape-a1boxp1j.ap-southeast-1.aws.neon.tech/eventgardedb?sslmode=require" # hindi ko na env sorry </3
 
 # Load sentiment and emotion models
 sentiment_pipe = pipeline(
@@ -171,7 +171,7 @@ def main():
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("LISTEN new_review;")
-    print("🔔 Waiting for new_review notifications…")
+    print("waiting for new_review notifications…")
 
     while True:
         if select.select([conn], [], [], 10) == ([], [], []):
@@ -184,7 +184,7 @@ def main():
             # fetch the new row
             cur.execute("SELECT * FROM reviews WHERE review_id = %s", (review_id,))
             row = cur.fetchone()
-            
+
             temp_df = pd.DataFrame([row])
             temp_df['images'] = temp_df['images'].replace('', np.nan)
 
