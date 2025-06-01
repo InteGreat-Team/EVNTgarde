@@ -37,7 +37,7 @@ import OrganizerDetails from "./Major Pages/Dashboards/Registered/Elements/Organ
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userType, setUserType] = useState<string | null>(null);
+  const [, setUserType] = useState<string | null>(null);
   const [roleId, setRoleId] = useState<string | null>(null);
 
   useEffect(() => {

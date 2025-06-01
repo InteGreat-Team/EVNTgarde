@@ -36,7 +36,7 @@ const Explore: React.FC = () => {
       price: organizer.price,
       ratings: organizer.rating || 0,
       image: organizer.image || "/images/vendor.jpg",
-      timeSlot: organizer.timeSlot.length ? organizer.timeSlot.join(", ") : "No time slots available",
+      timeSlot: Array.isArray(organizer.timeSlot) && organizer.timeSlot.length ? organizer.timeSlot.join(", ") : "No time slots available",
       type: "organizer",
       industry: organizer.industry || "Other",
     })),

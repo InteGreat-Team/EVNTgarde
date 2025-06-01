@@ -113,10 +113,10 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
   if (!isOpen) return null;
 
   const handleInputChange = (field: keyof EventData, value: any) => {
-    setEventData({
-      ...eventData,
+    setEventData(prev => ({
+      ...prev,
       [field]: value,
-    });
+    }));
 
     // Clear error for this field if it exists
     if (errors[field]) {
@@ -246,56 +246,43 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
         return;
       }
 
-      // Map eventType (name) to eventTypeId (number)
-      const eventTypeObj = eventTypes.find(t => t.event_type_name === eventData.eventType);
-      const eventTypeId = eventTypeObj ? eventTypeObj.event_type_id : null;
+      // Map eventType (id) directly
+      const eventTypeId = eventData.eventType ? Number(eventData.eventType) : null;
       if (!eventTypeId) {
         setErrors({ save: true, message: "Invalid event type selected." });
         setLoading(false);
         return;
       }
 
-      // Map form data to database schema
-      const eventPayload = {
-        eventName: eventData.name,
-        eventOverview: eventData.overview,
-        startDate: eventData.startDate,
-        endDate: eventData.endDate,
-        startTime: eventData.startTime,
-        endTime: eventData.endTime,
-        guests: eventData.numberOfGuests,
-        location: eventData.location,
-        eventTypeId: eventTypeId,
-        eventTypeName: eventData.eventType,
-        attire: eventData.attire,
-        services: Array.isArray(eventData.services) ? eventData.services.join(", ") : "",
-        additionalServices: Array.isArray(eventData.customServices) ? eventData.customServices.join(", ") : "",
-        budget: eventData.budget,
-        customerId: customerId,
-        organizerId: null,
-        venueId: null
-      };
-
-      const createEventResponse = await fetch("https://asia-southeast1-evntgarde-event-management.cloudfunctions.net/createEvent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(eventPayload),
-      });
-
-      const responseData = await createEventResponse.json();
-      if (!createEventResponse.ok || !responseData.success) {
-        throw new Error(responseData.error || "Failed to create event");
-      }
-
-      // Call the original onSave callback with the event data from the response
-      onSave(responseData.data);
+      // Only call onSave and close modal, let parent handle API
+      onSave(eventData);
       onClose();
+      // Reset form state after successful creation
+      setEventData({
+        name: "",
+        overview: "",
+        startDate: "",
+        endDate: "",
+        startTime: "",
+        endTime: "",
+        numberOfGuests: 0,
+        location: "",
+        eventType: "",
+        attire: "",
+        services: [],
+        customServices: [],
+        budget: "",
+        files: [],
+      });
+      setStep(1);
+      setErrors({});
+      setCustomService("");
     } catch (err) {
       setErrors({ 
         save: true,
         message: err instanceof Error ? err.message : "Failed to create event. Please try again."
       });
-      console.error("Error creating event:", err);
+      console.error("Error validating event:", err);
     } finally {
       setLoading(false);
     }
@@ -492,11 +479,14 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
                       <select
                         className={`w-full p-3 border ${errors.eventType ? "border-red-500" : "border-gray-300"} rounded-lg text-base appearance-none pr-10`}
                         value={eventData.eventType}
-                        onChange={(e) => handleInputChange("eventType", e.target.value)}
+                        onChange={e => {
+                          console.log("Selected event type:", e.target.value);
+                          handleInputChange("eventType", e.target.value);
+                        }}
                       >
                         <option value="">Choose Event Type</option>
                         {eventTypes.map((type) => (
-                          <option key={type.event_type_id} value={type.event_type_name}>
+                          <option key={type.event_type_id} value={type.event_type_id}>
                             {type.event_type_name}
                           </option>
                         ))}
@@ -637,7 +627,12 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
                   </div>
                   <div>
                     <h4 className="text-sm text-gray-500 mb-2">Type</h4>
-                    <p className="text-base">{eventData.eventType}</p>
+                    <p className="text-base">
+                      {(() => {
+                        const selectedType = eventTypes.find(type => String(type.event_type_id) === String(eventData.eventType));
+                        return selectedType ? selectedType.event_type_name : eventData.eventType;
+                      })()}
+                    </p>
                   </div>
                   <div className="col-span-2">
                     <h4 className="text-sm text-gray-500 mb-2">Overview</h4>
@@ -673,12 +668,12 @@ export function CreateEventModal({ isOpen, onClose, onSave }: CreateEventModalPr
                 <div>
                   <h4 className="text-sm text-gray-500 mb-3">Services</h4>
                   <div className="space-y-2">
-                    {eventData.services.map((service, index) => (
+                    {(eventData.services || []).map((service, index) => (
                       <div key={index} className="text-base bg-gray-50 p-3 rounded-lg">
                         {service}
                       </div>
                     ))}
-                    {eventData.customServices.map((service, index) => (
+                    {(eventData.customServices || []).map((service, index) => (
                       <div key={`custom-${index}`} className="text-base bg-gray-50 p-3 rounded-lg">
                         {service}
                       </div>
