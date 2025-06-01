@@ -51,7 +51,7 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const auth = getAuth();
-  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
+  const [, setEventTypes] = useState<EventType[]>([]);
 
   useEffect(() => {
     fetchEvents();

@@ -6,15 +6,15 @@ import {
   User,
 } from "firebase/auth";
 import {
-  doc,
-  setDoc,
-  getDoc,
+  // doc,
+  // setDoc,
+  // getDoc,
   collection,
   query,
   where,
   getDocs,
 } from "firebase/firestore";
-import { auth, db, googleProvider, yahooProvider } from "./firebase";
+import { auth, db } from "./firebase"; // commented out googleProvider, yahooProvider
 import { CLOUD_FUNCTIONS, CloudFunctionKey } from "../config/cloudFunctions";
 
 // Function to check if email already exists
@@ -57,7 +57,11 @@ export const registerUser = async (
 ): Promise<User | null> => {
   try {
     // Create user in Firebase
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     const user = userCredential.user;
 
     // Store Firebase UID in localStorage for dashboard role lookup
@@ -65,10 +69,10 @@ export const registerUser = async (
 
     // Prepare payload for backend
     let payload: any = { firebaseUid: user.uid, ...userData };
-    
+
     // Normalize userType
     const normalizedUserType = userType.toLowerCase();
-    
+
     if (normalizedUserType === "organizer") {
       payload = {
         organizerId: user.uid,
@@ -98,7 +102,10 @@ export const registerUser = async (
         services: userData.businessType || "",
         preferences: userData.preferences || [],
       };
-    } else if (normalizedUserType === "individual" || normalizedUserType === "customer") {
+    } else if (
+      normalizedUserType === "individual" ||
+      normalizedUserType === "customer"
+    ) {
       // Map to backend's expected fields for customer
       payload = {
         firebaseUid: user.uid,
@@ -114,7 +121,10 @@ export const registerUser = async (
 
     // Use correct function key for each user type
     let functionKey: CloudFunctionKey;
-    if (normalizedUserType === "individual" || normalizedUserType === "customer") {
+    if (
+      normalizedUserType === "individual" ||
+      normalizedUserType === "customer"
+    ) {
       functionKey = "registerCustomer";
     } else if (normalizedUserType === "vendor") {
       functionKey = "registerVendor";
@@ -123,33 +133,38 @@ export const registerUser = async (
     } else {
       throw new Error("Unknown user type for registration");
     }
-    
-    console.log('Registering user with payload:', { ...payload, customerPassword: '[REDACTED]' });
-    
+
+    console.log("Registering user with payload:", {
+      ...payload,
+      customerPassword: "[REDACTED]",
+    });
+
     const response = await fetch(CLOUD_FUNCTIONS[functionKey], {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      console.error('Registration failed:', {
+      console.error("Registration failed:", {
         status: response.status,
         statusText: response.statusText,
-        error: errorData
+        error: errorData,
       });
-      
+
       // If database registration fails, delete the Firebase user
       await user.delete();
-      throw new Error(errorData?.message || 'Failed to register user in database');
+      throw new Error(
+        errorData?.message || "Failed to register user in database"
+      );
     }
 
     return user;
   } catch (error: any) {
-    console.error('Registration error:', error);
+    console.error("Registration error:", error);
     throw error;
   }
 };
@@ -158,7 +173,11 @@ export const registerUser = async (
 export const loginUser = async (email: string, password: string) => {
   try {
     // Login with Firebase
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     const user = userCredential.user;
 
     // Store Firebase UID in localStorage for dashboard role lookup
@@ -166,23 +185,23 @@ export const loginUser = async (email: string, password: string) => {
 
     // Get user role from cloud function
     const response = await fetch(CLOUD_FUNCTIONS.getRole, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        firebaseUid: user.uid
+        firebaseUid: user.uid,
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to get user role');
+      throw new Error("Failed to get user role");
     }
 
     const data = await response.json();
     return { user, role: data.role };
   } catch (error: any) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     throw error;
   }
 };
@@ -196,26 +215,26 @@ export const signInWithGoogle = async (userType: string) => {
 
     // Sync user data with cloud function
     const response = await fetch(CLOUD_FUNCTIONS.syncUser, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         firebaseUid: user.uid,
         email: user.email,
         userType,
         displayName: user.displayName,
-        photoURL: user.photoURL
+        photoURL: user.photoURL,
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to sync user data');
+      throw new Error("Failed to sync user data");
     }
 
     return user;
   } catch (error: any) {
-    console.error('Google sign in error:', error);
+    console.error("Google sign in error:", error);
     throw error;
   }
 };
@@ -231,26 +250,26 @@ export const signInWithYahoo = async (userType: string) => {
 
     // Sync user data with cloud function
     const response = await fetch(CLOUD_FUNCTIONS.syncUser, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         firebaseUid: user.uid,
         email: user.email,
         userType,
         displayName: user.displayName,
-        photoURL: user.photoURL
+        photoURL: user.photoURL,
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to sync user data');
+      throw new Error("Failed to sync user data");
     }
 
     return user;
   } catch (error: any) {
-    console.error('Yahoo sign in error:', error);
+    console.error("Yahoo sign in error:", error);
     throw error;
   }
 };
