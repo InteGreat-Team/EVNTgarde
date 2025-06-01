@@ -1,20 +1,48 @@
-import React from "react"
-// import { BarChart3 } from "lucide-react"
+import React, { useEffect, useState } from "react";
+import AnalyticsOverviewDashboard from "./AnalyticsOverviewDashboard";
+
+type userType = "organizer" | "vendor" | "customer" | "superadmin";
 
 const AnalyticsOverview: React.FC = () => {
+  const [userType, setUserRole] = useState<userType>("organizer");
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem("userType");
+    if (
+      storedRole === "organizer" ||
+      storedRole === "vendor" ||
+      storedRole === "customer"
+    ) {
+      setUserRole(storedRole);
+    } else if (storedRole === "individual") {
+      setUserRole("customer");
+    } else {
+      setUserRole("organizer");
+    }
+  }, []);
+
+  const isOrganizer = userType === "organizer";
+  const isSuperadmin = userType === "superadmin" || userType === "customer";
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm h-[700px]">
-      <iframe
-        title="Super Admin Dashboard"
-        width="100%"
-        height="100%"
-        src="https://app.powerbi.com/reportEmbed?reportId=fe3fa790-09ed-4957-a328-5c04f3ac7536&autoAuth=true&ctid=2840082d-702c-4fb1-9885-abddd1ddaa1e"
-        frameBorder="0"
-        allowFullScreen
-        className="w-full h-full rounded-lg"
-      ></iframe>
+      {isSuperadmin ? (
+        <AnalyticsOverviewDashboard
+          reportId="fe3fa790-09ed-4957-a328-5c04f3ac7536"
+          ctid="2840082d-702c-4fb1-9885-abddd1ddaa1e"
+          title="Super Admin Dashboard"
+        />
+      ) : isOrganizer ? (
+        <AnalyticsOverviewDashboard
+          reportId="069524ac-36ab-42ae-b6bc-e58a76935c81"
+          ctid="2840082d-702c-4fb1-9885-abddd1ddaa1e"
+          title="Organizer Dashboard"
+        />
+      ) : (
+        <AnalyticsOverviewDashboard reportId={""} ctid={""} title={""} />
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default AnalyticsOverview
+export default AnalyticsOverview;
