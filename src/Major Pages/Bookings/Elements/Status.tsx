@@ -2,6 +2,7 @@
 import React, { useState } from "react"
 import LeaveReviewOrganizer from './LeaveReviewOrganizer'
 import LeaveReviewCustomer from './LeaveReview'
+import CreateGuestListModal from "./CreateGuestListModal"
 
 interface StatusProps {
   activeStatus?: "Pending" | "Upcoming" | "Past" | "Rejected" | "Draft"
@@ -36,6 +37,7 @@ const Status: React.FC<StatusProps> = ({
 }) => {
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [reviewMode, setReviewMode] = useState<'event' | 'vendor'>('event')
+  const [showGuestListModal, setShowGuestListModal] = useState(false)
 
   const dates = {
     requestDate: selectedBooking?.requestDate || "Aug 1, 2025",
@@ -199,10 +201,19 @@ const Status: React.FC<StatusProps> = ({
 
                       <button
                         className="w-full bg-red-600 rounded-md py-3 px-4 text-white font-medium hover:bg-red-800"
-                        onClick={() => console.log("Create Guest List")}
+                        onClick={() => setShowGuestListModal(true)}
                       >
                         Create Guest List
                       </button>
+                      {showGuestListModal && (
+        <CreateGuestListModal
+          isOpen={showGuestListModal}
+          onClose={() => setShowGuestListModal(false)}
+          onNext={(mode) => {
+            console.log("Selected mode:", mode)
+            setShowGuestListModal(false)
+            // Handle the next step based on the selected mode
+          }}
                     </>
                   )}
                 </div>
