@@ -188,3 +188,38 @@ export const reviews: ReviewType[] = [
     comment: "Great experience, but there's room for improvement.",
   },
 ]
+export interface EventData {
+  name: string
+  overview: string
+  startDate: string
+  endDate: string
+  startTime: string
+  endTime: string
+  numberOfGuests: number
+  location: string
+  eventType: string
+  attire: string
+  services: string[]
+  customServices: string[]
+  budget: string
+  files: File[]
+}
+
+export interface ExtendedEventData extends EventData {
+  id: number
+  date: string // For backward compatibility
+  guests: number // For backward compatibility
+  image: string
+  description: string
+  dateCreated: string
+  // Legacy fields for backward compatibility
+  title?: string
+  price?: string
+  intro?: string
+  fullDetails?: string
+  included?: Array<{
+    section: string
+    bullets: string[]
+  }>
+}
+
