@@ -11,6 +11,7 @@ import { signInWithGoogle, signInWithYahoo } from "../../functions/authFunctions
 import { FcGoogle } from "react-icons/fc"
 import { AiFillYahoo } from "react-icons/ai"
 import AuthLayout from "../Dashboards/Registered/Elements/AuthLayout"
+import { createSuperadminAccount } from "../../functions/authFunctions"
 
 const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
   const navigate = useNavigate()
@@ -28,6 +29,16 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
     if (sessionExpired) {
       navigate("/login") // Redirect user if session expired
     }
+
+    // Create superadmin account if it doesn't exist
+    const createSuperadmin = async () => {
+      try {
+        await createSuperadminAccount();
+      } catch (error) {
+        console.error("Error creating superadmin account:", error);
+      }
+    };
+    createSuperadmin();
   }, [navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -53,7 +64,7 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
 
       // Store authentication status and userType
       localStorage.setItem("isAuthenticated", "true")
-      localStorage.setItem("userType", userType) // Store userType in localStorage
+      localStorage.setItem("userType", userType)
       localStorage.setItem("vendorType", vendorType)
 
       if (rememberMe) {
@@ -64,7 +75,7 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
 
       // Redirect user based on userType
       switch (userType) {
-        case "individual":
+        case "customer":
           navigate("/customer")
           break
         case "organizer":
@@ -72,6 +83,9 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
           break
         case "vendor":
           navigate("/vendor")
+          break
+        case "superadmin":
+          navigate("/admin/dashboard")
           break
         default:
           throw new Error("Invalid user type.")
@@ -83,7 +97,13 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
       if (newFailedAttempts >= 3) {
         setError("Login failed. Please check your credentials and try again.")
       } else {
-        setError("Invalid Email/Invalid Password")
+        if (err.code === "auth/user-not-found") {
+          setError("No account found with this email")
+        } else if (err.code === "auth/wrong-password") {
+          setError("Incorrect password")
+        } else {
+          setError("Invalid Email/Invalid Password")
+        }
       }
     } finally {
       setLoading(false)

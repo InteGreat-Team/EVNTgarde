@@ -29,6 +29,15 @@ interface ParsedEmployee {
 
 const mockEmployees: Employee[] = [
   {
+    id: "#EMP00",
+    name: "System Admin",
+    gender: "Male",
+    sms: "+639123456789",
+    email: "admin@evntgarde.com",
+    role: "Superadmin",
+    status: "active",
+  },
+  {
     id: "#EMP01",
     name: "John Doe",
     gender: "Male",

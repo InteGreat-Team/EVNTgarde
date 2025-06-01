@@ -4,7 +4,7 @@ export interface UserData {
     companyName?: string
     email: string
     phone?: string
-    userType: "customer" | "organizer" | "vendor"
+    userType: "customer" | "organizer" | "vendor" | "superadmin"
     industry?: string
     preferences?: string[]
     vendorType?: "solo" | "company"
@@ -84,7 +84,7 @@ export interface Notification {
 
 export interface User {
   id: string
-  type: "customer" | "organizer"
+  type: "customer" | "organizer" | "vendor" | "superadmin"
   name: string
   email: string
 }

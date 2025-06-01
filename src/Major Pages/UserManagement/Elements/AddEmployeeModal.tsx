@@ -197,6 +197,17 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                   <input
                     type="radio"
                     name="role"
+                    value="Superadmin"
+                    checked={formData.role === "Superadmin"}
+                    onChange={(e) => handleInputChange("role", e.target.value)}
+                    className="mr-2 text-[#3061AD] focus:ring-[#3061AD]"
+                  />
+                  <span className="text-sm text-gray-700">Superadmin</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="role"
                     value="Manager"
                     checked={formData.role === "Manager"}
                     onChange={(e) => handleInputChange("role", e.target.value)}

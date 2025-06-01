@@ -62,6 +62,8 @@ const App: React.FC = () => {
         return "/dashboard";
       case "vendor":
         return "/dashboard";
+      case "superadmin":
+        return "/dashboard";
       default:
         return "/";
     }
@@ -151,7 +153,7 @@ const App: React.FC = () => {
             <Route path="/rsvp" element={<RSVP />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/user-management" element={<UserManagement />} />
-            <Route path="/profile-settings" element={<ProfileSettings />} />s
+            <Route path="/profile-settings" element={<ProfileSettings />} />
             {/* temp route for organizer viewing */}
             <Route path="/organizers/:id" element={<OrganizerDetails />} />
           </Route>
