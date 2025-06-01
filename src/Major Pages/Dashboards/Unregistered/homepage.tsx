@@ -6,6 +6,8 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { ThemeToggle } from "../../../functions/ThemeToogle";
 import { useTheme } from "@/functions/ThemeContext";
 import { Button, Input } from "../../../Layout/combined-ui";
+import OragnizerLogo from "../../../assets/OrganizerLogo.png";
+import Banner from "../../../assets/banner.jpg";
 
 const Homepage: React.FC = () => {
   //const [searchQuery, setSearchQuery] = useState("");
@@ -103,7 +105,7 @@ const Homepage: React.FC = () => {
           <div className="flex-1">
             <Link to="/" className="flex items-center gap-2">
               <img
-                src="../../src/assets/OrganizerLogo.png"
+                src={OragnizerLogo}
                 alt="Logo"
                 className="h-8 w-auto object-contain"
               />
@@ -180,7 +182,7 @@ const Homepage: React.FC = () => {
         <section className="relative overflow-hidden bg-gray-900">
           <div className="absolute inset-0">
             <img
-              src="../../src/assets/banner.jpg"
+              src={Banner}
               alt="Concert background"
               className="h-full w-full object-cover"
             />
@@ -190,7 +192,7 @@ const Homepage: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center">
               <div className="mb-8 sm:mb-0 sm:mr-8 flex-shrink-0">
                 <img
-                  src="../../src/assets/OrganizerLogo.png"
+                  src={OragnizerLogo}
                   alt="Event Logo"
                   className="h-65 sm:h-64 lg:h-[250px] w-auto object-contain"
                 />
@@ -489,7 +491,7 @@ const Homepage: React.FC = () => {
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/3 mb-8 md:mb-0 pr-8">
                 <img
-                  src="../../src/assets/OrganizerLogo.png"
+                  src={OragnizerLogo}
                   alt="Logo"
                   className="h-28 w-auto mb-4"
                 />
