@@ -1,224 +1,228 @@
-import type React from "react"
-import { useState } from "react"
-import Card from "./MyEventsCard"
-import clipboardImage from "../../../../assets/clipboard.png"
-import { CreateEventModal } from "./CreateEventModal"
-import { EventDetailsView } from "./EventDetailsView"
-import type { EventData, ExtendedEventData } from "../../../../functions/types"
+import type React from "react";
+import { useState, useEffect } from "react";
+import Card from "./MyEventsCard";
+import clipboardImage from "../../../../assets/clipboard.png";
+import { CreateEventModal } from "./CreateEventModal";
+import { getAuth } from "firebase/auth";
+import { EventData } from "../../../../functions/types";
+import { CLOUD_FUNCTIONS } from "@/config/cloudFunctions";
+import {
+  getCustomerEvents,
+  getOrganizerEvents,
+} from "../../../../functions/eventFunctions";
 
 // mockEvents if there are no events
 //const allEvents: any[] = []
 
 // mockEvents if there are events
-const initialMockEvents: ExtendedEventData[] = [
-  {
-    id: 1,
-    name: "Aliana's Birthday Party",
-    title: "Aliana's Birthday Party",
-    date: "2025-09-11",
-    location: "UP Diliman, Quezon City",
-    guests: 1234,
-    price: "Php 150,000",
-    attire: "Casual",
-    image: "/placeholder.svg",
-    description:
-      "A fun-filled birthday celebration with friends and family featuring live music, games, and delicious food.",
-    overview:
-      "A fun-filled birthday celebration with friends and family featuring live music, games, and delicious food.",
-    intro: "A fun-filled birthday celebration with friends and family featuring live music, games, and delicious food.",
-    fullDetails:
-      "A fun-filled birthday celebration with friends and family featuring live music, games, and delicious food.",
-    dateCreated: "2025-01-15T10:30:00.000Z",
-    included: [
-      {
-        section: "Event Details",
-        bullets: [
-          "Date: Sept 11, 2025",
-          "Time: 5:00 PM to 10:00 PM",
-          "Location: UP Diliman, Quezon City",
-          "Type: Birthday",
-          "Attire: Casual",
-          "Guests: 1,234",
-        ],
-      },
-      {
-        section: "Services",
-        bullets: ["Catering Services", "Photography", "Sound System"],
-      },
-    ],
-    eventType: "Birthday",
-    startDate: "2025-09-11",
-    endDate: "2025-09-11",
-    startTime: "17:00",
-    endTime: "22:00",
-    numberOfGuests: 1234,
-    services: ["Catering Services", "Sound System"],
-    customServices: ["Photography"],
-    budget: "Php 150,000",
-    files: [],
-  },
-  {
-    id: 2,
-    name: "Corporate Annual Gala",
-    title: "Corporate Annual Gala",
-    date: "2025-12-15",
-    location: "Manila Hotel, Ermita, Manila",
-    guests: 500,
-    price: "Php 800,000",
-    attire: "Formal",
-    image: "/placeholder.svg",
-    description:
-      "An elegant corporate gala dinner celebrating the company's achievements with awards ceremony and networking.",
-    overview:
-      "An elegant corporate gala dinner celebrating the company's achievements with awards ceremony and networking.",
-    intro:
-      "An elegant corporate gala dinner celebrating the company's achievements with awards ceremony and networking.",
-    fullDetails:
-      "An elegant corporate gala dinner celebrating the company's achievements with awards ceremony and networking.",
-    dateCreated: "2025-01-10T14:20:00.000Z",
-    included: [
-      {
-        section: "Event Details",
-        bullets: [
-          "Date: Dec 15, 2025",
-          "Time: 6:00 PM to 11:00 PM",
-          "Location: Manila Hotel, Ermita, Manila",
-          "Type: Corporate",
-          "Attire: Formal",
-          "Guests: 500",
-        ],
-      },
-      {
-        section: "Services",
-        bullets: ["Premium Catering", "Event Coordination", "Audio Visual Equipment", "Floral Arrangements"],
-      },
-    ],
-    eventType: "Corporate",
-    startDate: "2025-12-15",
-    endDate: "2025-12-15",
-    startTime: "18:00",
-    endTime: "23:00",
-    numberOfGuests: 500,
-    services: ["Premium Catering", "Event Coordination", "Audio Visual Equipment"],
-    customServices: ["Floral Arrangements"],
-    budget: "Php 800,000",
-    files: [],
-  },
-  {
-    id: 3,
-    name: "Sarah & John's Wedding",
-    title: "Sarah & John's Wedding",
-    date: "2025-06-20",
-    location: "Tagaytay Highlands, Cavite",
-    guests: 200,
-    price: "Php 500,000",
-    attire: "Formal",
-    image: "/placeholder.svg",
-    description: "A romantic garden wedding ceremony and reception with breathtaking views of Taal Lake and volcano.",
-    overview: "A romantic garden wedding ceremony and reception with breathtaking views of Taal Lake and volcano.",
-    intro: "A romantic garden wedding ceremony and reception with breathtaking views of Taal Lake and volcano.",
-    fullDetails: "A romantic garden wedding ceremony and reception with breathtaking views of Taal Lake and volcano.",
-    dateCreated: "2025-01-05T09:15:00.000Z",
-    included: [
-      {
-        section: "Event Details",
-        bullets: [
-          "Date: June 20, 2025",
-          "Time: 3:00 PM to 10:00 PM",
-          "Location: Tagaytay Highlands, Cavite",
-          "Type: Wedding",
-          "Attire: Formal",
-          "Guests: 200",
-        ],
-      },
-      {
-        section: "Services",
-        bullets: ["Wedding Catering", "Bridal Car", "Wedding Photography", "Videography", "Flowers & Decoration"],
-      },
-    ],
-    eventType: "Wedding",
-    startDate: "2025-06-20",
-    endDate: "2025-06-20",
-    startTime: "15:00",
-    endTime: "22:00",
-    numberOfGuests: 200,
-    services: ["Wedding Catering", "Wedding Photography", "Videography"],
-    customServices: ["Bridal Car", "Flowers & Decoration"],
-    budget: "Php 500,000",
-    files: [],
-  },
-]
 
 interface Props {
-  onBack: () => void
-  onAdd: () => void
+  onBack: () => void;
+  onAdd: () => void;
+}
+
+interface BackendEvent {
+  event_id: string;
+  event_name: string;
+  event_desc: string;
+  start_date: string;
+  end_date: string;
+  start_time: string;
+  end_time: string;
+  guests: number;
+  location: string;
+  event_type_name: string;
+  attire: string;
+  services: string;
+  additional_services: string;
+  budget: string;
+  event_status: string;
+}
+
+interface EventType {
+  event_type_id: number;
+  event_type_name: string;
 }
 
 const MyEvents: React.FC<Props> = ({ onAdd }) => {
-  const [selectedEvent, setSelectedEvent] = useState<ExtendedEventData | null>(null)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [events, setEvents] = useState<ExtendedEventData[]>(initialMockEvents)
-  const [showEventDetails, setShowEventDetails] = useState(false)
+  const [, setSelectedEvent] = useState<BackendEvent | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [events, setEvents] = useState<BackendEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const auth = getAuth();
+  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
 
-  const handleView = (event: ExtendedEventData) => {
-    setSelectedEvent(event)
-    setShowEventDetails(true)
-  }
+  useEffect(() => {
+    fetchEvents();
+    fetchEventTypes();
+  }, []);
 
-  const handleBackToList = () => {
-    setShowEventDetails(false)
-    setSelectedEvent(null)
-  }
+  const fetchEvents = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setError("User not authenticated");
+        setLoading(false);
+        return;
+      }
+
+      // First try to get role from Firebase custom claims
+      const idTokenResult = await user.getIdTokenResult();
+      let roleId = idTokenResult.claims.role_id;
+      console.log("User role ID from claims:", roleId);
+
+      // If role_id is not in claims, fetch it from backend
+      if (!roleId) {
+        console.log("Role ID not found in claims, fetching from backend...");
+        const response = await fetch(CLOUD_FUNCTIONS.getRole, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firebaseUid: user.uid,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to get user role");
+        }
+
+        const data = await response.json();
+        roleId = data.roleId;
+        console.log("User role ID from backend:", roleId);
+      }
+
+      let events;
+      // Check if roleId exists and is a number
+      if (
+        typeof roleId === "number" ||
+        (typeof roleId === "string" && !isNaN(Number(roleId)))
+      ) {
+        const numericRoleId = Number(roleId);
+        if (numericRoleId === 1) {
+          // Customer role
+          console.log("Fetching customer events..."); // Debug log
+          events = await getCustomerEvents(user.uid, roleId);
+        } else if (numericRoleId === 2) {
+          // Organizer role
+          console.log("Fetching organizer events..."); // Debug log
+          events = await getOrganizerEvents(user.uid, roleId);
+        } else {
+          console.error("Invalid role ID value:", roleId); // Debug log
+          throw new Error(`Invalid role ID: ${roleId}`);
+        }
+      } else {
+        console.error("Role ID is not a valid number:", roleId); // Debug log
+        throw new Error("Role ID is not a valid number");
+      }
+
+      setEvents(events?.data || []);
+      setLoading(false);
+    } catch (err: any) {
+      console.error("Error in fetchEvents:", err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const fetchEventTypes = async () => {
+    try {
+      const response = await fetch(
+        "https://asia-southeast1-evntgarde-event-management.cloudfunctions.net/getEventTypes",
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.success && Array.isArray(data.data)) {
+        setEventTypes(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching event types:", err);
+    }
+  };
+
+  const handleView = (event: BackendEvent) => {
+    setSelectedEvent(event);
+  };
 
   const handleCreateEvent = () => {
-    // Call the original onAdd function for backward compatibility
-    if (onAdd) onAdd()
+    if (onAdd) onAdd();
+    setIsCreateModalOpen(true);
+  };
 
-    // Open the create event modal
-    setIsCreateModalOpen(true)
-  }
+  const handleSaveEvent = async (eventData: EventData) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
 
-  const handleSaveEvent = (eventData: EventData) => {
-    // Create a new event object from the form data
-    const newEvent: ExtendedEventData = {
-      ...eventData, // Spread all EventData properties
-      id: Date.now(), // Simple ID generation
-      date: eventData.startDate, // For backward compatibility with card display
-      guests: eventData.numberOfGuests, // For backward compatibility
-      image: "/placeholder.svg",
-      description: eventData.overview,
-      dateCreated: new Date().toISOString(),
-      // Legacy fields for backward compatibility
-      title: eventData.name,
-      price: eventData.budget,
-      intro: eventData.overview.substring(0, 100) + (eventData.overview.length > 100 ? "..." : ""),
-      fullDetails: eventData.overview,
-      included: [
+      console.log("eventData before payload", eventData);
+      // Use event_type_id directly from eventData.eventType
+      const eventTypeId = Number(eventData.eventType);
+      console.log("eventTypeId:", eventTypeId, typeof eventTypeId);
+      if (eventTypeId === null || isNaN(eventTypeId)) {
+        throw new Error("Invalid event type selected.");
+      }
+
+      const eventPayload = {
+        event_name: eventData.name,
+        event_type_id: eventTypeId,
+        start_date: eventData.startDate,
+        end_date: eventData.endDate,
+        start_time: eventData.startTime,
+        end_time: eventData.endTime,
+        event_location: eventData.location,
+        // Optional/extra fields
+        event_overview: eventData.overview,
+        guests: eventData.numberOfGuests,
+        attire: eventData.attire,
+        services: Array.isArray(eventData.services)
+          ? eventData.services.join(", ")
+          : "",
+        additional_services: Array.isArray(eventData.customServices)
+          ? eventData.customServices.join(", ")
+          : "",
+        budget: eventData.budget,
+        customer_id: user.uid,
+        organizer_id: null,
+        venue_id: null,
+      };
+
+      const response = await fetch(
+        "https://asia-southeast1-evntgarde-event-management.cloudfunctions.net/createEvent",
         {
-          section: "Event Details",
-          bullets: [
-            `Date: ${new Date(eventData.startDate).toLocaleDateString()} to ${new Date(eventData.endDate).toLocaleDateString()}`,
-            `Time: ${eventData.startTime} to ${eventData.endTime}`,
-            `Location: ${eventData.location}`,
-            `Type: ${eventData.eventType}`,
-            `Attire: ${eventData.attire}`,
-            `Guests: ${eventData.numberOfGuests}`,
-          ],
-        },
-        {
-          section: "Services",
-          bullets: [...eventData.services, ...eventData.customServices],
-        },
-      ],
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(eventPayload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create event");
+      }
+
+      // Refresh events list
+      await fetchEvents();
+      setIsCreateModalOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create event");
     }
+  };
 
-    // Add the new event to the events array
-    setEvents((prevEvents) => [...prevEvents, newEvent])
+  if (loading) {
+    return <div className="p-4">Loading events...</div>;
   }
 
-  // Show event details view if an event is selected
-  if (showEventDetails && selectedEvent) {
-    return <EventDetailsView event={selectedEvent} onBack={handleBackToList} />
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error}</div>;
   }
 
   return (
@@ -239,8 +243,14 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
       {/* Check if there are no events */}
       {events.length === 0 && (
         <div className="bg-gray-100 p-8 rounded-lg flex flex-col items-center space-y-4">
-          <img src={clipboardImage || "/placeholder.svg"} alt="Clipboard" className="w-16 h-16" />
-          <p className="text-gray-700 text-lg font-semibold">You have not created an event yet.</p>
+          <img
+            src={clipboardImage || "/placeholder.svg"}
+            alt="Clipboard"
+            className="w-16 h-16"
+          />
+          <p className="text-gray-700 text-lg font-semibold">
+            You have not created an event yet.
+          </p>
         </div>
       )}
 
@@ -249,13 +259,13 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {events.map((event) => (
             <Card
-              key={event.id}
-              name={event.name}
-              date={event.date}
+              key={event.event_id}
+              name={event.event_name}
+              date={event.start_date}
               location={event.location}
               guests={event.guests}
-              image={event.image}
-              description={event.description}
+              image="/placeholder.svg"
+              description={event.event_desc}
               onView={() => handleView(event)}
             />
           ))}
@@ -266,13 +276,10 @@ const MyEvents: React.FC<Props> = ({ onAdd }) => {
       <CreateEventModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onSave={(eventData: EventData) => {
-          handleSaveEvent(eventData)
-          setIsCreateModalOpen(false)
-        }}
+        onSave={handleSaveEvent}
       />
     </div>
-  )
-}
+  );
+};
 
-export default MyEvents
+export default MyEvents;

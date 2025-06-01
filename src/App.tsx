@@ -37,33 +37,57 @@ import OrganizerDetails from "./Major Pages/Dashboards/Registered/Elements/Organ
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userType, setUserType] = useState<string | null>(null);
+  const [, setUserType] = useState<string | null>(null);
+  const [roleId, setRoleId] = useState<string | null>(null);
 
   useEffect(() => {
     const authStatus = localStorage.getItem("isAuthenticated") === "true";
     const storedUserType = localStorage.getItem("userType");
+    const storedRoleId = localStorage.getItem("roleId");
 
     setIsAuthenticated(authStatus);
     setUserType(storedUserType);
+    setRoleId(storedRoleId);
   }, []);
 
-  const login = () => {
+  // Function to determine the correct route based on role_id
+  const getDashboardRoute = () => {
+    switch (roleId) {
+      case "1":
+        return "/dashboard"; // Customer
+      case "2":
+        return "/dashboard"; // Organizer
+      case "3":
+        return "/dashboard"; // Vendor
+      // Add more cases here for new user types as needed
+      default:
+        return "/dashboard";
+    }
+  };
+
+  const login = async () => {
     setIsAuthenticated(true);
     const storedUserType = localStorage.getItem("userType");
     setUserType(storedUserType);
-  };
-
-  // Function to determine the correct route based on userType
-  const getDashboardRoute = () => {
-    switch (userType) {
-      case "individual":
-        return "/dashboard";
-      case "organizer":
-        return "/dashboard";
-      case "vendor":
-        return "/dashboard";
-      default:
-        return "/";
+    // Check user's role_id from backend using firebase_uid
+    const firebaseUid = localStorage.getItem("userId");
+    if (firebaseUid) {
+      try {
+        const response = await fetch("http://localhost:5000/api/getRole", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ firebaseUid }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem("roleId", data.roleId);
+          setRoleId(data.roleId); // Update state
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }
     }
   };
 
@@ -117,15 +141,15 @@ const App: React.FC = () => {
 
         <Route
           path="/register/individual"
-          element={<IndividualRegistration />}
+          element={<IndividualRegistration step={1} />}
         />
         <Route
           path="/register/individual/step2"
-          element={<IndividualRegistration />}
+          element={<IndividualRegistration step={2} />}
         />
         <Route
           path="/register/individual/step3"
-          element={<IndividualRegistration />}
+          element={<IndividualRegistration step={3} />}
         />
 
         <Route
