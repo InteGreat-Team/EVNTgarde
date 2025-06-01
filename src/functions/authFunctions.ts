@@ -180,6 +180,13 @@ export const loginUser = async (email: string, password: string) => {
     );
     const user = userCredential.user;
 
+    console.log("Sending firebaseUid to getRole:", user.uid); // <--- ADD THIS LINE FOR DEBUGGING
+    if (!user.uid) {
+      console.error(
+        "User UID is null or undefined before sending to Cloud Function!"
+      );
+      throw new Error("Cannot get user role: User UID is missing."); // Or handle this gracefully
+    }
     // Store Firebase UID in localStorage for dashboard role lookup
     localStorage.setItem("firebaseUid", user.uid);
 
