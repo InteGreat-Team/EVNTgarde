@@ -132,6 +132,7 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
   const [, setUserRole] = useState<"organizer" | "individual" | "vendor">(
     "organizer"
   );
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   useEffect(() => {
     const storedUserType = localStorage.getItem("userType");
@@ -192,7 +193,7 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
   const handleFinish = () => {
     // Here you would typically save the data or perform an API call
     console.log("Service data:", serviceData);
-    onClose();
+    setShowConfirmationModal(true);
   };
 
   const handleSelectEvent = (booking: Booking) => {
@@ -213,6 +214,11 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
   };
 
   const renderTitle = () => "Book Organizer";
+
+  const handleConfirmationClose = () => {
+    setShowConfirmationModal(false);
+    onClose(); // Close the main modal
+  };
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
@@ -639,6 +645,30 @@ export const BookingStepsModal: React.FC<AddServiceModalProps> = ({
           )}
         </div>
       </div>
+      {/* Confirmation Modal */}
+      {showConfirmationModal && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-60">
+          <div className="bg-white rounded-lg w-full max-w-md mx-6 relative shadow-xl">
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check size={32} className="text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Booking Request Sent!
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Booking Request sent to organizer
+              </p>
+              <button
+                onClick={handleConfirmationClose}
+                className="w-full py-3 px-6 bg-[#2B579A] text-white rounded-md hover:bg-blue-700 text-base font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
