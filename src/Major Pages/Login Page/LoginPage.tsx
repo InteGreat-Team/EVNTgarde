@@ -3,14 +3,21 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import Logo from "../../assets/OrganizerLogo.png";
 import { useNavigate } from "react-router-dom";
-import { loginUser, signInWithGoogle, signInWithYahoo, checkSessionExpiry } from "../../functions/authFunctions";
+import {
+  loginUser,
+  signInWithGoogle,
+  signInWithYahoo,
+  checkSessionExpiry,
+} from "../../functions/authFunctions";
 import { useTheme } from "../../functions/ThemeContext";
 import { FcGoogle } from "react-icons/fc";
 import { AiFillYahoo } from "react-icons/ai";
+import { useRole } from "@/functions/RoleContext";
 
 const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const { refreshRole, roleId, isLoading: roleIsLoading } = useRole();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +30,14 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
     if (sessionExpired) {
       navigate("/login"); // Redirect user if session expired
     }
+    if (roleId && !loading && !roleIsLoading) {
+      navigate("/dashboard");
+    }
     // Redirect to dashboard if authenticated
     if (localStorage.getItem("isAuthenticated") === "true") {
       navigate("/dashboard");
     }
-  }, [navigate]);
+  }, [roleId, loading, roleIsLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +52,7 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
 
     try {
       const { user, role } = await loginUser(email, password);
-      
+
       if (!user) {
         throw new Error("Login failed: No user returned");
       }
@@ -52,10 +62,15 @@ const LoginPage: React.FC<{ login: () => void }> = ({ login }) => {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("loginTimestamp", Date.now().toString());
 
+      refreshRole();
+
       // Call the login callback
       login();
     } catch (err: any) {
-      if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
+      if (
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/wrong-password"
+      ) {
         setError("Invalid email or password");
       } else if (err.code === "auth/too-many-requests") {
         setError("Too many failed attempts. Please try again later.");

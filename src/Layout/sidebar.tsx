@@ -16,47 +16,52 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./combined-ui";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import OragnizerLogo from "../assets/OrganizerLogo.png";
+import { useRole } from "../functions/RoleContext"; // Import your useRole hook
 
 interface SidebarProps {
-  logout: () => void;
+  logout: () => void; // This `logout` prop should now handle signing out AND refreshing the role context
 }
 
 export function Sidebar({ logout }: SidebarProps) {
   const location = useLocation();
-  const isCollapsed = false;
+  const isCollapsed = false; // Assuming this is managed elsewhere or fixed for now
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [userType, setUserType] = useState(
-    localStorage.getItem("userType") === "individual"
-      ? "customer"
-      : localStorage.getItem("userType")
-  );
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setUserType(
-        localStorage.getItem("userType") === "individual"
-          ? "customer"
-          : localStorage.getItem("userType")
-      );
-    };
+  // --- Use roleId and isLoading from the RoleContext ---
+  const { roleId, isLoading } = useRole();
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  // Remove the old userType state and its useEffect
+  // const [userType, setUserType] = useState(...)
+  // useEffect(() => { ... }, []);
 
+  // Map numerical roleId to descriptive names for clearer logic, if needed
+  // Or directly use roleId strings in conditions
   const sidebarItems = useMemo(() => {
+    // If the role is still loading, or no role is determined, return an empty array
+    if (isLoading || !roleId) {
+      return [];
+    }
+
     const items = [
       { title: "Dashboard", icon: LayoutDashboard, href: `/dashboard` },
       { title: "Bookings", icon: CalendarDays, href: `/bookings` },
-      ...(userType === "customer" || userType === "organizer"
+
+      // RSVP: For Customer (roleId: "1") or Organizer (roleId: "2")
+      ...(roleId === "1" || roleId === "2"
         ? [{ title: "RSVP", icon: MailOpenIcon, href: `/rsvp` }]
         : []),
+
       { title: "Reviews", icon: Star, href: `/reviews` },
-      ...((userType === "vendor" &&
+
+      // User Management: For Vendor (roleId: "3" AND vendorType "Company Vendor") or Organizer (roleId: "2")
+      // Note: "vendorType" (e.g., "Company Vendor") is still read from localStorage as it's not in RoleContext.
+      // If this "vendorType" is also dynamic and related to the user's main role,
+      // you might consider fetching it via another context or including it with the role data.
+      ...((roleId === "3" &&
         localStorage.getItem("vendorType") === "Company Vendor") ||
-      userType === "organizer"
+      roleId === "2"
         ? [
             {
               title: "User Management",
@@ -73,7 +78,7 @@ export function Sidebar({ logout }: SidebarProps) {
     ];
 
     return items;
-  }, [userType]);
+  }, [roleId, isLoading]); // Re-calculate sidebar items when roleId or loading state changes
 
   const { isDarkMode } = useTheme();
 
@@ -82,6 +87,11 @@ export function Sidebar({ logout }: SidebarProps) {
   };
 
   const handleLogoutConfirm = () => {
+    // Call the logout prop from the parent component
+    // This `logout` function should be responsible for:
+    // 1. Signing out the user (e.g., Firebase signOut)
+    // 2. Clearing authentication status from localStorage
+    // 3. Calling `refreshRole()` from RoleContext (to clear roleId and localStorage.roleId)
     logout();
     setShowLogoutConfirm(false);
   };
@@ -105,22 +115,26 @@ export function Sidebar({ logout }: SidebarProps) {
 
       {/* Sidebar Navigation Items */}
       <div className="flex flex-col space-y-1 px-2">
-        {sidebarItems.map((item) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={`relative flex h-10 w-full items-center gap-3 rounded-md px-3 text-white transition-colors 
-              ${
-                isDarkMode
-                  ? `hover:bg-[#1E3A6D] ${location.pathname === item.href ? "bg-[#1E3A6D] after:w-full" : "after:w-0"}`
-                  : `hover:bg-[#2B579A] ${location.pathname === item.href ? "bg-[#2B579A] after:w-full" : "after:w-0"}`
-              }
-              relative after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-yellow-400 after:transition-all hover:after:w-full`}
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.title}</span>
-          </Link>
-        ))}
+        {isLoading ? ( // Show a loading indicator for sidebar items if role is still loading
+          <div className="text-white text-center py-4">Loading menu...</div>
+        ) : (
+          sidebarItems.map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={`relative flex h-10 w-full items-center gap-3 rounded-md px-3 text-white transition-colors
+                ${
+                  isDarkMode
+                    ? `hover:bg-[#1E3A6D] ${location.pathname === item.href ? "bg-[#1E3A6D] after:w-full" : "after:w-0"}`
+                    : `hover:bg-[#2B579A] ${location.pathname === item.href ? "bg-[#2B579A] after:w-full" : "after:w-0"}`
+                }
+                relative after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-yellow-400 after:transition-all hover:after:w-full`}
+            >
+              <item.icon className="h-5 w-5" />
+              <span>{item.title}</span>
+            </Link>
+          ))
+        )}
       </div>
 
       {/* Logout Button */}
@@ -128,7 +142,7 @@ export function Sidebar({ logout }: SidebarProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              className={`relative flex h-10 w-full items-center gap-3 rounded-md px-3 text-white transition-colors 
+              className={`relative flex h-10 w-full items-center gap-3 rounded-md px-3 text-white transition-colors
                 ${
                   isDarkMode
                     ? `hover:bg-[#1E3A6D] ${location.pathname === "/logout" ? "bg-[#1E3A6D] after:w-full" : "after:w-0"}`
